@@ -1,0 +1,4 @@
+# Byte-exact storage: no EOL conversion in either direction.
+# Guarantees the published blobs are byte-identical to the
+# md5-verified local copies of the 841855c archive.
+* -text

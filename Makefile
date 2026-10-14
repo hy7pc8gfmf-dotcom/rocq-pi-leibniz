@@ -1,0 +1,17 @@
+# rocq-pi-leibniz bootstrap Makefile.
+#
+# Regenerates Makefile.coq from _CoqProject and delegates every target
+# to it (standard recipe from the Rocq reference manual).  Prefers the
+# Rocq 9 command `rocq makefile` and falls back to `coq_makefile`.
+
+ROCQMAKEFILE := $(shell command -v rocq >/dev/null 2>&1 && echo "rocq makefile" || echo coq_makefile)
+
+all: coq
+
+%: Makefile.coq
+	+$(MAKE) -f $< $@
+
+Makefile.coq: _CoqProject
+	+$(ROCQMAKEFILE) -f $< -o $@
+
+.PHONY: all

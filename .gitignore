@@ -1,0 +1,21 @@
+# Rocq build artifacts
+*.aux
+*.glob
+*.vo
+*.vos
+*.vok
+*.v.d
+.*.v.d
+.lia.cache
+.nia.cache
+
+# Generated build files
+Makefile.coq
+Makefile.coq.conf
+Makefile.coq.lock
+
+# coqdoc output
+html/
+
+# Local opam switch
+_opam/
