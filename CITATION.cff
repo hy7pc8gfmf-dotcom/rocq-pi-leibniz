@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "rocq-pi-leibniz: constructive pi for the Rocq constructive Cauchy reals"
+message: >-
+  If you use this development, please cite it using the metadata below.
+authors:
+  - alias: hy7pc8gfmf-dotcom
+    # TODO(候令): 换为实名条目 given-names / family-names（与 opam authors 同步）
+version: 1.0.0
+date-released: "2026-10-15"
+license: LGPL-2.1
+repository-code: "https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz"
+keywords:
+  - pi
+  - constructive mathematics
+  - irrationality
+  - Cauchy reals
+  - Rocq
+  - formal verification
+abstract: >-
+  A constructive pi for the constructive Cauchy reals of the Rocq standard
+  library, realized by the alternating Leibniz series, with the premise-free
+  strong irrationality separation theorems pi_leibniz_strong_irrational and
+  pi_leibniz_appart_all_Q: pi is apart from every embedded rational with
+  explicit, extractable, runnable witnesses (zero axioms; extracted OCaml
+  with zero Obj.magic).
+# DOI: 候 ③ 拿到 DOI 后回填 preferred-citation 段
