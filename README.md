@@ -1,5 +1,7 @@
 # rocq-pi-leibniz
 
+[![CI](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml/badge.svg)](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml)
+
 Constructive pi for the Rocq constructive Cauchy reals — premise-free
 separation from every rational with extractable witnesses.
 
@@ -55,13 +57,14 @@ Krebbers and Spitters 2013, in the tradition of exact real arithmetic.
   proofs are explicit chains of rational-order lemmas; no automation
   tactic closes the main statements (`lia` appears only in small integer
   and rational literal bookkeeping steps, as in the engine file).
-- **Verified.**  The content modules compile green on Rocq 9.1 locally
-  and across the CI matrix of the hosting standard-library submission
-  (Alpine build and Rocq 9.2 / 9.3 / master Nix bundles; 180/180 checks
-  passed at the submitted head).  > Note: those verification runs were
-  performed in the standard-library integration context.  This
-  standalone package skeleton is expected to build with Rocq >= 9.1 but
-  has not yet been through its own package-level CI.
+- **Verified.**  This package has its own CI (GitHub Actions, Ubuntu,
+  pinned Rocq 9.1.1 + rocq-stdlib 9.1.0): full compile via the bootstrap
+  Makefile, `rocqchk -o` certification of the whole dependency closure
+  with an all-none assumption summary, and an assumption smoke check on
+  the two main theorems — currently green (badge above).  The content
+  modules also compiled green across the CI matrix of the hosting
+  standard-library submission (Alpine build and Rocq 9.2 / 9.3 / master
+  Nix bundles; 180/180 checks passed at the submitted head).
 
 ## Requirements
 
