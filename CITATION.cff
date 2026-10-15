@@ -6,6 +6,10 @@ authors:
   - family-names: Wang
     given-names: Baojun
     orcid: "https://orcid.org/0000-0001-4240-9045"
+  - family-names: Zhou
+    given-names: Zhinong
+    email: "zrm2000@126.com"
+    orcid: "https://orcid.org/0009-0001-3206-5824"
     alias: hy7pc8gfmf-dotcom
 version: 1.0.0
 date-released: "2026-10-15"
