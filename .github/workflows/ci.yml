@@ -74,7 +74,7 @@ jobs:
           mods="$mods pi_leibniz.PiLeibniz"
           echo "coqchk modules: $(echo "$mods" | wc -l)"
           echo $mods | tr ' ' '\n'
-          opam exec -- rocqchk -o -Q theories pi_leibniz -Q theories/Reals/Cauchy "" $mods | tee coqchk.log
+          opam exec -- rocqchk -o -Q theories pi_leibniz -Q theories/Reals/Cauchy "" $mods 2>&1 | tee coqchk.log
           grep -q "Modules were successfully checked" coqchk.log
           dirty=$(grep "Axioms:" coqchk.log | grep -vc "<none>" || true)
           echo "non-none Axioms sections: ${dirty}"
