@@ -53,8 +53,8 @@ jobs:
 
       - name: Toolchain version evidence
         run: |
-          opam exec -- coqc --version
-          opam exec -- coqchk --version
+          opam exec -- rocq c --version
+          opam exec -- rocqchk --version
 
       - name: Build (bootstrap Makefile.coq from _CoqProject, full compile)
         run: |
