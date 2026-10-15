@@ -3,8 +3,10 @@ title: "rocq-pi-leibniz: constructive pi for the Rocq constructive Cauchy reals"
 message: >-
   If you use this development, please cite it using the metadata below.
 authors:
-  - alias: hy7pc8gfmf-dotcom
-    # TODO(候令): 换为实名条目 given-names / family-names（与 opam authors 同步）
+  - family-names: Wang
+    given-names: Baojun
+    orcid: "https://orcid.org/0000-0001-4240-9045"
+    alias: hy7pc8gfmf-dotcom
 version: 1.0.0
 date-released: "2026-10-15"
 license: LGPL-2.1
@@ -23,4 +25,11 @@ abstract: >-
   pi_leibniz_appart_all_Q: pi is apart from every embedded rational with
   explicit, extractable, runnable witnesses (zero axioms; extracted OCaml
   with zero Obj.magic).
+related-identifiers:
+  - identifier: "10.6084/m9.figshare.34134429"
+    type: doi
+    relation-type: isSupplementTo
+  - identifier: "10.6084/m9.figshare.34062015"
+    type: doi
+    relation-type: references
 # DOI: 候 ③ 拿到 DOI 后回填 preferred-citation 段
