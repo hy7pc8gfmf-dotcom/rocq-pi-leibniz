@@ -96,8 +96,13 @@ Check pi_leibniz_appart_all_Q.
 Individual modules can be imported directly, e.g.
 
 ```coq
-From pi_leibniz Require Import Reals.Cauchy.PiSeparation.
+Require Import PiSeparation.
 ```
+
+(The content modules carry the bare logical names they were submitted
+with — `PiSeparation`, `PiKernelSlack`, … — so they are imported by
+short name; only the root re-export module lives under the `pi_leibniz`
+prefix.)
 
 ## Content map
 
@@ -137,9 +142,13 @@ The content modules are carried verbatim from the submitted state (head
 `841855c`) of the Rocq standard-library proposal *Add a constructive pi
 for the constructive Cauchy reals with a strong irrationality separation
 theorem* (PR #316, stacked on #313; both part of one independent
-constructive-formalization campaign).  No proof content was modified for
-this release; the packaging scaffolding (opam file, build files, README,
-package layout) is new.
+constructive-formalization campaign), with one exception: the two
+`Abbreviation` declarations in `PiKernelSlack.v` (`qpoly`, `S973`) are
+restated as the equivalent `Notation` declarations, because the
+`Abbreviation` vernac does not exist in Rocq 9.1 and this package keeps
+the 9.1 line as its compatibility floor.  No proof content is affected.
+The packaging scaffolding (opam file, build files, README, package
+layout) is new.
 
 ## Prior work
 

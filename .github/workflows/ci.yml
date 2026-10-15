@@ -1,0 +1,104 @@
+name: CI
+
+# Package-level CI for rocq-pi-leibniz (GitHub-hosted ubuntu runners).
+# Reference structure: the hosting campaign's ConstructiveWorld-Main coq.yml;
+# the self-hosted trust-cache seeding and thermal-guard segments do not
+# apply here and are intentionally absent.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: rocq-pi-leibniz-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Rocq ${{ matrix.rocq-version }} build + coqchk (ubuntu-latest)
+    runs-on: ubuntu-latest
+    strategy:
+      # Single-slot matrix: the Rocq 9.1 line.  Versions verified against the
+      # opam repository (2026-10-15): the 9.1-line prover is published as
+      # rocq-core / rocq-runtime (rocq-prover has no 9.1.x releases);
+      # rocq-core.9.1.1 is the latest 9.1-line patch and pins
+      # rocq-runtime {= version}; rocq-stdlib.9.1.0 is the only 9.1-line
+      # stdlib release and accepts rocq-core >= 9.0 & < 9.3.0.
+      matrix:
+        rocq-version: ["9.1.1"]
+        stdlib-version: ["9.1.0"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install system packages (GMP for zarith)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgmp-dev
+
+      - name: Set up OCaml 4.14 + opam (cached switch)
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 4.14.x
+          cache: true
+
+      - name: Install Rocq ${{ matrix.rocq-version }} toolchain (pinned)
+        run: |
+          opam install -y \
+            "rocq-core.${{ matrix.rocq-version }}" \
+            "rocq-stdlib.${{ matrix.stdlib-version }}"
+
+      - name: Toolchain version evidence
+        run: |
+          opam exec -- coqc --version
+          opam exec -- coqchk --version
+
+      - name: Build (bootstrap Makefile.coq from _CoqProject, full compile)
+        run: |
+          set -euo pipefail
+          opam exec -- make -j2
+          built=$(find theories -name '*.vo' | wc -l)
+          srcs=$(find theories -name '*.v' | wc -l)
+          echo "compiled .vo: ${built} / registered .v: ${srcs}"
+          [ "${built}" -eq "${srcs}" ]
+
+      - name: coqchk full-closure certification (assumption summary must be all-none)
+        run: |
+          set -euo pipefail
+          # Content modules carry bare logical names (empty-root mapping);
+          # only the root re-export module lives under the pi_leibniz prefix.
+          mods=$(find theories/Reals/Cauchy -name '*.vo' | sed -e 's|.*/||' -e 's|\.vo$||' | sort)
+          mods="$mods pi_leibniz.PiLeibniz"
+          echo "coqchk modules: $(echo "$mods" | wc -l)"
+          echo $mods | tr ' ' '\n'
+          opam exec -- rocqchk -o -Q theories pi_leibniz -Q theories/Reals/Cauchy "" $mods | tee coqchk.log
+          grep -q "Modules were successfully checked" coqchk.log
+          dirty=$(grep "Axioms:" coqchk.log | grep -vc "<none>" || true)
+          echo "non-none Axioms sections: ${dirty}"
+          [ "${dirty}" -eq 0 ]
+
+      - name: Smoke — root module loads, main theorems assumption-closed
+        run: |
+          set -euo pipefail
+          cat > /tmp/piu_smoke_tmp.v <<'EOF'
+          From Stdlib Require Import QArith.QArith.
+          From pi_leibniz Require Import PiLeibniz.
+          Print Assumptions pi_leibniz_strong_irrational.
+          Print Assumptions pi_leibniz_appart_all_Q.
+          EOF
+          opam exec -- rocq c -q -Q theories pi_leibniz -Q theories/Reals/Cauchy "" /tmp/piu_smoke_tmp.v 2>&1 | tee smoke.log
+          n=$(grep -c "Closed under the global context" smoke.log || true)
+          echo "assumption-closed count: ${n} (expect 2)"
+          [ "${n}" -eq 2 ]
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: |
+            coqchk.log
+            smoke.log

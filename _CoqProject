@@ -1,8 +1,19 @@
-# rocq-pi-leibniz: logical root of the package.
+# rocq-pi-leibniz: logical roots of the package.
 # Content modules are carried verbatim from the submitted state
 # (head 841855c); coq_makefile resolves the compile order.
+#
+# Two loadpath roots, order-sensitive (the later mapping wins for the
+# directories it covers):
+#   - "theories" is bound to "pi_leibniz" so the root re-export module is
+#     reachable as pi_leibniz.PiLeibniz (the opam logpath);
+#   - "theories/Reals/Cauchy" is then remapped to the empty root so every
+#     content module keeps the bare logical name it was carried with
+#     (the content files require each other by bare short name, e.g.
+#     "Require Import PiKernelSlack.", and Rocq resolves Require by
+#     exact logical name, not by suffix).
 
 -Q theories pi_leibniz
+-Q theories/Reals/Cauchy ""
 
 # Engine file (abstract escape-window engine, reused unchanged)
 theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v

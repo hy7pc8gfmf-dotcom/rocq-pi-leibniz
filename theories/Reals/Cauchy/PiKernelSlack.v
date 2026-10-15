@@ -645,7 +645,7 @@ Fixpoint qpoly_deriv_iter (n : nat) (p : QPoly) : QPoly :=
   end.
 (* Source notation alias: [qpoly] is notation for [QPoly] (the
    statement face keeps the source word form) *)
-Abbreviation qpoly := QPoly.
+Notation qpoly := QPoly.
 (* ---- [Q] powers and factorial tools (the carrier closure of the
    [lw0_Wb]/[sin]/Niven families) ---- *)
 Fixpoint q_pow (x : Q) (n : nat) : Q :=
@@ -775,7 +775,7 @@ Definition lw0_pi_d0_of (b : Q) : nat := Z.to_nat (Z.succ (Qceiling (Qabs b))).
 (* ---- Slack-constant notations (the rational constants used on the
          statement face; only the notation bodies are kept here,
          with no dependency on any external decision procedure) ---- *)
-Abbreviation S973 := (1 + (121 # 18) + (73205 # 5364))%Q.
+Notation S973 := (1 + (121 # 18) + (73205 # 5364))%Q.
 (* ============================================================ *)
 (* Section 6. Early-region [Q] micro-pieces and the shore-side order  *)
 (* budget family (statements and proof bodies carried verbatim; the   *)

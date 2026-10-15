@@ -17,28 +17,28 @@
     Rocq standard-library proposal; see the repository README for the
     provenance account. *)
 
-From pi_leibniz Require Export ConstructiveCauchyRealsSep.
-From pi_leibniz Require Export PiArctanFixedQ.
-From pi_leibniz Require Export PiBandBound.
-From pi_leibniz Require Export PiCompareT.
-From pi_leibniz Require Export PiCosApproxRoot.
-From pi_leibniz Require Export PiCosApproxRootSet.
-From pi_leibniz Require Export PiCosBandAssemble.
-From pi_leibniz Require Export PiCosPartialSeqCauchy.
-From pi_leibniz Require Export PiCosTailScan.
-From pi_leibniz Require Export PiCosZeroSeqConv.
-From pi_leibniz Require Export PiCosZeroSeqProbe.
-From pi_leibniz Require Export PiExpArch.
-From pi_leibniz Require Export PiExpTrigSeries.
-From pi_leibniz Require Export PiHalfwinSeed.
-From pi_leibniz Require Export PiKernelSlack.
-From pi_leibniz Require Export PiLeibnizCReal.
-From pi_leibniz Require Export PiPascalMachine.
-From pi_leibniz Require Export PiPascalResidue.
-From pi_leibniz Require Export PiPythBandDonor.
-From pi_leibniz Require Export PiRowIdentity.
-From pi_leibniz Require Export PiSeedSupplyShell.
-From pi_leibniz Require Export PiSeparation.
-From pi_leibniz Require Export PiVertexPolyDiff.
-From pi_leibniz Require Export PiWindowCore.
-From pi_leibniz Require Export QCauchyZeroCos.
+Require Export ConstructiveCauchyRealsSep.
+Require Export PiArctanFixedQ.
+Require Export PiBandBound.
+Require Export PiCompareT.
+Require Export PiCosApproxRoot.
+Require Export PiCosApproxRootSet.
+Require Export PiCosBandAssemble.
+Require Export PiCosPartialSeqCauchy.
+Require Export PiCosTailScan.
+Require Export PiCosZeroSeqConv.
+Require Export PiCosZeroSeqProbe.
+Require Export PiExpArch.
+Require Export PiExpTrigSeries.
+Require Export PiHalfwinSeed.
+Require Export PiKernelSlack.
+Require Export PiLeibnizCReal.
+Require Export PiPascalMachine.
+Require Export PiPascalResidue.
+Require Export PiPythBandDonor.
+Require Export PiRowIdentity.
+Require Export PiSeedSupplyShell.
+Require Export PiSeparation.
+Require Export PiVertexPolyDiff.
+Require Export PiWindowCore.
+Require Export QCauchyZeroCos.
