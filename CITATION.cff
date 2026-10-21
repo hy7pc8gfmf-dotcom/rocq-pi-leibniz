@@ -15,6 +15,17 @@ authors:
     given-names: Baiyuan
     email: "3052633793@qq.com"
     orcid: "https://orcid.org/0009-0005-9811-5598"
+  - family-names: Gao
+    given-names: Xuefeng
+    orcid: "https://orcid.org/0009-0007-9904-1599"
+  - family-names: Zu
+    given-names: Guangzhao
+    email: "624547595@qq.com"
+    orcid: "https://orcid.org/0009-0006-7811-6638"
+  - family-names: Xia
+    given-names: Wanlan
+    email: "xiawanlan33@163.com"
+    orcid: "https://orcid.org/0009-0008-7359-044X"
 version: 1.0.0
 date-released: "2026-10-15"
 license: LGPL-2.1
