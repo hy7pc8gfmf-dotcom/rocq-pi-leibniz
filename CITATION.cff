@@ -6,18 +6,6 @@ authors:
   - family-names: Wang
     given-names: Baojun
     orcid: "https://orcid.org/0009-0001-4240-9045"
-  - family-names: Zhou
-    given-names: Zhinong
-    email: "zrm2000@126.com"
-    orcid: "https://orcid.org/0009-0001-3206-5824"
-    alias: hy7pc8gfmf-dotcom
-  - family-names: Zeng
-    given-names: Baiyuan
-    email: "3052633793@qq.com"
-    orcid: "https://orcid.org/0009-0005-9811-5598"
-  - family-names: Gao
-    given-names: Xuefeng
-    orcid: "https://orcid.org/0009-0007-9904-1599"
   - family-names: Zu
     given-names: Guangzhao
     email: "624547595@qq.com"
@@ -26,6 +14,20 @@ authors:
     given-names: Wanlan
     email: "xiawanlan33@163.com"
     orcid: "https://orcid.org/0009-0008-7359-044X"
+  - family-names: Zeng
+    given-names: Baiyuan
+    email: "3052633793@qq.com"
+    orcid: "https://orcid.org/0009-0005-9811-5598"
+  - family-names: Zhou
+    given-names: Zhinong
+    email: "zrm2000@126.com"
+    orcid: "https://orcid.org/0009-0001-3206-5824"
+    alias: hy7pc8gfmf-dotcom
+  - family-names: Gao
+    given-names: Xuefeng
+    email: "6666666@live.cn"
+    orcid: "https://orcid.org/0009-0007-9904-1599"
+
 version: 1.0.0
 date-released: "2026-10-15"
 license: LGPL-2.1
