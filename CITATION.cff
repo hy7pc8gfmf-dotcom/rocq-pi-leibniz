@@ -53,4 +53,24 @@ related-identifiers:
   - identifier: "10.6084/m9.figshare.34062015"
     type: doi
     relation-type: references
-# DOI: 候 ③ 拿到 DOI 后回填 preferred-citation 段
+preferred-citation:
+  type: software
+  title: "rocq-pi-leibniz: constructive pi for the Rocq constructive Cauchy reals"
+  authors:
+    - family-names: Wang
+      given-names: Baojun
+    - family-names: Zu
+      given-names: Guangzhao
+    - family-names: Xia
+      given-names: Wanlan
+    - family-names: Zeng
+      given-names: Baiyuan
+    - family-names: Zhou
+      given-names: Zhinong
+    - family-names: Gao
+      given-names: Xuefeng
+  version: 1.0.0
+  date-released: "2026-10-15"
+  doi: "10.5281/zenodo.23527295"
+  url: "https://zenodo.org/records/23527295"
+# DOI 已铸（20261021）：版本 DOI 10.5281/zenodo.23527295（钉 v1.0.0）·概念 DOI 10.5281/zenodo.23527294（全版本）
