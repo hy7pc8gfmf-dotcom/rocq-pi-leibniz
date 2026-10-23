@@ -19,6 +19,7 @@ jobs:
   build:
     name: Rocq ${{ matrix.rocq-version }} build + coqchk (ubuntu-latest)
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       # Matrix: the Rocq 9.1 line plus 9.2 / 9.3 / master legs.  Package
       # names and pairings verified against opam.ocaml.org (2026-10-24):
@@ -37,17 +38,17 @@ jobs:
           # 9.2 line: the first all-9.2 pairing (core 9.2.0 + stdlib 9.2.0).
           - rocq-version: "9.2.0"
             stdlib-version: "9.2.0"
-            continue-on-error: true
+            experimental: true
           # 9.3 line: the 9.3.0 core with the newest stdlib release
           # (rocq-stdlib.9.2.0 accepts cores >= 9.1).
           - rocq-version: "9.3.0"
             stdlib-version: "9.2.0"
-            continue-on-error: true
+            experimental: true
           # master leg: no fixed opam version exists for an unreleased
           # prover line; pin the prover and the standard library from
           # the Rocq git master branches (dev pins).
           - rocq-version: "master"
-            continue-on-error: true
+            experimental: true
         fail-fast: false
 
     steps:
