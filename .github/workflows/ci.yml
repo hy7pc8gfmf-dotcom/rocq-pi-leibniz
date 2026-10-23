@@ -20,15 +20,42 @@ jobs:
     name: Rocq ${{ matrix.rocq-version }} build + coqchk (ubuntu-latest)
     runs-on: ubuntu-latest
     strategy:
-      # Single-slot matrix: the Rocq 9.1 line.  Versions verified against the
-      # opam repository (2026-10-15): the 9.1-line prover is published as
-      # rocq-core / rocq-runtime (rocq-prover has no 9.1.x releases);
-      # rocq-core.9.1.1 is the latest 9.1-line patch and pins
-      # rocq-runtime {= version}; rocq-stdlib.9.1.0 is the only 9.1-line
-      # stdlib release and accepts rocq-core >= 9.0 & < 9.3.0.
+      # Matrix: the Rocq 9.1 line plus 9.2 / 9.3 / master legs.  The 9.1
+      # pins were verified against the opam repository (2026-10-15): the
+      # 9.1-line prover is published as rocq-core / rocq-runtime
+      # (rocq-prover has no 9.1.x releases); rocq-core.9.1.1 is the
+      # latest 9.1-line patch and pins rocq-runtime {= version};
+      # rocq-stdlib.9.1.0 is the only 9.1-line stdlib release and accepts
+      # rocq-core >= 9.0 & < 9.3.0.
+      #
+      # The 9.2 / 9.3 / master legs were added as a static edit only —
+      # CI-verified-next-run.  Package names follow the official opam
+      # conventions (rocq-prover from the 9.2 line on); exact patch
+      # versions are the earliest of each line and the dev-repo pin
+      # forms for the master leg are TODO: confirm against the live
+      # opam repository at the first matrix run.
       matrix:
-        rocq-version: ["9.1.1"]
-        stdlib-version: ["9.1.0"]
+        include:
+          # 9.1-line compatibility floor (unchanged leg).
+          - rocq-version: "9.1.1"
+            stdlib-version: "9.1.0"
+            prover-package: "rocq-core"
+          # 9.2 line: rocq-stdlib 9.1.0 accepts cores >= 9.0 & < 9.3.0,
+          # so the (verified) 9.1.0 stdlib release pairs with a 9.2 core.
+          - rocq-version: "9.2.0"
+            stdlib-version: "9.1.0"
+            prover-package: "rocq-prover"
+          # 9.3 line: the < 9.3.0 bound of rocq-stdlib 9.1.0 excludes a
+          # 9.3 core; a 9.3-line stdlib release is assumed to exist.
+          - rocq-version: "9.3.0"
+            stdlib-version: "9.3.0"
+            prover-package: "rocq-prover"
+          # master leg: no fixed opam version exists for an unreleased
+          # prover line; pin the prover and the standard library from
+          # the Rocq git master branches (dev pins; TODO
+          # CI-verified-next-run — confirm repository layout).
+          - rocq-version: "master"
+            prover-package: "rocq-prover"
       fail-fast: false
 
     steps:
@@ -47,9 +74,20 @@ jobs:
 
       - name: Install Rocq ${{ matrix.rocq-version }} toolchain (pinned)
         run: |
-          opam install -y \
-            "rocq-core.${{ matrix.rocq-version }}" \
-            "rocq-stdlib.${{ matrix.stdlib-version }}"
+          if [ "${{ matrix.rocq-version }}" = "master" ]; then
+            # master leg: pin the prover and the standard library from
+            # the git master branches (opam picks up every package in
+            # each dev tree; TODO CI-verified-next-run).
+            opam pin add -y --no-action \
+              "git+https://github.com/rocq-prover/rocq.git#master"
+            opam pin add -y --no-action \
+              "git+https://github.com/rocq-prover/stdlib.git#master"
+            opam install -y rocq-prover rocq-stdlib
+          else
+            opam install -y \
+              "${{ matrix.prover-package }}.${{ matrix.rocq-version }}" \
+              "rocq-stdlib.${{ matrix.stdlib-version }}"
+          fi
 
       - name: Toolchain version evidence
         run: |

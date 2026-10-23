@@ -5,6 +5,19 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Three new modules in the pi supply chain under
+  `theories/Reals/Cauchy/`: `PiLeibnizMargin` (the unbounded-margin
+  statement for the Leibniz window family), `PiPadeQLeg` (the
+  rational-level Padé leg), and `PiSepSearch` (generic separation
+  search), registered in `_CoqProject` and re-exported from the root
+  module `theories/PiLeibniz.v`.
+- CI: the build matrix now covers Rocq 9.2, 9.3, and master in addition
+  to the 9.1 compatibility line (Rocq 9.1.1 with rocq-stdlib 9.1.0).
+
 ## [1.0.0] - 2026-10-15
 
 ### Added

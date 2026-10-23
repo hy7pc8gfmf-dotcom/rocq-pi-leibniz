@@ -35,6 +35,39 @@ further analytic input.  For the antecedent device — computing pi from
 alternating series with easy error bounds — see O'Connor 2008 and
 Krebbers and Spitters 2013, in the tradition of exact real arithmetic.
 
+## Position
+
+To the best of our knowledge, this package is the first formalization in
+any proof-assistant library of a constructive, premise-free separation
+of pi from every rational number: both main theorems hold without
+excluded middle or any other non-constructive principle, and each
+apartness statement produces an explicit, extractable, and runnable
+witness (a positive margin and a convergence modulus, per rational).
+The closest formalized relatives are classical: mathlib's
+`Real.irrational_pi` and Eberl's Niven-style proof of the irrationality
+of pi in the Archive of Formal Proofs both establish the irrationality
+by classical reasoning and carry no computational witnesses.  Search
+window and caveats for the first-of-its-kind claim are recorded under
+*Prior work* below.
+
+## Convergence rate
+
+The Leibniz realization is chosen for proof-theoretic transparency, not
+for speed, and this should be stated plainly.  The alternating series
+`pi/4 = 1 - 1/3 + 1/5 - 1/7 + ...` has a remainder bounded by the first
+omitted term, about `1/n` after `n` terms, so obtaining `d` correct
+decimal digits takes on the order of `10^d` terms — exponentially many
+terms in the number of digits.  None of the theorems are affected: the
+apartness statements carry an explicit positive margin and an explicit
+convergence modulus, so they hold at any requested precision, but
+evaluating the witnesses at high precision by these series is
+prohibitively slow.  This mirrors the classical exact-real-arithmetic
+tradition the development builds on (O'Connor 2008; Krebbers and
+Spitters 2013), in which Leibniz-type series serve as correctness
+baselines while fast-converging series drive the actual computation.
+A fast-converging variant of this development is on the roadmap
+(see *Roadmap* below).
+
 ## Guarantees
 
 - **Premise-free.**  Both main theorems are stated with no section
@@ -135,8 +168,14 @@ Three layers, all under `theories/Reals/Cauchy/`:
   escape-window engine for the constructive Cauchy reals
   (`creal_escape_window`, `creal_escape_window_apart`), reused unchanged.
 
-Counting: 24 pi-stack files (about 35,100 lines) plus the 221-line engine
-file they build on = 25 content modules, 35,287 lines.
+- **v1.0.1 additions (3 files).**  `PiLeibnizMargin` (the
+  unbounded-margin statement for the Leibniz window family),
+  `PiPadeQLeg` (the rational-level Padé leg, groundwork for accelerated
+  variants), and `PiSepSearch` (generic separation search, groundwork
+  for the approximation interface).
+
+Counting: 27 pi-stack files (about 36,700 lines) plus the 221-line engine
+file they build on = 28 content modules, about 36,900 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 
@@ -173,6 +212,22 @@ irrationality measure (Indagationes Mathematicae 15, 1953, pp. 30–42,
 `|pi - p/q| > q^-42`); the witnesses supplied here are elementary at the
 rational level, do not assume any irrationality measure, and are
 extracted as running OCaml with zero `Obj.magic`.
+
+## Roadmap
+
+- **v1.1 — cosine on `CReal` and window uniqueness.**  A constructive
+  cosine for the constructive Cauchy reals (power series with explicit
+  convergence moduli), unlocking the uniqueness statement that the pi
+  window `(3/2, 7/2)` contains a unique zero of the cosine.
+- **v1.2 — e instance.**  The same premise-free apartness treatment,
+  with explicit extractable witnesses, applied to Euler's number e.
+- **v2.0 — fast pi.**  A fast-converging realization of the same
+  separation theorems, in the O'Connor / Krebbers–Spitters
+  exact-real-arithmetic line, so that witness evaluation at high
+  precision becomes practical; the Leibniz realization remains the
+  compatibility floor.
+
+Planned items are subject to change.
 
 ## License
 

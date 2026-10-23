@@ -18,7 +18,8 @@
 # Engine file (abstract escape-window engine, reused unchanged)
 theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v
 
-# Pi stack: five-file core plus nineteen-file supply layer
+# Pi stack: five-file core plus nineteen-file supply layer (verbatim),
+# plus the v1.0.1 additions PiLeibnizMargin/PiPadeQLeg/PiSepSearch
 theories/Reals/Cauchy/PiArctanFixedQ.v
 theories/Reals/Cauchy/PiBandBound.v
 theories/Reals/Cauchy/PiCompareT.v
@@ -34,11 +35,14 @@ theories/Reals/Cauchy/PiExpTrigSeries.v
 theories/Reals/Cauchy/PiHalfwinSeed.v
 theories/Reals/Cauchy/PiKernelSlack.v
 theories/Reals/Cauchy/PiLeibnizCReal.v
+theories/Reals/Cauchy/PiLeibnizMargin.v
+theories/Reals/Cauchy/PiPadeQLeg.v
 theories/Reals/Cauchy/PiPascalMachine.v
 theories/Reals/Cauchy/PiPascalResidue.v
 theories/Reals/Cauchy/PiPythBandDonor.v
 theories/Reals/Cauchy/PiRowIdentity.v
 theories/Reals/Cauchy/PiSeedSupplyShell.v
+theories/Reals/Cauchy/PiSepSearch.v
 theories/Reals/Cauchy/PiSeparation.v
 theories/Reals/Cauchy/PiVertexPolyDiff.v
 theories/Reals/Cauchy/PiWindowCore.v

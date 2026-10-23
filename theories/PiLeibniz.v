@@ -42,3 +42,6 @@ Require Export PiSeparation.
 Require Export PiVertexPolyDiff.
 Require Export PiWindowCore.
 Require Export QCauchyZeroCos.
+Require Export PiLeibnizMargin.
+Require Export PiPadeQLeg.
+Require Export PiSepSearch.
