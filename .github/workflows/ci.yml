@@ -49,7 +49,7 @@ jobs:
           # the Rocq git master branches (dev pins).
           - rocq-version: "master"
             experimental: true
-        fail-fast: false
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v5
