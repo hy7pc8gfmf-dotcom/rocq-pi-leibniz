@@ -15,8 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rational-level Padé leg), and `PiSepSearch` (generic separation
   search), registered in `_CoqProject` and re-exported from the root
   module `theories/PiLeibniz.v`.
-- CI: the build matrix now covers Rocq 9.2, 9.3, and master in addition
-  to the 9.1 compatibility line (Rocq 9.1.1 with rocq-stdlib 9.1.0).
+- CI: the workflow is now a single self-hosted job that seeds the trust
+  cache from the pinned local clone (build is a skip pass over the
+  cache), certifies the whole dependency closure with `rocqchk -o`, and
+  runs the assumption smoke check on the two main theorems; every
+  compilation step is wrapped in the machine's cpu guard.
 
 ## [1.0.0] - 2026-10-15
 

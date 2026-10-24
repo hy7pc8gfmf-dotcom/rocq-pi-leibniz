@@ -91,14 +91,14 @@ A fast-converging variant of this development is on the roadmap
   proofs are explicit chains of rational-order lemmas; no automation
   tactic closes the main statements (`lia` appears only in small integer
   and rational literal bookkeeping steps, as in the engine file).
-- **Verified.**  This package has its own CI (GitHub Actions, Ubuntu,
-  pinned Rocq 9.1.1 + rocq-stdlib 9.1.0): full compile via the bootstrap
-  Makefile, `rocqchk -o` certification of the whole dependency closure
-  with an all-none assumption summary, and an assumption smoke check on
-  the two main theorems — currently green (badge above).  The content
-  modules also compiled green across the CI matrix of the hosting
-  standard-library submission (Alpine build and Rocq 9.2 / 9.3 / master
-  Nix bundles; 180/180 checks passed at the submitted head).
+- **Verified.**  This package has its own CI (a single self-hosted job
+  on the maintainers' machine, Rocq 9.1 line): it seeds the trust cache
+  from the local clone, certifies the whole dependency closure with
+  `rocqchk -o` (all-none assumption summary), and runs an assumption
+  smoke check on the two main theorems — currently green (badge above).
+  The content modules also compiled green across the CI matrix of the
+  hosting standard-library submission (Alpine build and Rocq 9.2 / 9.3
+  / master Nix bundles; 180/180 checks passed at the submitted head).
 
 ## Requirements
 
