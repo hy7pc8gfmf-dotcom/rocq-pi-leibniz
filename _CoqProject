@@ -19,10 +19,13 @@
 theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v
 
 # Pi stack: five-file core plus nineteen-file supply layer (verbatim),
-# plus the v1.0.1 additions PiLeibnizMargin/PiPadeQLeg/PiSepSearch
+# plus the v1.0.1 additions PiLeibnizMargin/PiPadeQLeg/PiSepSearch,
+# plus the separation additions PiCRealAppartT/PiSep361RefaceT/
+# PiSepBNeq0T/PiSepMirrorT/PiSepTriple227
 theories/Reals/Cauchy/PiArctanFixedQ.v
 theories/Reals/Cauchy/PiBandBound.v
 theories/Reals/Cauchy/PiCompareT.v
+theories/Reals/Cauchy/PiCRealAppartT.v
 theories/Reals/Cauchy/PiCosApproxRoot.v
 theories/Reals/Cauchy/PiCosApproxRootSet.v
 theories/Reals/Cauchy/PiCosBandAssemble.v
@@ -42,7 +45,11 @@ theories/Reals/Cauchy/PiPascalResidue.v
 theories/Reals/Cauchy/PiPythBandDonor.v
 theories/Reals/Cauchy/PiRowIdentity.v
 theories/Reals/Cauchy/PiSeedSupplyShell.v
+theories/Reals/Cauchy/PiSep361RefaceT.v
+theories/Reals/Cauchy/PiSepBNeq0T.v
+theories/Reals/Cauchy/PiSepMirrorT.v
 theories/Reals/Cauchy/PiSepSearch.v
+theories/Reals/Cauchy/PiSepTriple227.v
 theories/Reals/Cauchy/PiSeparation.v
 theories/Reals/Cauchy/PiVertexPolyDiff.v
 theories/Reals/Cauchy/PiWindowCore.v

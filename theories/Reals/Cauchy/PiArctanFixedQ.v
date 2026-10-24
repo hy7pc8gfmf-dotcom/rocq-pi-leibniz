@@ -52,6 +52,7 @@ From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 From Stdlib Require Import Lia.
 Require Import PiLeibnizCReal.
 Require Import PiKernelSlack.
+Require Import PiCompareT.
 
 (* ================= Section 0. Common small [Q]-arithmetic helpers ================= *)
 
@@ -4861,3 +4862,2458 @@ Print Assumptions pa_sin_step.
 Print Assumptions pa_cos_step.
 Print Assumptions pa_aF_step.
 Print Assumptions piL_arctan_fixed_sc.
+
+(* ============================================================ *)
+(* Appended section: Set-carried twins of the order faces        *)
+(*
+   Mission.  Set-carried twins of the strict-order, non-strict
+     order and equality statement faces of this file: each twin
+     restates the same mathematical content with the reflected
+     decision types [QltT]/[QleT']/[QeqT]/[NatLe] in the place of
+     the [Prop]-level [Qlt]/[Qle]/[Qeq]/[(<=)%nat] faces, so the
+     twin statement face lives in [Set] with no [Prop] component.
+     Each twin is proved by transporting through the decision
+     bridges and calling the original statement; the original
+     statements are untouched.
+
+   Dependencies.  The decision bridges of PiKernelSlack
+     ([QltT_to_Qlt]/[Qlt_to_QltT]/[QleT'_to_Qle]/[Qle_to_QleT']/
+     [qeqT_imp_qeq]/[qeq_imp_qeqT]/[NatLe_drop]/[NatLe_lift]).
+
+   References.  The original statements of this file (each twin
+     names its original in the one-line annotation above it).
+
+   Constructivity.  Statement faces carried at the [Set] level
+     ([QltT]/[QleT']/[QeqT]/[NatLe]); proof bodies are transport
+     chains through the decision bridges; no solver closes any
+     twin; assumption-free.
+
+   Build.  Compiled together with this file; see the header of
+     this file for the build recipe.
+*)
+
+
+(* Set twin of pa_le_qeq_r (Path A v2.4) *)
+Lemma pa_le_qeq_rT : forall x y z : Q, QleT' x y -> QeqT (y) (z) -> QleT' x z.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_le_qeq_r x y z).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_zsucc_qmake (Path A v2.4) *)
+Lemma pa_zsucc_qmakeT : forall n : nat, QeqT ((Z.of_nat (Datatypes.S n) # 1)%Q) (((Z.of_nat n # 1) + 1)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_zsucc_qmake n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Qmult_le_l (Path A v2.4) *)
+Lemma pa_Qmult_le_lT : forall a b c : Q, QleT' a b -> QleT' 0 c -> QleT' (c * a) (c * b).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Qmult_le_l a b c).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Qminus_le (Path A v2.4) *)
+Lemma pa_Qminus_leT : forall a b c : Q, QleT' b c -> QleT' (a - c) (a - b).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Qminus_le a b c).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_0 (Path A v2.4) *)
+Lemma pa_qpow_0T : forall x : Q, QeqT (q_pow x 0) (1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_0 x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_add (Path A v2.4) *)
+Lemma pa_qpow_addT : forall (x : Q) (n m : nat), QeqT (q_pow x (n + m)) (q_pow x n * q_pow x m).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_add x n m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_add2 (Path A v2.4) *)
+Lemma pa_qpow_add2T : forall (x : Q) (n : nat), QeqT (q_pow x (n + 2)) (q_pow x n * x * x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_add2 x n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_pow_diff (Path A v2.4) *)
+Lemma pa_pow_diffT : forall (n : nat) (x y : Q), QeqT (q_pow y n - q_pow x n) ((y - x) * gsum n x y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_pow_diff n x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gsum_nonneg (Path A v2.4) *)
+Lemma pa_gsum_nonnegT : forall (n : nat) (x y : Q), QleT' 0 x -> QleT' 0 y -> QleT' 0 (gsum n x y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gsum_nonneg n x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gsum_lower (Path A v2.4) *)
+Lemma pa_gsum_lowerT : forall (p : nat) (x y : Q), QleT' 0 x -> QleT' 0 y -> QleT' x y -> QleT' ((Z.of_nat (Datatypes.S p) # 1) * q_pow x p) (gsum (Datatypes.S p) x y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gsum_lower p x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lp_a_val (Path A v2.4) *)
+Lemma pa_lp_a_valT : forall k : nat, QeqT (lp_a k) ((/ (Z.of_nat (2 * k + 1) # 1))%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lp_a_val k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lpa_pos (Path A v2.4) *)
+Lemma pa_lpa_posT : forall k : nat, QltT 0 (lp_a k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lpa_pos k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_one (Path A v2.4) *)
+Lemma pa_aA_term_oneT : forall j : nat, QeqT (aA_term j 1) (lp_pair j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_one j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of aA_one_lp_odd (Path A v2.4) *)
+Lemma aA_one_lp_oddT : forall m : nat, QeqT (aA m 1) (lp_odd m).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (aA_one_lp_odd m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lp_pair_S (Path A v2.4) *)
+Lemma pa_lp_pair_ST : forall m : nat, QeqT (lp_pair (Datatypes.S m)) (lp_a (2 * m + 2) - lp_a (2 * m + 3)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lp_pair_S m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lp_odd_inv (Path A v2.4) *)
+Lemma pa_lp_odd_invT : forall m : nat, QleT' (lp_odd m) (lp_a 0 - lp_a (2 * m + 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lp_odd_inv m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lp_a_0_one (Path A v2.4) *)
+Lemma pa_lp_a_0_oneT : QeqT (lp_a 0) (1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply pa_lp_a_0_one.
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lp_odd_le_1 (Path A v2.4) *)
+Lemma pa_lp_odd_le_1T : forall m : nat, QleT' (lp_odd m) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lp_odd_le_1 m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_split (Path A v2.4) *)
+Lemma pa_aA_term_splitT : forall (j : nat) (x : Q), QeqT (aA_term j x) (q_pow x (4 * j + 1) * ((Z.of_nat (4 * j + 3) # 1) - (Z.of_nat (4 * j + 1) # 1) * (x * x)) * (/ (Z.of_nat (4 * j + 1) # 1)) * (/ (Z.of_nat (4 * j + 3) # 1))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_split j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_nonneg (Path A v2.4) *)
+Lemma pa_aA_term_nonnegT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aA_term j x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_nonneg j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_nonneg (Path A v2.4) *)
+Lemma pa_aA_nonnegT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aA m x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_nonneg m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gG_term_x2 (Path A v2.4) *)
+Lemma pa_gG_term_x2T : forall (j : nat) (x : Q), QeqT ((1 + x * x) * aG_term j x) (q_pow x (4 * j) - q_pow x (4 * j + 4)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gG_term_x2 j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of gG_one_x2 (Path A v2.4) *)
+Lemma gG_one_x2T : forall (m : nat) (x : Q), QeqT ((1 + x * x) * aG m x) (1 - q_pow x (4 * m + 4)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (gG_one_x2 m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_1 (Path A v2.4) *)
+Lemma pa_qpow_1T : forall x : Q, QeqT (q_pow x 1) (x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_1 x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_le_lp_pair (Path A v2.4) *)
+Lemma pa_aA_term_le_lp_pairT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aA_term j x) (lp_pair j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_le_lp_pair j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_two_pow_ge (Path A v2.4) *)
+Lemma pa_two_pow_geT : forall n : nat, NatLe (Datatypes.S n) (2 ^ n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_two_pow_ge n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_le_one (Path A v2.4) *)
+Lemma pa_qpow_le_oneT : forall (q : nat) (y : Q), QleT' 0 y -> QleT' y 1 -> QleT' (q_pow y q) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_le_one q y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_D_pos (Path A v2.4) *)
+Lemma pa_D_posT : forall (q : nat) (y h : Q), QleT' 0 y -> QleT' 0 h -> QleT' 0 (q_pow (y + h) (Datatypes.S q) - q_pow y (Datatypes.S q) - (Z.of_nat (Datatypes.S q) # 1) * q_pow y q * h).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_D_pos q y h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_lpa_le_1 (Path A v2.4) *)
+Lemma pa_lpa_le_1T : forall k : nat, QleT' (lp_a k) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_lpa_le_1 k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_E_le (Path A v2.4) *)
+Lemma pa_E_leT : forall q : nat, QleT' (pa_E q) ((Z.of_nat (2 ^ (Datatypes.S q))%nat # 1)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_E_le q).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_E_pos (Path A v2.4) *)
+Lemma pa_E_posT : forall q : nat, QleT' 0 (pa_E q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_E_pos q).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_E_step (Path A v2.4) *)
+Lemma pa_E_stepT : forall q : nat, QeqT (pa_E (Datatypes.S q)) (2%Q * pa_E q + (Z.of_nat (Datatypes.S q) # 1)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_E_step q).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_D_le (Path A v2.4) *)
+Lemma pa_D_leT : forall (q : nat) (y h : Q), QleT' 0 y -> QleT' y 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (q_pow (y + h) (Datatypes.S q) - q_pow y (Datatypes.S q) - (Z.of_nat (Datatypes.S q) # 1) * q_pow y q * h) (pa_E q * (h * h)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_D_le q y h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_step_D (Path A v2.4) *)
+Lemma pa_aA_term_step_DT : forall (j : nat) (x h : Q), QeqT (aA_term j (x + h) - aA_term j x - aG_term j x * h) (lp_a (2 * j) * pa_D1 j x h - lp_a (2 * j + 1) * pa_D3 j x h).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_step_D j x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_step_le (Path A v2.4) *)
+Lemma pa_aA_term_step_leT : forall (j : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (aA_term j (x + h) - aA_term j x - aG_term j x * h) ((Z.of_nat (2 ^ (4 * j + 3))%nat # 1) * (h * h)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_step_le j x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_step_ge (Path A v2.4) *)
+Lemma pa_aA_term_step_geT : forall (j : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' ((- (Z.of_nat (2 ^ (4 * j + 3))%nat # 1)) * (h * h)) (aA_term j (x + h) - aA_term j x - aG_term j x * h).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_step_ge j x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_step_le (Path A v2.4) *)
+Lemma pa_aA_step_leT : forall (m : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (aA m (x + h) - aA m x - aG m x * h) ((Z.of_nat (2 ^ (4 * m + 4))%nat # 1) * (h * h)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_step_le m x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_step_ge (Path A v2.4) *)
+Lemma pa_aA_step_geT : forall (m : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' ((- (Z.of_nat (2 ^ (4 * m + 4))%nat # 1)) * (h * h)) (aA m (x + h) - aA m x - aG m x * h).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_step_ge m x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sq_abs_eq (Path A v2.4) *)
+Lemma pa_sq_abs_eqT : forall t : Q, QeqT (Qabs t * Qabs t) (t * t).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sq_abs_eq t).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sq_pos (Path A v2.4) *)
+Lemma pa_sq_posT : forall t : Q, QleT' 0 (t * t).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sq_pos t).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_div_le (Path A v2.4) *)
+Lemma pa_div_leT : forall X Y Z W : Q, QleT' (X * W) (Y * Z) -> QltT 0 Z -> QltT 0 W -> QleT' (X * (/ Z)) (Y * (/ W)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_div_le X Y Z W).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_inv_le_compat (Path A v2.4) *)
+Lemma pa_inv_le_compatT : forall a b : Q, QltT 0 a -> QleT' a b -> QleT' (/ b) (/ a).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_inv_le_compat a b).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_D_abs_le (Path A v2.4) *)
+Lemma pa_D_abs_leT : forall (q : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (pa_Df q y e)) (pa_E q * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_D_abs_le q y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sterm_step (Path A v2.4) *)
+Lemma pa_sterm_stepT : forall (j : nat) (y e : Q), QeqT (sin_term j (y + e) - sin_term j y - cos_term j y * e) (q_pow (-1) j * (pa_Df (2 * j) y e * (/ q_fact (Datatypes.S (2 * j))))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sterm_step j y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sT_pos (Path A v2.4) *)
+Lemma pa_sT_posT : forall j : nat, QleT' 0 (pa_sT j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sT_pos j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sterm_step_le (Path A v2.4) *)
+Lemma pa_sterm_step_leT : forall (j : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_term j (y + e) - sin_term j y - cos_term j y * e)) (pa_sT j * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sterm_step_le j y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_srhow_pos (Path A v2.4) *)
+Lemma pa_srhow_posT : forall k : nat, QleT' 0 (pa_srhow k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_srhow_pos k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sT_ratio (Path A v2.4) *)
+Lemma pa_sT_ratioT : forall j : nat, NatLe (1) (j) -> QleT' (pa_sT (Datatypes.S j)) ((1 # 4) * pa_sT j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sT_ratio j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_srhow_tail4 (Path A v2.4) *)
+Lemma pa_srhow_tail4T : forall k : nat, QleT' (pa_srhow k + (4 # 3) * pa_sT (Datatypes.S k)) 4.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_srhow_tail4 k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_srhow_le (Path A v2.4) *)
+Lemma pa_srhow_leT : forall k : nat, QleT' (pa_srhow k) 4.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_srhow_le k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_ssum_le (Path A v2.4) *)
+Lemma pa_ssum_leT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_partial k (y + e) - sin_partial k y - cos_partial k y * e)) (pa_srhow k * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_ssum_le k y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_step (Path A v2.4) *)
+Lemma pa_sin_stepT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_partial k (y + e) - sin_partial k y - cos_partial k y * e)) ((4 # 1) * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_step k y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cterm_step (Path A v2.4) *)
+Lemma pa_cterm_stepT : forall (k : nat) (y e : Q), QeqT (cos_term (Datatypes.S k) (y + e) - cos_term (Datatypes.S k) y + sin_term k y * e) (q_pow (-1) (Datatypes.S k) * (pa_Df (Datatypes.S (2 * k)) y e * (/ q_fact (Datatypes.S (Datatypes.S (2 * k)))))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cterm_step k y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sT2_pos (Path A v2.4) *)
+Lemma pa_sT2_posT : forall k : nat, QleT' 0 (pa_sT2 k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sT2_pos k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cterm_step_le (Path A v2.4) *)
+Lemma pa_cterm_step_leT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_term (Datatypes.S k) (y + e) - cos_term (Datatypes.S k) y + sin_term k y * e)) (pa_sT2 k * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cterm_step_le k y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sT2_ratio (Path A v2.4) *)
+Lemma pa_sT2_ratioT : forall k : nat, NatLe (1) (k) -> QleT' (pa_sT2 (Datatypes.S k)) ((1 # 4) * pa_sT2 k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sT2_ratio k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_crhow_pos (Path A v2.4) *)
+Lemma pa_crhow_posT : forall k : nat, QleT' 0 (pa_crhow k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_crhow_pos k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_crhow_tail4 (Path A v2.4) *)
+Lemma pa_crhow_tail4T : forall k : nat, QleT' (pa_crhow k + (4 # 3) * pa_sT2 (Datatypes.S k)) 4.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_crhow_tail4 k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_crhow_le (Path A v2.4) *)
+Lemma pa_crhow_leT : forall k : nat, QleT' (pa_crhow k) 4.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_crhow_le k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_csum_le_S (Path A v2.4) *)
+Lemma pa_csum_le_ST : forall (p : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_partial (Datatypes.S p) (y + e) - cos_partial (Datatypes.S p) y + sin_partial (Nat.pred (Datatypes.S p)) y * e)) (pa_crhow p * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_csum_le_S p y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_step (Path A v2.4) *)
+Lemma pa_cos_stepT : forall (k : nat) (y e : Q), NatLe (1) (k) -> QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_partial k (y + e) - cos_partial k y + sin_partial (Nat.pred k) y * e)) ((4 # 1) * (e * e)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_step k y e).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_term_wd (Path A v2.4) *)
+Lemma pa_sin_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_term j x) (sin_term j y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_term_wd j x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_term_wd (Path A v2.4) *)
+Lemma pa_cos_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (cos_term j x) (cos_term j y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_term_wd j x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_wd (Path A v2.4) *)
+Lemma pa_sin_wdT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_partial k x) (sin_partial k y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_wd k x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_wd (Path A v2.4) *)
+Lemma pa_cos_wdT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (cos_partial k x) (cos_partial k y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_wd k x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_exp_mono (Path A v2.4) *)
+Lemma pa_qpow_exp_monoT : forall (x : Q) (n m : nat), QleT' 0 x -> QleT' x 1 -> NatLe (n) (m) -> QleT' (q_pow x m) (q_pow x n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_exp_mono x n m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_two_side_abs (Path A v2.4) *)
+Lemma pa_two_side_absT : forall d t : Q, QleT' d t -> QleT' (- t) d -> QleT' (Qabs d) t.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_two_side_abs d t).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_abs_sq_le (Path A v2.4) *)
+Lemma pa_abs_sq_leT : forall t B : Q, QleT' (Qabs t) B -> QleT' (t * t) (B * B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_abs_sq_le t B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_two_pow_mono (Path A v2.4) *)
+Lemma pa_two_pow_monoT : forall a b : nat, NatLe (a) (b) -> NatLe (2 ^ a) (2 ^ b).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_two_pow_mono a b).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gp4_pos (Path A v2.4) *)
+Lemma pa_gp4_posT : forall k : nat, QltT 0 (pa_gp4 k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gp4_pos k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qfact_ge_gp4 (Path A v2.4) *)
+Lemma pa_qfact_ge_gp4T : forall j : nat, QleT' (pa_gp4 j) (q_fact (Datatypes.S (2 * j))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qfact_ge_gp4 j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qfact_ge_qpow4 (Path A v2.4) *)
+Lemma pa_qfact_ge_qpow4T : forall j : nat, QleT' (q_pow (4 # 1)%Q j) (q_fact (Datatypes.S (2 * j))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qfact_ge_qpow4 j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gp4_qpow4_prod (Path A v2.4) *)
+Lemma pa_gp4_qpow4_prodT : forall j : nat, QeqT (pa_gp4 j * q_pow (4 # 1)%Q j) (1%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gp4_qpow4_prod j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piu1596_gp4_inv_S (Path A v2.4) *)
+Lemma piu1596_gp4_inv_ST : forall p : nat, QeqT ((/ pa_gp4 (Datatypes.S p))) (((4 # 1) * (/ pa_gp4 p))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piu1596_gp4_inv_S p).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piu1596_qfact2j_step (Path A v2.4) *)
+Lemma piu1596_qfact2j_stepT : forall p : nat, NatLe (1) (p) -> QleT' ((1 # 2) * (/ pa_gp4 p)) (q_fact (2 * p)) -> QleT' ((1 # 2) * (/ pa_gp4 (Datatypes.S p))) (q_fact (2 * Datatypes.S p)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piu1596_qfact2j_step p).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piu1596_qfact2j_ge_half (Path A v2.4) *)
+Lemma piu1596_qfact2j_ge_halfT : forall j : nat, QleT' ((1 # 2) * (/ pa_gp4 j)) (q_fact (2 * j)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piu1596_qfact2j_ge_half j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piu1596_cos_hinv (Path A v2.4) *)
+Lemma piu1596_cos_hinvT : forall j : nat, QleT' (/ q_fact (2 * j)) ((2 # 1) * pa_gp4 j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piu1596_cos_hinv j).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_term_abs_le (Path A v2.4) *)
+Lemma pa_sin_term_abs_leT : forall (j : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_term j y)) (pa_gp4 j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_term_abs_le j y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_term_abs_le (Path A v2.4) *)
+Lemma pa_cos_term_abs_leT : forall (j : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_term j y)) ((2 # 1) * pa_gp4 j).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_term_abs_le j y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_partial_le_sum (Path A v2.4) *)
+Lemma pa_sin_partial_le_sumT : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_partial k y)) (pa_gp4sum k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_partial_le_sum k y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_partial_le_sum (Path A v2.4) *)
+Lemma pa_cos_partial_le_sumT : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_partial k y)) ((2 # 1) * pa_gp4sum k).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_partial_le_sum k y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gp4sum_trip (Path A v2.4) *)
+Lemma pa_gp4sum_tripT : forall k : nat, QeqT (pa_gp4sum k + pa_gp4 k * (1 # 3)) ((4 # 3)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gp4sum_trip k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gp4sum_le43 (Path A v2.4) *)
+Lemma pa_gp4sum_le43T : forall k : nat, QleT' (pa_gp4sum k) (4 # 3).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gp4sum_le43 k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gp4sum_le3 (Path A v2.4) *)
+Lemma pa_gp4sum_le3T : forall k : nat, QleT' (pa_gp4sum k) 3.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_gp4sum_le3 k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_partial_le3 (Path A v2.4) *)
+Lemma pa_sin_partial_le3T : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_partial k y)) 3.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_partial_le3 k y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_cos_partial_le3 (Path A v2.4) *)
+Lemma pa_cos_partial_le3T : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_partial k y)) 3.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_cos_partial_le3 k y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_le_one (Path A v2.4) *)
+Lemma pa_aA_le_oneT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aA m x) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_le_one m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aG_term_nonneg (Path A v2.4) *)
+Lemma pa_aG_term_nonnegT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aG_term j x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aG_term_nonneg j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aG_term_le_one (Path A v2.4) *)
+Lemma pa_aG_term_le_oneT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aG_term j x) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aG_term_le_one j x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aG_nonneg (Path A v2.4) *)
+Lemma pa_aG_nonnegT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aG m x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aG_nonneg m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aG_le (Path A v2.4) *)
+Lemma pa_aG_leT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aG m x) ((Z.of_nat (Datatypes.S m)) # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aG_le m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_rho5_q (Path A v2.4) *)
+Lemma pa_rho5_qT : forall m : nat, QeqT (((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1)) (((2 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1))%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_rho5_q m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qmake_mult_distr (Path A v2.4) *)
+Lemma pa_qmake_mult_distrT : forall a b : Z, QeqT ((a * b) # 1) ((a # 1) * (b # 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qmake_mult_distr a b).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_kappa_q (Path A v2.4) *)
+Lemma pa_kappa_qT : forall m : nat, QeqT (((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1)) (((4 # 1) * (((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1) * ((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1)))%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_kappa_q m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_pow_chain_le (Path A v2.4) *)
+Lemma pa_pow_chain_leT : forall m : nat, QleT' ((3 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) + (3 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) + (3 # 1) * ((Z.of_nat (Datatypes.S m) # 1)) + (2 # 1) * ((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1)) (((Z.of_nat (2 ^ (8 * m + 14))%nat) # 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_pow_chain_le m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_pow_mono_le (Path A v2.4) *)
+Lemma pa_pow_mono_leT : forall m : nat, QleT' ((Z.of_nat (2 ^ (8 * m + 14))%nat) # 1) ((Z.of_nat (2 ^ (8 * m + 16))%nat) # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_pow_mono_le m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aF_step (Path A v2.4) *)
+Lemma pa_aF_stepT : forall (k m : nat) (x h : Q), NatLe (1) (k) -> QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) ((h * h * (1 + x * x)) * ((Z.of_nat (2 ^ (8 * m + 16))%nat) # 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aF_step k m x h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_nat_pow2_pos (Path A v2.4) *)
+Lemma pa_nat_pow2_posT : forall n : nat, NatLe (Datatypes.S (0)) (2 ^ n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_nat_pow2_pos n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qle_add_pos (Path A v2.4) *)
+Lemma pa_qle_add_posT : forall (a X : Q), QleT' 0 X -> QleT' a (a + X).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qle_add_pos a X).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qlt_qeq_lr (Path A v2.4) *)
+Lemma pa_qlt_qeq_lrT : forall x y u v : Q, QltT x y -> QeqT (x) (u) -> QeqT (y) (v) -> QltT u v.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qlt_qeq_lr x y u v).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_half_inv (Path A v2.4) *)
+Lemma pa_qpow_half_invT : forall t : nat, QeqT (q_pow (1 # 2)%Q t) ((1 # 1) / (Z.of_nat (2 ^ t) # 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_half_inv t).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_abs_nonneg (Path A v2.4) *)
+Lemma pa_abs_nonnegT : forall x : Q, QleT' 0 (Qabs x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_abs_nonneg x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_abs_scale_unit (Path A v2.4) *)
+Lemma pa_abs_scale_unitT : forall (k : nat) (z : Q), QeqT (Qabs (q_pow (-1) k * z)) (Qabs z).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_abs_scale_unit k z).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_abs_mul_pos (Path A v2.4) *)
+Lemma pa_abs_mul_posT : forall (c w : Q), QleT' 0 c -> QeqT (Qabs (c * w)) (c * Qabs w).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_abs_mul_pos c w).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qfact_mono (Path A v2.4) *)
+Lemma pa_qfact_monoT : forall n m : nat, NatLe (n) (m) -> QleT' (q_fact n) (q_fact m).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qfact_mono n m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qfact_ge_pow2Q (Path A v2.4) *)
+Lemma pa_qfact_ge_pow2QT : forall n : nat, QleT' (q_pow (2 # 1)%Q n) (q_fact (Datatypes.S n)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qfact_ge_pow2Q n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow2_coherence (Path A v2.4) *)
+Lemma pa_qpow2_coherenceT : forall n : nat, QeqT (q_pow (2 # 1)%Q n) ((Z.of_nat (2 ^ n))%nat # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow2_coherence n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qpow_half_coherence (Path A v2.4) *)
+Lemma pa_qpow_half_coherenceT : forall t : nat, QeqT (q_pow (1 # 2)%Q t) ((1 # 1) * ((1 # 1) / ((Z.of_nat (2 ^ t))%nat # 1))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qpow_half_coherence t).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_inv_mono (Path A v2.4) *)
+Lemma pa_inv_monoT : forall a b : Q, QltT 0 a -> QleT' a b -> QleT' ((1 # 1) / b) ((1 # 1) / a).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_inv_mono a b).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_h_pos (Path A v2.4) *)
+Lemma pa_h_posT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QltT 0 ((1 # 1) / (Z.of_nat N # 1))%Q.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_h_pos N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_hN (Path A v2.4) *)
+Lemma pa_hNT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QeqT ((Z.of_nat N # 1) * ((1 # 1) / (Z.of_nat N # 1))) (1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_hN N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_qA_pos_zero (Path A v2.4) *)
+Lemma pa_qA_pos_zeroT : forall n : nat, NatLe (1) (n) -> QeqT (q_pow 0 n) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_qA_pos_zero n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_zero (Path A v2.4) *)
+Lemma pa_aA_zeroT : forall m : nat, QeqT (aA m 0) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_zero m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_partial_zero (Path A v2.4) *)
+Lemma pa_sin_partial_zeroT : forall k : nat, QeqT (sin_partial k 0) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_partial_zero k).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_mult_aA_zero (Path A v2.4) *)
+Lemma pa_mult_aA_zeroT : forall (m : nat) (z : Q), QeqT (aA m 0 * z) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_mult_aA_zero m z).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_partial_aA_zero (Path A v2.4) *)
+Lemma pa_sin_partial_aA_zeroT : forall (k m : nat), QeqT (sin_partial k (aA m 0)) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_partial_aA_zero k m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aF_zero (Path A v2.4) *)
+Lemma pa_aF_zeroT : forall (k m : nat), QeqT (aF k m 0) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aF_zero k m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_grid_zero (Path A v2.4) *)
+Lemma pa_grid_zeroT : forall N : nat, QeqT (pa_grid N 0) (0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_grid_zero N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_grid_S (Path A v2.4) *)
+Lemma pa_grid_ST : forall (N p : nat), NatLe (Datatypes.S (0)) (N) -> QeqT (pa_grid N (Datatypes.S p)) (pa_grid N p + ((1 # 1) / (Z.of_nat N # 1))%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_grid_S N p).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_grid_nonneg (Path A v2.4) *)
+Lemma pa_grid_nonnegT : forall (N i : nat), NatLe (Datatypes.S (0)) (N) -> QleT' 0 (pa_grid N i).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_grid_nonneg N i).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_grid_le_1 (Path A v2.4) *)
+Lemma pa_grid_le_1T : forall (N i : nat), NatLe (Datatypes.S (0)) (N) -> NatLe (i) (N) -> QleT' (pa_grid N i) 1.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_grid_le_1 N i).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_grid_one (Path A v2.4) *)
+Lemma pa_grid_oneT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QeqT (pa_grid N N) (1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_grid_one N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_wsumG_nonneg (Path A v2.4) *)
+Lemma pa_wsumG_nonnegT : forall (N i : nat) (g : nat -> Q), NatLe (Datatypes.S (0)) (N) -> (forall j, NatLe (Datatypes.S (j)) (i) -> QleT' 0 (g j)) -> QleT' 0 (pa_wsumG N g i).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (pa_wsumG_nonneg N i g (NatLe_drop _ _ H) (fun j Hj => QleT'_to_Qle 0 (g j) (H0 j (NatLe_lift _ _ Hj))))).
+Qed.
+
+(* Set twin of pa_wsumG_scal_add (Path A v2.4) *)
+Lemma pa_wsumG_scal_addT : forall (N i : nat) (a : Q) (f g : nat -> Q), QeqT (pa_wsumG N (fun j => a * f j + g j) i) (a * pa_wsumG N f i + pa_wsumG N g i).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_wsumG_scal_add N i a f g).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_wsumG_telescope (Path A v2.4) *)
+Lemma pa_wsumG_telescopeT : forall (N i : nat) (g Phi : nat -> Q), (forall j, NatLe (Datatypes.S (j)) (i) -> QleT' (((1 # 1) / (Z.of_nat N # 1))%Q * g j) (Phi (Datatypes.S j) - Phi j)) -> QleT' (pa_wsumG N g i) (Phi i - Phi 0%nat).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (pa_wsumG_telescope N i g Phi (fun j Hj => QleT'_to_Qle _ _ (H j (NatLe_lift _ _ Hj))))).
+Qed.
+
+(* Set twin of pa_r_nonneg (Path A v2.4) *)
+Lemma pa_r_nonnegT : forall (k m : nat) (x : Q), QleT' 0 x -> QleT' 0 (pa_r k m x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_r_nonneg k m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_accF_nonneg (Path A v2.4) *)
+Lemma pa_accF_nonnegT : forall (k m N i : nat), NatLe (Datatypes.S (0)) (N) -> QleT' 0 (pa_accF k m N i).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_accF_nonneg k m N i).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_accF_S (Path A v2.4) *)
+Lemma pa_accF_ST : forall (k m N p : nat), NatLe (Datatypes.S (0)) (N) -> QeqT (pa_accF k m N (Datatypes.S p)) (pa_accF k m N p + ((1 # 1) / (Z.of_nat N # 1))%Q * (pa_r k m (pa_grid N p) + ((1 # 1) / (Z.of_nat N # 1))%Q * pa_gCst m)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_accF_S k m N p).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Dens_abs_le (Path A v2.4) *)
+Lemma pa_Dens_abs_leT : forall (k m : nat) (x : Q), NatLe (1) (k) -> QleT' 0 x -> QleT' x 1 -> QleT' (Qabs (pa_Dens k m x)) (pa_r k m x).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Dens_abs_le k m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_q_pow_G0 (Path A v2.4) *)
+Lemma pa_q_pow_G0T : forall (N : nat) (n : nat), QeqT (q_pow (pa_grid N 0) n) (q_pow 0 n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_q_pow_G0 N n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Qopp_comp (Path A v2.4) *)
+Lemma pa_Qopp_compT : forall x y : Q, QeqT (x) (y) -> QeqT (Qopp x) (Qopp y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Qopp_comp x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Qminus_comp (Path A v2.4) *)
+Lemma pa_Qminus_compT : forall a b c d : Q, QeqT (a) (c) -> QeqT (b) (d) -> QeqT (a - b) (c - d).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Qminus_comp a b c d).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_G0 (Path A v2.4) *)
+Lemma pa_aA_term_G0T : forall (j N : nat), QeqT (aA_term j (pa_grid N 0)) (aA_term j 0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_G0 j N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_G0 (Path A v2.4) *)
+Lemma pa_aA_G0T : forall (m N : nat), QeqT (aA m (pa_grid N 0)) (aA m 0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_G0 m N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_q_pow_ext (Path A v2.4) *)
+Lemma pa_q_pow_extT : forall (n : nat) (x y : Q), QeqT (x) (y) -> QeqT (q_pow x n) (q_pow y n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_q_pow_ext n x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_Qdiv_r_ext (Path A v2.4) *)
+Lemma pa_Qdiv_r_extT : forall (x y q : Q), QeqT (x) (y) -> QeqT (x / q) (y / q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Qdiv_r_ext x y q).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_term_ext (Path A v2.4) *)
+Lemma pa_sin_term_extT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_term k x) (sin_term k y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_term_ext k x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_sin_partial_ext (Path A v2.4) *)
+Lemma pa_sin_partial_extT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_partial k x) (sin_partial k y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_sin_partial_ext k x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aF_G0_ext (Path A v2.4) *)
+Lemma pa_aF_G0_extT : forall (k m N : nat), QeqT (aF k m (pa_grid N 0)) (aF k m 0).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aF_G0_ext k m N).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_term_wd (Path A v2.4) *)
+Lemma pa_aA_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (aA_term j x) (aA_term j y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_term_wd j x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aA_wd (Path A v2.4) *)
+Lemma pa_aA_wdT : forall (m : nat) (x y : Q), QeqT (x) (y) -> QeqT (aA m x) (aA m y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aA_wd m x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_aF_wd (Path A v2.4) *)
+Lemma pa_aF_wdT : forall (k m : nat) (x y : Q), QeqT (x) (y) -> QeqT (aF k m x) (aF k m y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_aF_wd k m x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of pa_gronwall_inv (Path A v2.4) *)
+Lemma pa_gronwall_invT : forall (k m N i : nat), NatLe (1) (k) -> NatLe (Datatypes.S (0)) (N) -> NatLe (i) (N) -> (forall x h : Q, QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) (h * h * (1 + x * x) * pa_gCst m)) -> QleT' (Qabs (aF k m (pa_grid N i))) ((1 + q_pow (pa_grid N i) 2) * pa_accF k m N i).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (pa_gronwall_inv k m N i (NatLe_drop _ _ H) (NatLe_drop _ _ H0) (NatLe_drop _ _ H1) (fun x h Hx0 Hx1 Hh0 Hh01 => QleT'_to_Qle _ _ (H2 x h (Qle_to_QleT' _ _ Hx0) (Qle_to_QleT' _ _ Hx1) (Qle_to_QleT' _ _ Hh0) (Qle_to_QleT' _ _ Hh01))))).
+Qed.
+
+(* Set twin of pa_F_one_bound (Path A v2.4) *)
+Lemma pa_F_one_boundT : forall (k m N : nat), NatLe (1) (k) -> NatLe (Datatypes.S (0)) (N) -> (forall x h : Q, QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) (h * h * (1 + x * x) * pa_gCst m)) -> QleT' (Qabs (aF k m 1)) ((12 # 1)%Q * ((1 # 1) / (Z.of_nat (4 * m + 5) # 1)) + (9 # 4)%Q * ((1 # 1) / q_fact (2 * k + 1)) + (2 # 1)%Q * ((1 # 1) / (Z.of_nat N # 1)) * pa_gCst m).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (pa_F_one_bound k m N (NatLe_drop _ _ H) (NatLe_drop _ _ H0) (fun x h Hx0 Hx1 Hh0 Hh01 => QleT'_to_Qle _ _ (H1 x h (Qle_to_QleT' _ _ Hx0) (Qle_to_QleT' _ _ Hx1) (Qle_to_QleT' _ _ Hh0) (Qle_to_QleT' _ _ Hh01))))).
+Qed.
+
+(* Set twin of pa_Cst_h_le (Path A v2.4) *)
+Lemma pa_Cst_h_leT : forall m : nat, QeqT ((2 # 1)%Q * ((1 # 1) / (Z.of_nat (8 * 2 ^ (8 * m + 20) * (4 * m + 5)) # 1)) * pa_gCst m) ((1 # 1) / (Z.of_nat (64 * (4 * m + 5)) # 1)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (pa_Cst_h_le m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.

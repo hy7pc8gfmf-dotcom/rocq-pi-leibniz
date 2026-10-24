@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * PiSeparation: separation of the Leibniz series real [pi_leibniz]
       from every rational number (the engine-assembly closing piece).
@@ -65,8 +57,8 @@
       compiles cleanly (exit 0); the first eight bytes of the
       artifact are [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 (* ---------------------------------------------------------------- *)
 (* Require face (root-level bare names during the vendored period;    *)

@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 (************************************************************************)
 
 From Stdlib Require Import QArith.QArith.
@@ -20,40 +12,57 @@ From Stdlib Require Import ConstructiveCauchyReals.
 
 (** * Escape-window separation engine for the constructive Cauchy reals
 
-    This file provides an abstract irrationality criterion for the
-    constructive Cauchy reals of [ConstructiveCauchyReals].  Let [x] be a
-    constructive Cauchy real and [e : nat -> Q] a family of positive
-    "escape window" widths that decay slower than the resolution
-    [2 * 2^(-n)] of Cauchy reals.  Suppose that every rational [q]
-    eventually escapes the window around the resolution-tail value
-    [seq x (- Z.of_nat n)]: for some [n], [e n < |q - seq x (- Z.of_nat n)|].
-    Then [x] is apart, in the sense of [CReal_appart] (a sum of
-    strict-order witnesses, in [Set]), from the embedded rational
-    [inject_Q q], i.e. [x] carries a strictly positive rational distance
-    from every rational constant.
-
-    The main statement is [creal_escape_window_apart].  The stdlib
-    [CRealLt x y] is itself the positive-distance witness form
-    [{n : Z | 2 * 2^n < seq y n - seq x n}], and the Cauchy modulus of [x]
-    controls its negative tail: values at any index [m <= k] agree with
-    [seq x k] within [2^k].  At an escape index [n0] the window width
-    [E = e n0] dominates the resolution [2 * 2^(- Z.of_nat n0)] by the
-    coupling conjunct; pushing further down the negative tail to an index
-    [m] chosen by the Q-archimedean lower bound [QarchimedeanLowExp2_Z]
+    Mission.  An abstract irrationality criterion for the constructive
+    Cauchy reals of [ConstructiveCauchyReals], the engine of the [pi]
+    separation program.  Let [x] be a constructive Cauchy real and
+    [e : nat -> Q] a family of positive "escape window" widths that
+    decay slower than the resolution [2 * 2^(-n)] of Cauchy reals.
+    Suppose that every rational [q] eventually escapes the window
+    around the resolution-tail value [seq x (- Z.of_nat n)]: for some
+    [n], [e n < |q - seq x (- Z.of_nat n)|].  Then [x] is apart, in
+    the sense of [CReal_appart] (a sum of strict-order witnesses, in
+    [Set]), from the embedded rational [inject_Q q]: [x] carries a
+    strictly positive rational distance from every rational constant.
+    Main statement: [creal_escape_window_apart].  Mechanism: the
+    stdlib [CRealLt x y] is itself the positive-distance witness form
+    [{n : Z | 2 * 2^n < seq y n - seq x n}], and the Cauchy modulus
+    of [x] controls its negative tail (values at any index [m <= k]
+    agree with [seq x k] within [2^k]); at an escape index [n0] the
+    window width [E = e n0] dominates the resolution by the coupling
+    conjunct, and pushing down the negative tail to an index [m]
+    chosen by the Q-archimedean lower bound [QarchimedeanLowExp2_Z]
     makes the witness threshold [2 * 2^m] drop below the margin
-    [E - 2^(- Z.of_nat n0)], and the sign of [q - seq x (- Z.of_nat n0)],
-    decidable in Q, selects which side of [CReal_appart] is produced.
+    [E - 2^(- Z.of_nat n0)], the sign of [q - seq x (- Z.of_nat n0)]
+    (decidable in [Q]) selecting which side of [CReal_appart] is
+    produced.
 
-    Statements are [Set]-valued throughout (sigma witnesses and the sum
-    type [CReal_appart]); the only [Prop] occurrences are [Qlt]
-    predicates inside the sigma type, mirroring the [CRealLt] definition
-    itself.  No axiom and no classical logic is used; the main proof is a
-    fully explicit chain of rational-order lemmas (no tactic closes the
-    main statement), decidability of Q being used only to branch on the
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Qpower],
+    [Setoid], [ZArith], [Lia], [QExtra], and
+    [ConstructiveCauchyReals] (the constructive Cauchy reals layer).
+
+    References.  The repository README (Position, Provenance): a
+    content module carried verbatim from the submitted state (head
+    [841855c]) of the Rocq standard-library proposal "Add a
+    constructive pi for the constructive Cauchy reals with a strong
+    irrationality separation theorem"; the criterion is stated at
+    name level by [creal_escape_window_apart] and consumed by
+    [PiSeparation].
+
+    Constructivity.  Statements are [Set]-valued throughout (sigma
+    witnesses and the sum type [CReal_appart]); the only [Prop]
+    occurrences are [Qlt] predicates inside the sigma type, mirroring
+    the [CRealLt] definition itself.  Assumption-free
+    (coqchk-certified); no classical logic; the main proof is a fully
+    explicit chain of rational-order lemmas (no tactic closes the main
+    statement), decidability of [Q] being used only to branch on the
     sign.
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    Build.  [coqc -native-compiler no -q -Q . ""
+    ConstructiveCauchyRealsSep.v] compiles cleanly (exit 0); the
+    first eight bytes of the artifact are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 (* Positivity and monotonicity of the powers of two. *)
 

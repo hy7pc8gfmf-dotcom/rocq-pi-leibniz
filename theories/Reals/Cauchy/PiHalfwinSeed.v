@@ -1,58 +1,52 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
-(* ============================================================ *)
-(* PiHalfwinSeed.v                                              *)
-(*                                                              *)
-(* Module mission: assembly of the sigma-1 half-window seed       *)
-(*   consumption faces -- the supply assembly theorem for the     *)
-(*   half-window slot type piLd3_seed_halfwin (merged segment of  *)
-(*   PiKernelSlack), the fixed-point arctan consumption face (the *)
-(*   sig face of |S_k(lp_odd m) - C_k(lp_odd m)| -> 0, consumed   *)
-(*   at the canonical shared instance e := 2dt/13), the cos       *)
-(*   zero-sequence signature face, and the fixed-point partial-sum *)
-(*   order-Cauchy signature face; once the half-window pair of    *)
-(*   witnesses (the cos and sin pieces) is available, the main    *)
-(*   statement reaches the premise-free closed form by a one-step *)
-(*   assembly.                                                    *)
-(* Dependencies: Stdlib QArith (QArith/Qabs), Arith.PeanoNat, Lia; *)
-(*       PiKernelSlack (cos_partial/sin_partial, the QltT bridges, *)
-(*       and the slot type from its merged segment);              *)
-(*       PiLeibnizCReal (lp_odd); QCauchyZeroCos; PiCosZeroSeqConv; *)
-(*       PiCosZeroSeqProbe; PiCosPartialSeqCauchy; PiBandBound;   *)
-(*       PiCosBandAssemble; PiPythBandDonor; PiArctanFixedQ.      *)
-(* References: the piLd3_seed_halfwin slot of the merged          *)
-(*       PiKernelSlack segment; PiCosZeroSeqConv (the zero-sequence *)
-(*       face); PiCosPartialSeqCauchy (the fixed-point partial-sum *)
-(*       order-Cauchy face, orthogonal to the Cauchy property of  *)
-(*       the zero-localization sequence).                         *)
-(* Constructivity: all consumption faces carried by sig/sigT      *)
-(*   (K : nat witnesses); the fixed-point arctan consumption site *)
-(*   is carried by an explicitly named premise (piLh_seed_t5alpha) *)
-(*   in the faces below; the premise-free closed-form name        *)
-(*   piLh_seed_halfwin is closed by a one-line assembly once the  *)
-(*   paired witnesses are available (realized at the end of this  *)
-(*   file);                                                       *)
-(*   positivity in Q goes through the manual chain unfold Qdiv +  *)
-(*   Qmult_lt_0_compat + Qinv_lt_0_compat (positivity of Q        *)
-(*   division without a nonzero premise), literal positive steps  *)
-(*   go unfold Qlt then simpl + lia; nat bookkeeping goes         *)
-(*   Nat.le_trans/Nat.le_max_l, no solver.                        *)
-(* Zero axioms, zero classical logic, nothing admitted (the     *)
-(*   closing Print Assumptions lines at the end of the file are  *)
-(*   all Closed).                                                *)
-(* Build: coqc -native-compiler no -q -Q . "" PiHalfwinSeed.v     *)
-(*   (Rocq 9.1.0).                                                *)
-(* ============================================================ *)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
+(** * PiHalfwinSeed: assembly of the sigma-1 half-window seed
+      consumption faces.
 
-(* WARNING: this file is experimental and likely to change in future *)
-(* releases.                                                        *)
+    Mission.  The supply assembly theorem for the half-window slot
+    type [piLd3_seed_halfwin] (merged segment of [PiKernelSlack]), the
+    fixed-point arctan consumption face (the [sig] face of
+    [|S_k(lp_odd m) - C_k(lp_odd m)| -> 0], consumed at the canonical
+    shared instance [e := 2dt/13]), the cos zero-sequence signature
+    face, and the fixed-point partial-sum order-Cauchy signature face;
+    once the half-window pair of witnesses (the cos and sin pieces) is
+    available, the main statement reaches the premise-free closed form
+    by a one-step assembly.
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
+    [Arith.PeanoNat], [Lia]; [PiKernelSlack]
+    ([cos_partial]/[sin_partial], the [QltT] bridges, and the slot
+    type from its merged segment); [PiLeibnizCReal] ([lp_odd]);
+    [QCauchyZeroCos]; [PiCosZeroSeqConv]; [PiCosZeroSeqProbe];
+    [PiCosPartialSeqCauchy]; [PiBandBound]; [PiCosBandAssemble];
+    [PiPythBandDonor]; [PiArctanFixedQ].
+
+    References.  The [piLd3_seed_halfwin] slot of the merged
+    [PiKernelSlack] segment; [PiCosZeroSeqConv] (the zero-sequence
+    face); [PiCosPartialSeqCauchy] (the fixed-point partial-sum
+    order-Cauchy face, orthogonal to the Cauchy property of the
+    zero-localization sequence).
+
+    Constructivity.  All consumption faces carried by [sig]/[sigT]
+    ([K : nat] witnesses); the fixed-point arctan consumption site is
+    carried by an explicitly named premise ([piLh_seed_t5alpha]); the
+    premise-free closed-form name [piLh_seed_halfwin] is closed by a
+    one-line assembly once the paired witnesses are available
+    (realized at the end of this file); positivity in [Q] goes through
+    the manual chain [unfold Qdiv], [Qmult_lt_0_compat],
+    [Qinv_lt_0_compat] (positivity of [Q] division without a nonzero
+    premise), literal positive steps go [unfold Qlt] then [simpl] +
+    [lia]; [nat] bookkeeping goes [Nat.le_trans]/[Nat.le_max_l], no
+    solver.  Assumption-free (coqchk-certified), no classical logic;
+    the closing [Print Assumptions] lines at the end of the file are
+    all Closed.
+
+    Build.  [coqc -native-compiler no -q -Q . "" PiHalfwinSeed.v]
+    compiles cleanly (exit 0) under Rocq 9.1.0; the first eight bytes
+    of the artifact are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
+
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Arith.PeanoNat.
 From Stdlib Require Import Lia.
@@ -68,7 +62,8 @@ Require Import PiPythBandDonor.
 Require PiArctanFixedQ.
 
 (* ============================================================ *)
-(* ==== §1 The cos zero-sequence consumption signature face (pinned verbatim; ascription = same-source certificate) ==== *)
+(* ==== §1 The cos zero-sequence consumption signature face (pinned verbatim; ascription =
+   same-source certificate) ====  *)
 (* ============================================================ *)
 
 Definition piLh_port_cos_zero_seq : nat -> Q := cos_zero_seq.
@@ -132,7 +127,8 @@ Definition piLh_port_cos_partial_seq_cauchy :
   cos_partial_seq_cauchy.
 
 (* ============================================================ *)
-(* ==== §4 The fixed-point arctan consumption face (explicitly named premise) and the instance e := 2dt/13 ==== *)
+(* ==== §4 The fixed-point arctan consumption face (explicitly named premise) and the instance e :=
+   2dt/13 ====  *)
 (* ============================================================ *)
 
 (* The premise of the consumption face (named premise slot; the sole fixed-point *)
@@ -320,7 +316,8 @@ Proof.
   - exact Hle.
 Qed.
 
-(* Individual square-sum bound machine: u^2+v^2==1+d and |d|<e imply |u|<=1+e (fully abstract, shared by the sin and cos pieces) *)
+(* Individual square-sum bound machine: u^2+v^2==1+d and |d|<e imply |u|<=1+e (fully abstract,
+   shared by the sin and cos pieces)  *)
 Lemma piLw_one_sq_bound : forall u v d e : Q,
   Qle 0 e ->
   (u * u + v * v == 1 + d) ->
@@ -738,7 +735,8 @@ Proof.
     + exact Hgt.
 Qed.
 
-(* The one-line gate assembly (the assembly form announced at the head of this file; a transparent Definition) *)
+(* The one-line gate assembly (the assembly form announced at the head of this file; a transparent
+   Definition)  *)
 Definition piLh_seed_halfwin : piLd3_seed_halfwin :=
   piLh_seed_halfwin_pair piLw_halfwin_cos piLw_halfwin_sin.
 

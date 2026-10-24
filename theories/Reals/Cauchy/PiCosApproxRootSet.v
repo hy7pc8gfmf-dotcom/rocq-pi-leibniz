@@ -381,3 +381,118 @@ Print Assumptions approx_root_cos_set.
 Print Assumptions cos_zero_seq_set.
 Print Assumptions cos_root_pt_bound_set.
 Print Assumptions cos_zero_abs_le_two_set.
+
+(* ============================================================ *)
+(* Appended section: Set-carried twins of the order faces        *)
+(*
+   Mission.  Set-carried twins of the strict-order, non-strict
+     order and equality statement faces of this file: each twin
+     restates the same mathematical content with the reflected
+     decision types [QltT]/[QleT']/[QeqT]/[NatLe] in the place of
+     the [Prop]-level [Qlt]/[Qle]/[Qeq]/[(<=)%nat] faces, so the
+     twin statement face lives in [Set] with no [Prop] component.
+     Each twin is proved by transporting through the decision
+     bridges and calling the original statement; the original
+     statements are untouched.
+
+   Dependencies.  The decision bridges of PiKernelSlack
+     ([QltT_to_Qlt]/[Qlt_to_QltT]/[QleT'_to_Qle]/[Qle_to_QleT']/
+     [qeqT_imp_qeq]/[qeq_imp_qeqT]/[NatLe_drop]/[NatLe_lift]).
+
+   References.  The original statements of this file (each twin
+     names its original in the one-line annotation above it).
+
+   Constructivity.  Statement faces carried at the [Set] level
+     ([QltT]/[QleT']/[QeqT]/[NatLe]); proof bodies are transport
+     chains through the decision bridges; no solver closes any
+     twin; assumption-free.
+
+   Build.  Compiled together with this file; see the header of
+     this file for the build recipe.
+*)
+
+
+(* Set twin of cos_zero_lower_set (Path A v2.4) *)
+Lemma cos_zero_lower_setT : forall n : nat, QltT (3#2)%Q (cos_zero_seq_set n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_lower_set n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of cos_zero_upper_set (Path A v2.4) *)
+Lemma cos_zero_upper_setT : forall n : nat, QltT (cos_zero_seq_set n) (5#3)%Q.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_upper_set n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of cos_zero_nonneg_set (Path A v2.4) *)
+Lemma cos_zero_nonneg_setT : forall n : nat, QleT' 0 (cos_zero_seq_set n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_nonneg_set n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of cos_zero_le_two_set (Path A v2.4) *)
+Lemma cos_zero_le_two_setT : forall n : nat, QleT' (cos_zero_seq_set n) 2.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_le_two_set n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of cos_zero_abs_le_two_set (Path A v2.4) *)
+Lemma cos_zero_abs_le_two_setT : forall n : nat, QleT' (Qabs (cos_zero_seq_set n)) 2.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_abs_le_two_set n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.

@@ -78,10 +78,16 @@ A fast-converging variant of this development is on the roadmap
   supply-layer file.  `coqchk -o` over the whole dependency closure:
   *Modules were successfully checked*, assumption context summary
   all-none.
-- **Extractable witnesses.**  Statements are `Set`-valued throughout
-  (sigma witnesses and the `CReal_appart` sum); the only `Prop`
-  occurrences are `Qlt` predicates inside sigma types, mirroring
-  `CRealLt` itself.  The extracted OCaml carries zero `Obj.magic`.
+- **Extractable witnesses.**  Statement faces are Set-carried: the
+  sigma witnesses and the `CReal_appart` sum are `Set`-valued, with
+  `Qlt` predicates occurring inside those sigma types as the registered
+  mirror of stdlib's `CRealLt` (scheduled for a `QltT`-based Set-carrier
+  rewrite).  Legacy supply-layer helper lemmas stated over `Prop` are
+  being restated over Set carriers wave by wave (red-line law v2.4:
+  the exception register is frozen — no new entries, existing ones
+  sunset on a fixed schedule).  Proof-internal `Prop` is erased at
+  extraction: the extracted OCaml carries zero `Obj.magic` and zero
+  statement-name loss.
 - **Runnable witnesses.**  Sample-point probes run in the REPL with
   `vm_compute`: the window family evaluates to `e 0 = 5 # 2`,
   `e 1 = 5 # 4`, `e 2 = 5 # 6`, and the escape-witness triple for

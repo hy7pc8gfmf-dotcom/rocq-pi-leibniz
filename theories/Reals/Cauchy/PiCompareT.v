@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * PiCompareT: Set-level thin wrappers for the three-way comparison
       decisions on [Q] values.
@@ -40,10 +32,11 @@
       compiles cleanly (exit 0); the first eight bytes of the
       artifact are [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
+From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 
 (* ================= Section 1. The Set-valued identity type ================= *)
 
@@ -57,7 +50,8 @@ Definition id_trans {A : Set} {x y z : A} (p : Id x y) (q : Id y z) : Id x z :=
   | id_refl, id_refl => id_refl
   end.
 
-(* ================= Section 2. Thin wrappers for the order decisions on [Q] values ================= *)
+(* ================= Section 2. Thin wrappers for the order decisions on [Q] values
+   =================  *)
 
 (* The strict-order Boolean comes with its own three-way form: stdlib
    [QArith_base] contains no [Qlt_bool] anywhere (a same-named item
@@ -76,7 +70,8 @@ Definition QltT (x y : Q) : Set := Id (Qlt_bool x y) true.
 (* Shared comparison reflection. Canonical definition — PiWindowCore imports from here. *)
 Definition QleT' (x y : Q) : Set := Id (Qle_bool x y) true.
 
-(* ================= Section 3. Semantic-equivalence self-check of the decisions ================= *)
+(* ================= Section 3. Semantic-equivalence self-check of the decisions ================= 
+      *)
 
 (* The comparison copies with the same shape as the originals of this
    development: the definition bodies of [S02_CauchyComplete.v],
@@ -203,3 +198,86 @@ Definition qltw_samp_Qeq_bool_2_2 : Id (Qeq_bool 2 2) true := @id_refl bool true
    [qltw_samp_QleT'_1_1] <- (new in this file)
    [qltw_samp_Qeq_bool_2_2] <- (new in this file)
 *)
+
+(* Path A v2.4 canonical carrier block (unified by WING-M7). *)
+(* Carrier supply section: [And]/[NatLe]/[ZleT]/[ZltT]/[IffT] with their
+   double-sided reflection bridges, moved here so every consumer module
+   obtains them from this single source (Path A v2.4, Set-carried).
+   The two stdlib imports below feed the bridge proofs only (no new
+   in-package dependency). *)
+Definition And (A B : Set) : Set := A * B.
+(* The [nat] order reflected at the [Set] level: the [leb] decision in *)
+(* identity form *)
+Definition NatLe (n m : nat) : Set := Id (Nat.leb n m) true.
+(* ---- Fully constructive argument bridge: [NatLe] <-> [(<=)%nat] ---- *)
+Lemma NatLe_drop : forall n m : nat, NatLe n m -> (n <= m)%nat.
+Proof.
+  intros n m H.
+  unfold NatLe in H.
+  destruct (Nat.leb n m) eqn:E.
+  - apply (proj1 (Nat.leb_le n m)). exact E.
+  - inversion H.
+Qed.
+
+Lemma NatLe_lift : forall n m : nat, (n <= m)%nat -> NatLe n m.
+Proof.
+  intros n m H.
+  unfold NatLe.
+  destruct (Nat.leb n m) eqn:E.
+  - reflexivity.
+  - exfalso.
+    apply (proj1 (Nat.leb_gt n m)) in E.
+    exact (proj2 (Nat.nle_gt n m) E H).
+Qed.
+(* ============================================================ *)
+(* Set-level carriers for the [Z] order and the Set-level        *)
+(* biconditional, for use by downstream modules                  *)
+(* ============================================================ *)
+
+(* The [Z] orders reflected at the [Set] level: the decisions in *)
+(* identity form, mirroring [NatLe] above                        *)
+Definition ZleT (n m : Z) : Set := Id (Z.leb n m) true.
+Definition ZltT (n m : Z) : Set := Id (Z.ltb n m) true.
+(* The Set-level biconditional, as the product of the two directions *)
+Definition IffT (A B : Set) : Set := (A -> B) * (B -> A).
+
+(* ---- Constructive bridges: [ZleT]/[ZltT] <-> [(<=)/(<)]%Z ---- *)
+Lemma ZleT_drop : forall n m : Z, ZleT n m -> (n <= m)%Z.
+Proof.
+  intros n m H.
+  unfold ZleT in H.
+  destruct (Z.leb n m) eqn:E.
+  - apply (proj1 (Z.leb_le n m)). exact E.
+  - inversion H.
+Qed.
+
+Lemma ZleT_lift : forall n m : Z, (n <= m)%Z -> ZleT n m.
+Proof.
+  intros n m H.
+  unfold ZleT.
+  destruct (Z.leb n m) eqn:E.
+  - reflexivity.
+  - exfalso.
+    apply (proj1 (Z.leb_gt n m)) in E.
+    exact (proj2 (Z.nle_gt n m) E H).
+Qed.
+
+Lemma ZltT_drop : forall n m : Z, ZltT n m -> (n < m)%Z.
+Proof.
+  intros n m H.
+  unfold ZltT in H.
+  destruct (Z.ltb n m) eqn:E.
+  - apply (proj1 (Z.ltb_lt n m)). exact E.
+  - inversion H.
+Qed.
+
+Lemma ZltT_lift : forall n m : Z, (n < m)%Z -> ZltT n m.
+Proof.
+  intros n m H.
+  unfold ZltT.
+  destruct (Z.ltb n m) eqn:E.
+  - reflexivity.
+  - exfalso.
+    apply (proj1 (Z.ltb_ge n m)) in E.
+    exact (proj2 (Z.nlt_ge n m) E H).
+Qed.

@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * Native [CReal] construction of the Leibniz series for [pi]
 
@@ -44,8 +36,8 @@
     compiles cleanly (exit 0); the first eight bytes of the artifact are
     [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Qpower.
@@ -55,7 +47,8 @@ Require Import PiWindowCore.
 From Stdlib Require Import Qround.
 From Stdlib Require Import ConstructiveCauchyReals.
 
-(* ================= Section 1. The [pi_L] sampling layer: the inlined [lp] family and [lw0m_xL] ================= *)
+(* ================= Section 1. The [pi_L] sampling layer: the inlined [lp] family and [lw0m_xL]
+   =================  *)
 
 (** The odd terms [a_k := 1/(2k+1)] (trivial rational forms, inlined here rather than imported). *)
 Definition lp_a (k : nat) : Q := Qdiv 1 (Qmake (Z.of_nat (2 * k + 1)) 1).
@@ -72,10 +65,12 @@ Fixpoint lp_odd (m : nat) : Q :=
 
 Definition lp_four : Q := (1 + 1 + 1 + 1)%Q.
 
-(** The projection sequence of [pi_L] (the master definition; the same-named candidates of this development defer to this copy). *)
+(** The projection sequence of [pi_L] (the master definition; the same-named candidates of this
+   development defer to this copy).  *)
 Definition lw0m_xL (n : nat) : Q := lp_four * lp_odd n.
 
-(** Canonical forms of [lp_a] at zero and at successors (the [Qdiv 1 (Qmake z 1)] shape closes definitionally; the [Pos] denominator normal form). *)
+(** Canonical forms of [lp_a] at zero and at successors (the [Qdiv 1 (Qmake z 1)] shape closes
+   definitionally; the [Pos] denominator normal form).  *)
 Lemma piL_lp_a_0 : lp_a 0 == 1%Q.
 Proof. reflexivity. Qed.
 
@@ -87,7 +82,8 @@ Proof.
   reflexivity.
 Qed.
 
-(* ================= Section 2. [nat]->[Z] linearization and the working layer that closes the [Q] order facts ================= *)
+(* ================= Section 2. [nat]->[Z] linearization and the working layer that closes the [Q]
+   order facts =================  *)
 
 (** [Z.of_nat] is monotone ([<=] on [nat] lifts to [<=] on [Z]). *)
 Lemma znat_le_mono : forall n m : nat, (n <= m)%nat -> (Z.of_nat n <= Z.of_nat m)%Z.
@@ -97,7 +93,8 @@ Proof. intros n m H. exact (proj1 (Nat2Z.inj_le n m) H). Qed.
 Lemma znat_eq_inj : forall n m : nat, Z.of_nat n = (Z.of_nat m)%Z -> n = m.
 Proof. intros n m H. exact (proj1 (Nat2Z.inj_iff n m) H). Qed.
 
-(** [Z.pos (Pos.of_succ_nat k)] equals [Z.of_nat k + 1] (the anchor for closing denominators lifted to [Z]). *)
+(** [Z.pos (Pos.of_succ_nat k)] equals [Z.of_nat k + 1] (the anchor for closing denominators lifted
+   to [Z]).  *)
 Lemma piL_pos_succ1 : forall k : nat, Z.pos (Pos.of_succ_nat k) = (Z.of_nat k + 1)%Z.
 Proof.
   induction k as [|k IH].
@@ -112,7 +109,8 @@ Proof.
   intros n. apply Nat.neq_0_lt_0. apply Nat.pow_nonzero. discriminate.
 Qed.
 
-(* -- [Q] power bridge: [2^(-n)] equals [1/2^n] in [Pos] denominator normal form (the resolution anchor of the record side) -- *)
+(* -- [Q] power bridge: [2^(-n)] equals [1/2^n] in [Pos] denominator normal form (the resolution
+   anchor of the record side) --  *)
 
 Lemma piL_qpow2_neq0 : ~ (2 == 0)%Q.
 Proof. intro H. unfold Qeq in H. cbn in H. discriminate. Qed.
@@ -140,7 +138,8 @@ Proof.
     ring.
 Qed.
 
-(* -- Three bridges for nonnegative [Q] differences ([Qle 0 (b-a)], its converse, and order preservation of subtraction) -- *)
+(* -- Three bridges for nonnegative [Q] differences ([Qle 0 (b-a)], its converse, and order
+   preservation of subtraction) --  *)
 
 (** [a <= b] implies [0 <= b - a]. *)
 Lemma qle_minus0 : forall a b : Q, Qle a b -> Qle 0 (b - a)%Q.
@@ -216,13 +215,16 @@ Proof.
   rewrite Hr. apply Qabs_opp.
 Qed.
 
-(* ================= Section 3. Index arithmetic (the [nat] order fuel of the interleaved tail bounds) ================= *)
+(* ================= Section 3. Index arithmetic (the [nat] order fuel of the interleaved tail
+   bounds) =================  *)
 
-(** From strict [nat] order to the successor: [a < b] gives [S a <= b] (the shared piece of the strict-version contradiction cores). *)
+(** From strict [nat] order to the successor: [a < b] gives [S a <= b] (the shared piece of the
+   strict-version contradiction cores).  *)
 Lemma piL_nat_lt_succ_le : forall a b : nat, (a < b)%nat -> (S a <= b)%nat.
 Proof. intros a b H. exact H. Qed.
 
-(** Index lemma, first form: [2a <= 2b] implies [a <= b] (cancelling the positive doubling in [Z]). *)
+(** Index lemma, first form: [2a <= 2b] implies [a <= b] (cancelling the positive doubling in [Z]). 
+      *)
 Lemma piL_even_le : forall a b : nat, (2 * a <= 2 * b)%nat -> (a <= b)%nat.
 Proof.
   intros a b H.
@@ -232,7 +234,8 @@ Proof.
   rewrite !Nat2Z.inj_mul in Hz. exact Hz.
 Qed.
 
-(** Index lemma, second form: [2a <= 2b+1] implies [a <= b] (by contradiction on [b < a]: [2(b+1) <= 2a <= 2b+1] contradicts [2b+1 < 2b+2]). *)
+(** Index lemma, second form: [2a <= 2b+1] implies [a <= b] (by contradiction on [b < a]: [2(b+1) <=
+   2a <= 2b+1] contradicts [2b+1 < 2b+2]).  *)
 Lemma piL_even_le_odd : forall a b : nat, (2 * a <= 2 * b + 1)%nat -> (a <= b)%nat.
 Proof.
   intros a b H.
@@ -258,7 +261,8 @@ Proof.
   - exact (Nat.lt_le_incl _ _ Hab).
 Qed.
 
-(** Index lemma, third form: [2a+1 <= 2b] implies [a < b] (by contradiction on [b <= a], which would give [2a+1 <= 2a]). *)
+(** Index lemma, third form: [2a+1 <= 2b] implies [a < b] (by contradiction on [b <= a], which would
+   give [2a+1 <= 2a]).  *)
 Lemma piL_odd_le_even : forall a b : nat, (2 * a + 1 <= 2 * b)%nat -> (a < b)%nat.
 Proof.
   intros a b H.
@@ -282,9 +286,11 @@ Proof.
   - exact H.
 Qed.
 
-(* ============ Section 4. Interleaved tail bounds -- preinstalled: the squeeze closure cores ============ *)
+(* ============ Section 4. Interleaved tail bounds -- preinstalled: the squeeze closure cores
+   ============  *)
 
-(** Squeeze closure core, first form (same direction): [x <= y <= w] and [w - x == c] imply [Qabs (y - x) <= c]. *)
+(** Squeeze closure core, first form (same direction): [x <= y <= w] and [w - x == c] imply [Qabs (y
+   - x) <= c].  *)
 Lemma piL_sandwich_abs : forall x y w c : Q,
   Qle x y -> Qle y w -> (w - x)%Q == c -> Qle (Qabs (y - x)) c.
 Proof.
@@ -293,7 +299,8 @@ Proof.
   rewrite <- Hwx. apply qle_minus_compat. exact Hyw.
 Qed.
 
-(** Squeeze closure core, second form (reverse direction): the shape [y <= x <= w] -- [0 <= x - y] and [x - y <= x - w == c]. *)
+(** Squeeze closure core, second form (reverse direction): the shape [y <= x <= w] -- [0 <= x - y]
+   and [x - y <= x - w == c].  *)
 Lemma piL_sandwich_abs_neg : forall x y w c : Q,
   Qle y x -> Qle w y -> (x - w)%Q == c -> Qle (Qabs (x - y)) c.
 Proof.
@@ -302,14 +309,16 @@ Proof.
   rewrite <- Hxw. apply qle_rsub_antitone. exact Hwy.
 Qed.
 
-(** Two small [Qmake] literal normal-form lemmas (alignment anchors of the main bridge; conversions at the [reflexivity] level). *)
+(** Two small [Qmake] literal normal-form lemmas (alignment anchors of the main bridge; conversions
+   at the [reflexivity] level).  *)
 Lemma piL_qmult_make4 : forall (z : Z) (p : positive), (4 * (z # p))%Q == ((4 * z) # p).
 Proof. intros z p. reflexivity. Qed.
 
 Lemma piL_qopp_make : forall (z : Z) (p : positive), (- (z # p))%Q == ((- z) # p).
 Proof. intros z p. reflexivity. Qed.
 
-(** [lp_pair (S n)] shares its value with the even-odd pair of [t] terms (in [Qmake] denominator normal form; a stepping lemma of the main bridge; independent of the window file). *)
+(** [lp_pair (S n)] shares its value with the even-odd pair of [t] terms (in [Qmake] denominator
+   normal form; a stepping lemma of the main bridge; independent of the window file).  *)
 Lemma piL_pair_val : forall n : nat,
   lp_four * lp_pair (S n)%nat
     == (4 # Pos.of_succ_nat (4 * n + 4))%Q + ((-4) # Pos.of_succ_nat (4 * n + 6))%Q.
@@ -339,7 +348,8 @@ Proof.
   reflexivity.
 Qed.
 
-(* ============ Section 5. Depth mirroring and [Q] closure (preinstalled; independent of the window file) ============ *)
+(* ============ Section 5. Depth mirroring and [Q] closure (preinstalled; independent of the window
+   file) ============  *)
 
 (** Pointwise transport of [Qeq] into [Qlt] (a [Qeq] wrapper lemma cannot be
     [rewrite]-ed inside a [Qlt] goal -- the standing restriction of the [Q]
@@ -348,7 +358,8 @@ Qed.
 Lemma piL_qlt_transport : forall a b c : Q, Qlt a b -> b == c -> Qlt a c.
 Proof. intros a b c H Hb. exact (proj1 (Qlt_compat a a (Qeq_refl a) b c Hb) H). Qed.
 
-(** Strict [Z] order under translation: [z < z + 5] (the trivially-true core left after the [Q] closure scales through by the integer). *)
+(** Strict [Z] order under translation: [z < z + 5] (the trivially-true core left after the [Q]
+   closure scales through by the integer).  *)
 Lemma piL_zlt_add5 : forall z : Z, (z < z + 5)%Z.
 Proof.
   intros z.
@@ -382,14 +393,16 @@ Proof.
   - apply Qeq_sym. exact (piL_qpow2_neg n).
 Qed.
 
-(** Depth mirroring: [pi_leibniz_depth k := 2^|k|] (a [nat] power; the exponent dives along the negative half-axis; a new design piece with no counterpart in the source tree). *)
+(** Depth mirroring: [pi_leibniz_depth k := 2^|k|] (a [nat] power; the exponent dives along the
+   negative half-axis; a new design piece with no counterpart in the source tree).  *)
 Definition pi_leibniz_depth (k : Z) : nat := (2 ^ (Z.to_nat (Z.abs k)))%nat.
 
 (** The depth is always positive (the [2^n >= 1] fuel). *)
 Lemma pi_leibniz_depth_pos : forall k : Z, (1 <= pi_leibniz_depth k)%nat.
 Proof. intros k. unfold pi_leibniz_depth. apply piL_nat_pow2_ge1. Qed.
 
-(** The depth floor on the negative half-axis ([p <= k < 0] implies [pi_leibniz_depth k <= pi_leibniz_depth p]; [Z.abs] reverses the order, and [Z2Nat] is monotone). *)
+(** The depth floor on the negative half-axis ([p <= k < 0] implies [pi_leibniz_depth k <=
+   pi_leibniz_depth p]; [Z.abs] reverses the order, and [Z2Nat] is monotone).  *)
 Lemma pi_leibniz_depth_floor : forall p k : Z, (k < 0)%Z -> (p <= k)%Z ->
   (pi_leibniz_depth k <= pi_leibniz_depth p)%nat.
 Proof.
@@ -453,7 +466,8 @@ Proof.
     reflexivity.
 Qed.
 
-(** [Qabs (leiblw_t (2a)) == leiblw_S (2a+1) - leiblw_S (2a)] and [Qabs (leiblw_t (2a+1)) == leiblw_S (2a+1) - leiblw_S (2a+2)] (closed forms of both branches). *)
+(** [Qabs (leiblw_t (2a)) == leiblw_S (2a+1) - leiblw_S (2a)] and [Qabs (leiblw_t (2a+1)) ==
+   leiblw_S (2a+1) - leiblw_S (2a+2)] (closed forms of both branches).  *)
 Lemma piL_tail_even_abs : forall a : nat,
   (leiblw_S (2 * a + 1) - leiblw_S (2 * a))%Q == Qabs (leiblw_t (2 * a)).
 Proof.
@@ -541,7 +555,8 @@ Proof.
   - apply piL_tail_odd_abs.
 Qed.
 
-(** The interleaved tail-bound main lemma: [Qabs (leiblw_S k - leiblw_S n) <= Qabs (leiblw_t n)] (a four-case squeeze; proved anew, with no precedent case lemmas). *)
+(** The interleaved tail-bound main lemma: [Qabs (leiblw_S k - leiblw_S n) <= Qabs (leiblw_t n)] (a
+   four-case squeeze; proved anew, with no precedent case lemmas).  *)
 Lemma leiblw_S_tail_bound : forall n k : nat, (n <= k)%nat ->
   Qle (Qabs ((leiblw_S k - leiblw_S n)%Q)) (Qabs (leiblw_t n)).
 Proof.
@@ -554,7 +569,8 @@ Proof.
   - apply piL_tail_oo. apply piL_odd_le_odd. exact Hnk.
 Qed.
 
-(** Shared by both legs: [D <= d] implies [Qabs (leiblw_S (2D+2) - leiblw_S (2d+2)) <= Qabs (leiblw_t (2D+2))]. *)
+(** Shared by both legs: [D <= d] implies [Qabs (leiblw_S (2D+2) - leiblw_S (2d+2)) <= Qabs
+   (leiblw_t (2D+2))].  *)
 Lemma piL_seq_pair_bound : forall a b : nat, (a <= b)%nat ->
   Qle (Qabs ((leiblw_S (2 * a + 2) - leiblw_S (2 * b + 2))%Q))
       (Qabs (leiblw_t (2 * a + 2))).
@@ -567,13 +583,16 @@ Proof.
   - apply Nat.le_refl.
 Qed.
 
-(* ============ Section 7. Depth sampling and the main convergence (the [CReal] record main jump) ============ *)
+(* ============ Section 7. Depth sampling and the main convergence (the [CReal] record main jump)
+   ============  *)
 
-(** The sampling sequence of [pi_L]: exponential depth mirroring on the negative half-axis ([pi_leibniz_seq k := leiblw_S (2*2^|k|+2)]). *)
+(** The sampling sequence of [pi_L]: exponential depth mirroring on the negative half-axis
+   ([pi_leibniz_seq k := leiblw_S (2*2^|k|+2)]).  *)
 Definition pi_leibniz_seq (k : Z) : Q :=
   leiblw_S (2 * pi_leibniz_depth k + 2)%nat.
 
-(** The read-off bridge: [pi_leibniz_seq (-n) == lp_four * lp_odd (2^n)] (the negative tail lands definitionally). *)
+(** The read-off bridge: [pi_leibniz_seq (-n) == lp_four * lp_odd (2^n)] (the negative tail lands
+   definitionally).  *)
 Lemma pi_leibniz_seq_negtail : forall n : nat,
   pi_leibniz_seq (Z.opp (Z.of_nat n)) == lp_four * lp_odd (2 ^ n)%nat.
 Proof.
@@ -582,7 +601,8 @@ Proof.
   rewrite <- leiblw_xL_eq_S. reflexivity.
 Qed.
 
-(** Closed form of the even branch of [t] in the [+2] index form: [leiblw_t (2m+2) == 4/(4m+5)] -- aligned with the denominator normal form of the [Q] closure. *)
+(** Closed form of the even branch of [t] in the [+2] index form: [leiblw_t (2m+2) == 4/(4m+5)] --
+   aligned with the denominator normal form of the [Q] closure.  *)
 Lemma piL_t_2p2_even : forall m : nat,
   leiblw_t (2 * m + 2) == (4 # Pos.of_succ_nat (4 * m + 4))%Q.
 Proof.
@@ -594,7 +614,8 @@ Proof.
   reflexivity.
 Qed.
 
-(** The antitone core of the even branch of [t] (in the [2j] form): [i <= j] implies [Qabs (leiblw_t (2j)) <= Qabs (leiblw_t (2i))]. *)
+(** The antitone core of the even branch of [t] (in the [2j] form): [i <= j] implies [Qabs (leiblw_t
+   (2j)) <= Qabs (leiblw_t (2i))].  *)
 Lemma piL_t_even_antitone : forall i j : nat, (i <= j)%nat ->
   Qle (Qabs (leiblw_t (2 * j))) (Qabs (leiblw_t (2 * i))).
 Proof.
@@ -613,7 +634,8 @@ Proof.
   apply znat_le_mono. apply Nat.mul_le_mono_l. exact Hij.
 Qed.
 
-(** The even branch of [t] is antitone in the [+2] index form: [i <= j] implies [Qabs (leiblw_t (2j+2)) <= Qabs (leiblw_t (2i+2))]. *)
+(** The even branch of [t] is antitone in the [+2] index form: [i <= j] implies [Qabs (leiblw_t
+   (2j+2)) <= Qabs (leiblw_t (2i+2))].  *)
 Lemma piL_tail2_antitone : forall i j : nat, (i <= j)%nat ->
   Qle (Qabs (leiblw_t (2 * j + 2))) (Qabs (leiblw_t (2 * i + 2))).
 Proof.
@@ -626,7 +648,8 @@ Proof.
   apply (proj1 (Nat.succ_le_mono i j)). exact Hij.
 Qed.
 
-(** The resolution overrun: [Qabs (leiblw_t (2*2^n+2)) < 2^(-n)] (the trivially-true core [4*2^n < 4*2^n+5]). *)
+(** The resolution overrun: [Qabs (leiblw_t (2*2^n+2)) < 2^(-n)] (the trivially-true core [4*2^n <
+   4*2^n+5]).  *)
 Lemma piL_tail2_qclose : forall n : nat,
   Qlt (Qabs (leiblw_t (2 * 2 ^ n + 2))) (2 ^ Z.opp (Z.of_nat n))%Q.
 Proof.
@@ -637,7 +660,8 @@ Proof.
   apply piL_qclose_exp.
 Qed.
 
-(** The [Q] power floor: [0 <= z] implies [1 <= 2^z] (the resolution fuel of the [k >= 0] branch; a miniature of the engine lines [:60-:87]). *)
+(** The [Q] power floor: [0 <= z] implies [1 <= 2^z] (the resolution fuel of the [k >= 0] branch; a
+   miniature of the engine lines [:60-:87]).  *)
 Lemma piL_qpow2_ge1 : forall z : Z, (0 <= z)%Z -> Qle 1 (2 ^ z)%Q.
 Proof.
   intros z Hz.
@@ -666,7 +690,8 @@ Proof.
   - apply piL_tail2_qclose.
 Qed.
 
-(** Resolution on the [k >= 0] branch: [1 <= dp] implies [Qabs (leiblw_t (2*dp+2)) < 1] (sharpened to [1/2] in use). *)
+(** Resolution on the [k >= 0] branch: [1 <= dp] implies [Qabs (leiblw_t (2*dp+2)) < 1] (sharpened
+   to [1/2] in use).  *)
 Lemma piL_cauchy_pos : forall dp : nat, (1 <= dp)%nat ->
   Qlt (Qabs (leiblw_t (2 * dp + 2))) 1%Q.
 Proof.
@@ -681,7 +706,8 @@ Proof.
   exact (Qle_lt_trans _ _ _ Hanti Hlt08).
 Qed.
 
-(** The main jump: [pi_leibniz_seq] is Cauchy (uniform tail control over all of [Z]) -- the flagship delivery, proved in the named-chain style of the engine lines [:113-:157]. *)
+(** The main jump: [pi_leibniz_seq] is Cauchy (uniform tail control over all of [Z]) -- the flagship
+   delivery, proved in the named-chain style of the engine lines [:113-:157].  *)
 Lemma pi_leibniz_cauchy : QCauchySeq pi_leibniz_seq.
 Proof.
   intros k p q Hp Hq.
@@ -720,7 +746,8 @@ Proof.
       exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos _ (pi_leibniz_depth_pos q))) H1).
 Qed.
 
-(** The delivered-form convergence theorem: the window bound of the negative tail is the modulus itself. *)
+(** The delivered-form convergence theorem: the window bound of the negative tail is the modulus
+   itself.  *)
 Lemma pi_leibniz_negtail_cauchy : forall n m : nat, (n <= m)%nat ->
   Qlt (Qabs (pi_leibniz_seq (Z.opp (Z.of_nat m))
             - pi_leibniz_seq (Z.opp (Z.of_nat n))))
@@ -753,21 +780,24 @@ Proof.
   - unfold Qlt. cbn. reflexivity.
 Qed.
 
-(** The record packing: [pi_leibniz : CReal] (the four fields of the engine's record maker; isomorphic to the engine file at line [:66]). *)
+(** The record packing: [pi_leibniz : CReal] (the four fields of the engine's record maker;
+   isomorphic to the engine file at line [:66]).  *)
 Definition pi_leibniz : CReal := {|
   seq := pi_leibniz_seq; scale := pi_leibniz_scale;
   cauchy := pi_leibniz_cauchy; bound := pi_leibniz_bound |}.
 
 (* ============ Section 8. The e family (on the unified window carrier) ============ *)
 
-(** The definition of the e family, keeping its name under the carrier swap: the e family is five times the [leiblw_nivwin] window. *)
+(** The definition of the e family, keeping its name under the carrier swap: the e family is five
+   times the [leiblw_nivwin] window.  *)
 Definition lw0m_e (n : nat) : Q := 5 * leiblw_nivwin n.
 
 (** The [leiblw_nivwin] window is always positive. *)
 Lemma nivwin_pos : forall n : nat, Qlt 0%Q (leiblw_nivwin n)%Q.
 Proof. intros n. unfold leiblw_nivwin. unfold Qlt. cbn. reflexivity. Qed.
 
-(** The [leiblw_nivwin] window is antitone: [a <= b] implies [leiblw_nivwin b <= leiblw_nivwin a]. *)
+(** The [leiblw_nivwin] window is antitone: [a <= b] implies [leiblw_nivwin b <= leiblw_nivwin a]. 
+      *)
 Lemma nivwin_antitone : forall a b : nat, (a <= b)%nat ->
   Qle (leiblw_nivwin b) (leiblw_nivwin a)%Q.
 Proof.
@@ -814,11 +844,14 @@ Lemma piL_qinv_inject_succ : forall k : nat,
   / (QArith_base.inject_Z (Z.of_nat (S k))) == (1 # Pos.of_succ_nat k)%Q.
 Proof. intros k. unfold inject_Z, Qinv, Qeq. cbn. f_equal. Qed.
 
-(** The modulus definition (calibrated directly to the five-series window; the rescaling detour of the earlier four-series modulus is eliminated). *)
+(** The modulus definition (calibrated directly to the five-series window; the rescaling detour of
+   the earlier four-series modulus is eliminated).  *)
 Definition lw0m_modulus (eps : Q) : nat := S (Z.to_nat (Qceiling (5 / eps))).
 
-(* The modulus bound: [lw0m_e (lw0m_modulus eps) < eps] (a [Q]-level chain with no decision procedure anywhere). *)
-(** Right cancellation for [Q] multiplication on the strict side (the closing lemma of the modulus bound). *)
+(* The modulus bound: [lw0m_e (lw0m_modulus eps) < eps] (a [Q]-level chain with no decision
+   procedure anywhere).  *)
+(** Right cancellation for [Q] multiplication on the strict side (the closing lemma of the modulus
+   bound).  *)
 Lemma piL_qmult_cancel : forall (a b : Q), Qlt 0%Q b -> ((a * b) * / b == a)%Q.
 Proof.
   intros a b Hb0.
@@ -922,14 +955,17 @@ Proof.
               eps eps (Qeq_refl eps)) Hmid).
 Qed.
 
-(* ============ Section 9. Unified window vanishing (the independently carried [lic_vanish] form) ============ *)
+(* ============ Section 9. Unified window vanishing (the independently carried [lic_vanish] form)
+   ============  *)
 
-(** The type carrier of the vanishing interface (the decision carried by [QltT], at the [Set] level; the [Id]-style carriers of the source statement are replaced by [QltT]). *)
+(** The type carrier of the vanishing interface (the decision carried by [QltT], at the [Set] level;
+   the [Id]-style carriers of the source statement are replaced by [QltT]).  *)
 Definition leiblw_lic_vanish (e : nat -> Q) : Set :=
   forall eps : Q, QltT 0 eps ->
     sigT (fun N : nat => forall n : nat, (N <= n)%nat -> QltT (e n) eps).
 
-(** The unified window vanishing instance: [lw0m_vanish_pi] (the modulus family of this file replaces the earlier family wholesale). *)
+(** The unified window vanishing instance: [lw0m_vanish_pi] (the modulus family of this file
+   replaces the earlier family wholesale).  *)
 Definition lw0m_vanish_pi : leiblw_lic_vanish lw0m_e.
 Proof.
   intros eps Heps.

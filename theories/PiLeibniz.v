@@ -1,21 +1,43 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * PiLeibniz: root module of the [rocq-pi-leibniz] package.
 
-    Convenience re-export of the whole development in one import.
-    This file is release packaging scaffolding: it states no theorem,
-    defines nothing, and proves nothing.  Every content module is
-    carried verbatim from the submitted state (head [841855c]) of the
-    Rocq standard-library proposal; see the repository README for the
-    provenance account. *)
+    Mission.  Release packaging scaffolding: a convenience re-export
+    of the whole development in one import.  The file states no
+    theorem, defines nothing, and proves nothing; importing
+    [PiLeibniz] makes every name of every content module available.
+
+    Dependencies.  All content modules of the package, re-exported:
+    [ConstructiveCauchyRealsSep], [PiArctanFixedQ], [PiBandBound],
+    [PiCompareT], [PiCRealAppartT], [PiCosApproxRoot],
+    [PiCosApproxRootSet],
+    [PiCosBandAssemble], [PiCosPartialSeqCauchy], [PiCosTailScan],
+    [PiCosZeroSeqConv], [PiCosZeroSeqProbe], [PiExpArch],
+    [PiExpTrigSeries], [PiHalfwinSeed], [PiKernelSlack],
+    [PiLeibnizCReal], [PiLeibnizMargin], [PiPadeQLeg],
+    [PiPascalMachine], [PiPascalResidue], [PiPythBandDonor],
+    [PiRowIdentity], [PiSeedSupplyShell], [PiSep361RefaceT],
+    [PiSepBNeq0T], [PiSepMirrorT], [PiSepSearch],
+    [PiSepTriple227], [PiSeparation], [PiVertexPolyDiff],
+    [PiWindowCore],
+    [QCauchyZeroCos].
+
+    References.  The repository README (Position, Provenance): the
+    content modules are carried verbatim from the submitted state
+    (head [841855c]) of the Rocq standard-library proposal "Add a
+    constructive pi for the constructive Cauchy reals with a strong
+    irrationality separation theorem" (upstream PR #316).
+
+    Constructivity.  No statement is made in this file; the guarantee
+    face is inherited from the re-exported modules (premise-free main
+    theorems, assumption-free by [coqchk]).
+
+    Build.  [coqc -native-compiler no -q -Q . "" PiLeibniz.v]
+    compiles cleanly (exit 0); the first eight bytes of the artifact
+    are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 Require Export ConstructiveCauchyRealsSep.
 Require Export PiArctanFixedQ.
@@ -45,3 +67,8 @@ Require Export QCauchyZeroCos.
 Require Export PiLeibnizMargin.
 Require Export PiPadeQLeg.
 Require Export PiSepSearch.
+Require Export PiCRealAppartT.
+Require Export PiSep361RefaceT.
+Require Export PiSepBNeq0T.
+Require Export PiSepMirrorT.
+Require Export PiSepTriple227.

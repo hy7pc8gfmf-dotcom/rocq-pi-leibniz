@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * The row identity behind the partial-sum stratification of the
     double-angle sine
@@ -48,8 +40,8 @@
     Build.  [coqc -native-compiler no -q -Q . "" PiRowIdentity.v];
     the first eight bytes of the artifact are [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
@@ -57,7 +49,8 @@ From Stdlib Require Import Lia.
 Require Import PiKernelSlack.
 Require Import PiPascalMachine.
 
-(* ============ Section 1. The product-coefficient row (carried by the row-sum machine [sumR]) and the scalar lemmas ============ *)
+(* ============ Section 1. The product-coefficient row (carried by the row-sum machine [sumR]) and
+   the scalar lemmas ============  *)
 
 (** The coefficient row of the double product
     [2 * (sum sin_term) * (sum cos_term)], grouped by [i+j=m].  The
@@ -109,7 +102,8 @@ Proof.
     cbv beta. rewrite IH. ring.
 Qed.
 
-(* ============ Section 2. Cancellation base lemmas ([Qmult_inv_r], explicit at every step) ============ *)
+(* ============ Section 2. Cancellation base lemmas ([Qmult_inv_r], explicit at every step)
+   ============  *)
 
 Lemma piLrowB_qfact_neq0 : forall n : nat, ~ (q_fact n == 0)%Q.
 Proof.
@@ -143,7 +137,8 @@ Proof.
   - rewrite Hcc. apply Qmult_1_r.
 Qed.
 
-(* ============ Section 3. Row-piece denominator cancellation (product form; one [Qmult_inv_r] pair per piece) ============ *)
+(* ============ Section 3. Row-piece denominator cancellation (product form; one [Qmult_inv_r] pair
+   per piece) ============  *)
 
 Lemma piLrowB_rowpiece : forall (m t : nat) (x : Q), (t <= m)%nat ->
   (2 * sin_term t x * cos_term (m - t)%nat x) * q_fact (Datatypes.S (2 * m))
@@ -196,7 +191,8 @@ Proof.
   rewrite Hreg, H1, H2. ring.
 Qed.
 
-(* ============ Section 4. The row sum with canceled denominators (after piece-by-piece cancellation, the odd half-row concludes) ============ *)
+(* ============ Section 4. The row sum with canceled denominators (after piece-by-piece
+   cancellation, the odd half-row concludes) ============  *)
 
 Lemma piLrowB_row_fact_sum : forall (m : nat) (x : Q),
   piLrowB_row m x * q_fact (Datatypes.S (2 * m))
@@ -222,7 +218,8 @@ Proof.
   rewrite piLsb_row_odd. ring.
 Qed.
 
-(* ============ Section 5. The main theorem, the row identity (both sides multiplied by the denominator and the factor canceled) ============ *)
+(* ============ Section 5. The main theorem, the row identity (both sides multiplied by the
+   denominator and the factor canceled) ============  *)
 
 Theorem piLrowB_row_sin_term : forall (m : nat) (x : Q),
   piLrowB_row m x == sin_term m (2 * x)%Q.
@@ -243,7 +240,8 @@ Proof.
     ring.
 Qed.
 
-(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared explicitly) ============ *)
+(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared
+   explicitly) ============  *)
 
 (** In-kernel witnesses for small instances: for [m] = 3 and [4]
     with [x = 13/10], the row values agree with the double-angle

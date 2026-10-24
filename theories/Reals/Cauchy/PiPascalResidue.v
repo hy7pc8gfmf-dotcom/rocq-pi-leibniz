@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 
 (** * The anti-diagonal band representation of the truncation
     remainder
@@ -55,8 +47,8 @@
     Build.  [coqc -native-compiler no -q -Q . "" PiPascalResidue.v];
     the first eight bytes of the artifact are [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
@@ -65,7 +57,8 @@ Require Import PiKernelSlack.
 Require Import PiPascalMachine.
 Require Import PiRowIdentity.
 
-(* ============ Section 1. Anti-diagonal band rows and the band sum (row range [k+1, 2k]) ============ *)
+(* ============ Section 1. Anti-diagonal band rows and the band sum (row range [k+1, 2k])
+   ============  *)
 
 (** The band row: the in-range segment of row [m],
     [sum_{u < 2k+1-m} 2 * sin_term (m-k+u) x * cos_term (k-u) x],
@@ -177,7 +170,8 @@ Proof.
     cbn [cos_partial]. ring.
 Qed.
 
-(* ============ Section 3. The row-sum-machine representation and the separated representation of the band sum ============ *)
+(* ============ Section 3. The row-sum-machine representation and the separated representation of
+   the band sum ============  *)
 
 (* The row-sum-machine representation of the band sum:
    [bandsum k t == sum_{u < t+1} bandrow k (S (k+u))]. *)
@@ -248,7 +242,8 @@ Proof.
     cbv beta. apply Qeq_refl.
 Qed.
 
-(* ============ Section 4. The step of the separated representation and the match with the remainder recursion ============ *)
+(* ============ Section 4. The step of the separated representation and the match with the remainder
+   recursion ============  *)
 
 (* The step of the separated representation: the increment of
    [bandsep (S k)] is exactly the step increment of the [dres]
@@ -361,7 +356,8 @@ Proof.
   - cbn [piL_sin_dres]. rewrite IH, piLc_bandsep_step. ring.
 Qed.
 
-(* ============ Section 5. The mission statements: the band representation theorem and the partial-sum identity ============ *)
+(* ============ Section 5. The mission statements: the band representation theorem and the
+   partial-sum identity ============  *)
 
 (* The band representation theorem: the truncation remainder
    equals the band sum over the row range [k+1,2k]. *)
@@ -386,7 +382,8 @@ Proof.
   rewrite H. ring.
 Qed.
 
-(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared explicitly) ============ *)
+(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared
+   explicitly) ============  *)
 
 (** In-kernel witnesses for small instances: for [k=3] and
     [x=13/10], the band value of the remainder agrees with the

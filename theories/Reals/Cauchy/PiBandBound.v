@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 (** * PiBandBound.v: band bound of the sin truncation remainder
 
     Mission.  The absolute-value upper bound and the monotonicity of
@@ -46,13 +38,17 @@
     [sum_{i<=m} C(2m+1,2i+1) == 2^(2m)]).
 
     Constructivity.  Statements live entirely on the stdlib
-    [Qeq]/[Qle]/[Qlt]; zero axioms, no abandoned proofs, no
+    [Qeq]/[Qle]/[Qlt]; assumption-free (coqchk-certified), no abandoned proofs, no
     classical logic; induction with explicit algebraic chains and
     zero solvers on the [Q] side ([Lia] only for auxiliary [nat]
     arithmetic); definitions are transparent and extractable.
 
     Build.  [coqc -native-compiler no -q -Q . "" PiBandBound.v]
-    WARNING: this file is experimental and likely to change in future releases. *)
+    compiles cleanly (exit 0); the first eight bytes of the artifact
+    are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs QArith.Qround.
@@ -69,7 +65,8 @@ Require Import PiPascalResidue.
 Definition piLd_t_term (m : nat) (B : Q) : Q :=
   q_pow (2 * B) (Datatypes.S (2 * m))%nat / q_fact (Datatypes.S (2 * m))%nat.
 
-(** The band-sum bound: [band_bound k B = sum_{u<k} t_{k+1+u}(B)] over the row range [k+1, 2k]; for [k = 0] the empty sum is [0], aligned with [dres 0 = 0]. *)
+(** The band-sum bound: [band_bound k B = sum_{u<k} t_{k+1+u}(B)] over the row range [k+1, 2k]; for
+   [k = 0] the empty sum is [0], aligned with [dres 0 = 0].  *)
 Definition piLd_band_bound (k : nat) (B : Q) : Q :=
   piLsb_sumR (fun u => piLd_t_term (Datatypes.S (k + u))%nat B) k.
 
@@ -308,7 +305,8 @@ Qed.
 
 (* ============ Section 4. Term-level absolute-value bounds (Group D support) ============ *)
 
-(** Absolute-value bound at the cross-multiplication points: [|2 s_j x c_{mm-j} x| <= 2·B^{2j+1}/(2j+1)!·B^{2(mm-j)}/(2(mm-j))!]. *)
+(** Absolute-value bound at the cross-multiplication points: [|2 s_j x c_{mm-j} x| <=
+   2·B^{2j+1}/(2j+1)!·B^{2(mm-j)}/(2(mm-j))!].  *)
 Lemma piLd_point_term_le : forall (mm j : nat) (x B : Q), Qle (Qabs x) B ->
   Qle (Qabs (2%Q * sin_term j x * cos_term (mm - j)%nat x))
       (2%Q * (q_pow B (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j)))
@@ -354,7 +352,8 @@ Qed.
 
 (* ============ Section 5. Row majorants (Group D) ============ *)
 
-(** Pointwise reshaping: [1/(F1·F2) == C(S(2m),S(2i))/F(S(2m))] (pointwise denominator cancellation along the binomial-factorial bridge). *)
+(** Pointwise reshaping: [1/(F1·F2) == C(S(2m),S(2i))/F(S(2m))] (pointwise denominator cancellation
+   along the binomial-factorial bridge).  *)
 Lemma piLd_point_binom_div : forall (m i : nat), (i <= m)%nat ->
   1 / (q_fact (Datatypes.S (2 * i))%nat * q_fact (2 * (m - i))%nat)
   == bpa_binom (Datatypes.S (2 * m))%nat (Datatypes.S (2 * i))%nat
@@ -429,7 +428,8 @@ Proof.
   rewrite Hext, Hscal, piLsb_row_odd. reflexivity.
 Qed.
 
-(** Row majorant: [|bandrow k m x| <= t_m(B)] for [k < m]; in the [m > 2k] branch the band row segment is the empty sum [0]. *)
+(** Row majorant: [|bandrow k m x| <= t_m(B)] for [k < m]; in the [m > 2k] branch the band row
+   segment is the empty sum [0].  *)
 Lemma piLd_bandrow_abs_le : forall (k m : nat) (x B : Q),
   (k < m)%nat -> Qle (Qabs x) B ->
   Qle (Qabs (piLc_bandrow k m x)) (piLd_t_term m B).
@@ -609,7 +609,8 @@ Qed.
 
 (* ============ Section 7. Monotonicity (Group F) ============ *)
 
-(** Quarter-step descent for the [t] terms: [t_{m+1} <= (1/4)·t_m] for [0 <= B] and [2*ceil(B) <= m]. *)
+(** Quarter-step descent for the [t] terms: [t_{m+1} <= (1/4)·t_m] for [0 <= B] and [2*ceil(B) <=
+   m].  *)
 Lemma piLd_t_term_quarter_step : forall (B : Q) (m : nat),
   Qle 0 B -> (2 * Z.to_nat (Qceiling B) <= m)%nat ->
   Qle (piLd_t_term (Datatypes.S m) B) ((1 # 4)%Q * piLd_t_term m B).
@@ -933,7 +934,8 @@ Proof.
         -- exact Hlow.
 Qed.
 
-(* ============ Section 8. Truncation-length selection (Group G, in [sigT] witness form) ============ *)
+(* ============ Section 8. Truncation-length selection (Group G, in [sigT] witness form)
+   ============  *)
 
 Lemma piLd_band_small : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->

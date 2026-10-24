@@ -1,49 +1,43 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
-(* ============================================================ *)
-(* PiPythBandDonor.v                                            *)
-(*                                                              *)
-(* Mission: a partial-sum stratification of the Pythagorean      *)
-(*       identity sin^2+cos^2=1 -- the diagonal-band representation *)
-(*       of the truncation residual piL_pyth_dres and a uniform   *)
-(*       smallness supply. The full diagonal coefficient equals   *)
-(*       even half-row minus odd half-row (the even/odd halves of *)
-(*       a Pascal row have equal sums), hence zero, so the        *)
-(*       truncation residual is exactly the sum over the window   *)
-(*       rows [k+1,2k+2]; the row majorant and the geometric tail *)
-(*       band give some j such that k >= j and |x| <= B imply     *)
-(*       |piL_pyth_dres k x| < dt.                                *)
-(* Dependencies: Stdlib QArith.QArith, QArith.Qabs, ZArith.ZArith, *)
-(*       Arith.PeanoNat, Lia; PiKernelSlack (q_pow/q_fact,        *)
-(*       sin_term/cos_term, and, from its merged identity segment, *)
-(*       piL_pyth_dres, piL_pythag_partial, piL_cos_term_0);      *)
-(*       PiPascalMachine (the piLsb_sumR row-sum machine);        *)
-(*       PiRowIdentity (piLrowB_row_scal); PiCosBandAssemble      *)
-(*       (the row families ccrow/ssrow, row majorants, half-row   *)
-(*       closed forms, the geometric tail band and the choice of  *)
-(*       the truncation length).                                  *)
-(* References: the sum side of the partial-sum band expansion of  *)
-(*       cos(2x)=cos^2-sin^2 (piLe_dcos_band_rows): on the        *)
-(*       difference side the full diagonal pairings form the      *)
-(*       double-angle terms; on the sum side they cancel to zero. *)
-(* Constructivity: statements on stdlib Qeq/Qle/Qlt with          *)
-(*       Set-carried sigT; zero axioms, nothing admitted, no         *)
-(*       classical logic; induction with explicit algebraic       *)
-(*       chains; zero Q-domain solver (Lia for nat bookkeeping    *)
-(*       only).                                                   *)
-(* Build: coqc -native-compiler no -q -Q . "" PiPythBandDonor.v   *)
-(*       (Rocq 9.1.0).                                            *)
-(* ============================================================ *)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
+(** * PiPythBandDonor: a partial-sum stratification of the Pythagorean
+      identity [sin^2 + cos^2 = 1].
 
-(* WARNING: this file is experimental and likely to change in future *)
-(* releases.                                                        *)
+    Mission.  The diagonal-band representation of the truncation
+    residual [piL_pyth_dres] and a uniform smallness supply.  The full
+    diagonal coefficient equals even half-row minus odd half-row (the
+    even/odd halves of a Pascal row have equal sums), hence zero, so
+    the truncation residual is exactly the sum over the window rows
+    [k+1,2k+2]; the row majorant and the geometric tail band give some
+    [j] such that [k >= j] and [|x| <= B] imply
+    [|piL_pyth_dres k x| < dt].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
+    [ZArith.ZArith], [Arith.PeanoNat], [Lia]; [PiKernelSlack]
+    ([q_pow]/[q_fact], [sin_term]/[cos_term], and, from its merged
+    identity segment, [piL_pyth_dres], [piL_pythag_partial],
+    [piL_cos_term_0]); [PiPascalMachine] (the [piLsb_sumR] row-sum
+    machine); [PiRowIdentity] ([piLrowB_row_scal]);
+    [PiCosBandAssemble] (the row families [ccrow]/[ssrow], row
+    majorants, half-row closed forms, the geometric tail band and the
+    choice of the truncation length).
+
+    References.  The sum side of the partial-sum band expansion of
+    [cos(2x) = cos^2 - sin^2] ([piLe_dcos_band_rows]): on the
+    difference side the full diagonal pairings form the double-angle
+    terms; on the sum side they cancel to zero.
+
+    Constructivity.  Statements on stdlib [Qeq]/[Qle]/[Qlt] with
+    [Set]-carried [sigT]; assumption-free (coqchk-certified), no
+    classical logic; induction with explicit algebraic chains; zero
+    [Q]-domain solver ([Lia] for [nat] bookkeeping only).
+
+    Build.  [coqc -native-compiler no -q -Q . "" PiPythBandDonor.v]
+    compiles cleanly (exit 0) under Rocq 9.1.0; the first eight bytes
+    of the artifact are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
+
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.

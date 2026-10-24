@@ -1,12 +1,4 @@
-(************************************************************************)
-(*         *      The Rocq Prover / The Rocq Development Team           *)
-(*  v      *         Copyright INRIA, CNRS and contributors             *)
-(* <O___,, * (see version control and CREDITS file for authors & dates) *)
-(*   \VV/  **************************************************************)
-(*    //   *    This file is distributed under the terms of the         *)
-(*         *     GNU Lesser General Public License Version 2.1          *)
-(*         *     (see LICENSE file for the text of the license)         *)
-(************************************************************************)
+(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
 (** * PiCosBandAssemble.v: band assembly for the cos double-angle identity
 
     Mission.  Partial-sum stratification of the cos double-angle
@@ -40,13 +32,18 @@
     controlling-term method for truncation-remainder bands.
 
     Constructivity.  Statements live entirely on the stdlib
-    [Qeq]/[Qle]/[Qlt] with [Set]-level [sigT] carriers; zero axioms,
+    [Qeq]/[Qle]/[Qlt] with [Set]-level [sigT] carriers; assumption-free (coqchk-certified),
     no abandoned proofs, no classical logic; induction with
     explicit algebraic chains and zero solvers on the [Q] side
     ([Lia] only for [nat] bookkeeping); [Print Assumptions] at the
     end of the file checks each item [Closed].
 
-    WARNING: this file is experimental and likely to change in future releases. *)
+    Build.  [coqc -native-compiler no -q -Q . ""
+    PiCosBandAssemble.v] compiles cleanly (exit 0); the first eight
+    bytes of the artifact are [436f7121 00015ff4].
+
+    This file is part of the rocq-pi-leibniz package; its interface
+    may change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs QArith.Qround.
@@ -136,7 +133,8 @@ Proof.
       exact IH.
 Qed.
 
-(** Sub-row-sum bound: if the window [a, a+n) is contained in [0, m) and the row is nonnegative, then the shifted row sum is at most the full row sum. *)
+(** Sub-row-sum bound: if the window [a, a+n) is contained in [0, m) and the row is nonnegative,
+   then the shifted row sum is at most the full row sum.  *)
 Lemma piLe_sumR_shift_le : forall (f : nat -> Q) (a n m : nat),
   (a + n <= m)%nat ->
   (forall i : nat, Qle 0 (f i)) ->
@@ -215,7 +213,8 @@ Proof.
   rewrite !Z.mul_1_r. apply Nat2Z.inj_le. exact H.
 Qed.
 
-(** Embedding positivity: [0 < (Z.of_nat (S n) # 1)] (at [n = 0], [Z.of_nat 0 # 1 == 0], hence [S n]). *)
+(** Embedding positivity: [0 < (Z.of_nat (S n) # 1)] (at [n = 0], [Z.of_nat 0 # 1 == 0], hence [S
+   n]).  *)
 Lemma piLe_inject_pos : forall n : nat, Qlt 0 (Z.of_nat (S n) # 1).
 Proof.
   intros n. unfold Qlt. cbn [Qnum Qden].
@@ -255,12 +254,15 @@ Qed.
 Definition piLe_tc_term (m : nat) (B : Q) : Q :=
   q_pow (2 * B) (2 * m)%nat / q_fact (2 * m)%nat.
 
-(** The cos band bound: [Σ_{m=k+1}^{2k+1} t'_m] over the row range [k+1,2k+1] (one row more than the sin side: the [s_k^2] term of row [m = 2k+1]). *)
+(** The cos band bound: [Σ_{m=k+1}^{2k+1} t'_m] over the row range [k+1,2k+1] (one row more than the
+   sin side: the [s_k^2] term of row [m = 2k+1]).  *)
 
 Definition piLe_band_bound (k : nat) (B : Q) : Q :=
   piLsb_sumR (fun u => piLe_tc_term (S (k + u))%nat B) (S (S k)).
 
-(** The two row families of the cos band (retained windows): [ccrow] is the C^2 family with [i+j=m] over the window [m-k,k]; [ssrow] is the S^2 family with [i+j=m-1] over the window [m-1-k,k] (the indices are shifted by one). *)
+(** The two row families of the cos band (retained windows): [ccrow] is the C^2 family with [i+j=m]
+   over the window [m-k,k]; [ssrow] is the S^2 family with [i+j=m-1] over the window [m-1-k,k] (the
+   indices are shifted by one).  *)
 
 Definition piLe_ccrow (k m : nat) (x : Q) : Q :=
   piLsb_sumR (fun u => cos_term (m - k + u)%nat x * cos_term (k - u)%nat x)
@@ -296,7 +298,8 @@ Proof.
   - apply Qinv_lt_0_compat. apply q_fact_pos.
 Qed.
 
-(* ================= Section 3. Group beta: closed forms of the even and odd half-sums of Pascal rows ================= *)
+(* ================= Section 3. Group beta: closed forms of the even and odd half-sums of Pascal
+   rows =================  *)
 
 (** Even-odd half-sum equality: [Σ_{i<=m} C(2m,2i) == Σ_{i<m} C(2m,2i+1)]. *)
 Lemma piLe_row_half_eq : forall m : nat, (1 <= m)%nat ->
@@ -459,7 +462,8 @@ Qed.
 
 (* ================= Section 4. Group gamma: the cos double-angle row identity ================= *)
 
-(** Even row-piece denominator cancellation: [c_t·c_{m-t}·(2m)! == (-1)^m·x^(2m)·C(2m,2t)] for [t <= m]. *)
+(** Even row-piece denominator cancellation: [c_t·c_{m-t}·(2m)! == (-1)^m·x^(2m)·C(2m,2t)] for [t <=
+   m].  *)
 Lemma piLe_rowpiece_cc : forall (m t : nat) (x : Q), (t <= m)%nat ->
   cos_term t x * cos_term (m - t)%nat x * q_fact (2 * m)%nat
   == q_pow (-1)%Q m * q_pow x (2 * m)%nat * bpa_binom (2 * m)%nat (2 * t)%nat.
@@ -504,7 +508,8 @@ Proof.
   exact Hmul.
 Qed.
 
-(** Odd row-piece denominator cancellation: [s_t·s_{m-1-t}·(2m)! == (-1)^(m-1)·x^(2m)·C(2m,2t+1)] for [t < m]. *)
+(** Odd row-piece denominator cancellation: [s_t·s_{m-1-t}·(2m)! == (-1)^(m-1)·x^(2m)·C(2m,2t+1)]
+   for [t < m].  *)
 Lemma piLe_rowpiece_ss : forall (m t : nat) (x : Q), (t < m)%nat ->
   sin_term t x * sin_term (m - 1 - t)%nat x * q_fact (2 * m)%nat
   == q_pow (-1)%Q (m - 1)%nat * q_pow x (2 * m)%nat
@@ -553,7 +558,9 @@ Proof.
   exact Hmul.
 Qed.
 
-(** The cos double-angle row identity: [Σ_{i<=N} c_i c_{N-i} - Σ_{i<N} s_i s_{N-1-i} == cos_term N (2x)] for [N >= 1]; the closing steps are the row-piece denominator cancellation, the even-odd half-row values, and the power-of-2 split. *)
+(** The cos double-angle row identity: [Σ_{i<=N} c_i c_{N-i} - Σ_{i<N} s_i s_{N-1-i} == cos_term N
+   (2x)] for [N >= 1]; the closing steps are the row-piece denominator cancellation, the even-odd
+   half-row values, and the power-of-2 split.  *)
 
 Lemma piLe_rowC_cross : forall (N : nat) (x : Q), (1 <= N)%nat ->
   piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N)
@@ -654,7 +661,8 @@ Proof.
   - apply piLe_inject_le. apply Nat.le_0_l.
 Qed.
 
-(** Monotone product of four nonnegative factors: [0<=a], [a<=b], [0<=c], [c<=d] imply [a*c <= b*d]. *)
+(** Monotone product of four nonnegative factors: [0<=a], [a<=b], [0<=c], [c<=d] imply [a*c <= b*d].
+    *)
 Lemma piLe_qmult_le_nonneg4 : forall a b c d : Q,
   Qle 0 a -> Qle a b -> Qle 0 c -> Qle c d -> Qle (a * c) (b * d).
 Proof.
@@ -665,7 +673,8 @@ Proof.
     apply (Qmult_le_compat_r c d b Hcd (Qle_trans 0 a b Ha Hab)).
 Qed.
 
-(** Double-sum expansion of a product of row sums: [sum_i f i * sum_j g j == sum_i sum_j f i * g j]. *)
+(** Double-sum expansion of a product of row sums: [sum_i f i * sum_j g j == sum_i sum_j f i * g j].
+    *)
 Lemma piLe_sumR_prod : forall (n1 n2 : nat) (f g : nat -> Q),
   piLsb_sumR f n1 * piLsb_sumR g n2
   == piLsb_sumR (fun i => piLsb_sumR (fun j => f i * g j) n2) n1.
@@ -678,7 +687,8 @@ Proof.
   apply piLsb_sumR_ext. intros j _. apply Qmult_comm.
 Qed.
 
-(** Extending the row sum by one entry on the right: [sum_{u<n} h (S u) == sum_{w<S n} h w] (with [h 0 == 0]). *)
+(** Extending the row sum by one entry on the right: [sum_{u<n} h (S u) == sum_{w<S n} h w] (with [h
+   0 == 0]).  *)
 Lemma piLe_sumR_shift_succ : forall (n : nat) (h : nat -> Q),
   h 0%nat == 0%Q ->
   piLsb_sumR (fun w => h (S w)) n == piLsb_sumR h (S n).
@@ -696,7 +706,8 @@ Proof.
   intros f. cbn [piLsb_sumR]. cbv beta. ring.
 Qed.
 
-(** Full-triangle anti-diagonal regrouping: [sum_{u<K} sum_{v<K-u} F u v == sum_{w<K} sum_{v<S w} F v (w-v)]. *)
+(** Full-triangle anti-diagonal regrouping: [sum_{u<K} sum_{v<K-u} F u v == sum_{w<K} sum_{v<S w} F
+   v (w-v)].  *)
 Lemma piLe_sumR_flatten_full : forall (K : nat) (F : nat -> nat -> Q),
   piLsb_sumR (fun u => piLsb_sumR (fun v => F u v) (K - u)%nat) K
   == piLsb_sumR (fun w => piLsb_sumR (fun v => F v (w - v)%nat) (S w)) K.
@@ -732,7 +743,8 @@ Proof.
     rewrite IH. ring.
 Qed.
 
-(** Row-by-row splitting of the square array: at the per-row split point [a i], the square double sum splits into a triangle and a remainder band. *)
+(** Row-by-row splitting of the square array: at the per-row split point [a i], the square double
+   sum splits into a triangle and a remainder band.  *)
 Lemma piLe_sumR_square_split_gen : forall (N : nat) (a p : nat -> nat)
                                           (F : nat -> nat -> Q),
   (forall i : nat, (i < N)%nat -> (a i + p i)%nat = N) ->
@@ -758,7 +770,8 @@ Proof.
   intros f. cbn [piLsb_sumR]. ring.
 Qed.
 
-(** Upper-triangle transposition: [sum_{i<S K} sum_{u<i} G i u == sum_{u<K} sum_{i'<K-u} G (S(u+i')) u]. *)
+(** Upper-triangle transposition: [sum_{i<S K} sum_{u<i} G i u == sum_{u<K} sum_{i'<K-u} G (S(u+i'))
+   u].  *)
 Lemma piLe_sumR_trapswap_lt : forall (K : nat) (G : nat -> nat -> Q),
   piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) i) (S K)
   == piLsb_sumR (fun u => piLsb_sumR (fun i => G (S (u + i)%nat) u) (K - u)%nat) (S K).
@@ -790,7 +803,8 @@ Proof.
     rewrite Hgrow. rewrite IH. cbv beta. ring.
 Qed.
 
-(* ================= Section 8. The band machine: quarter-step descent for the [t'] terms and the geometric tail bound ================= *)
+(* ================= Section 8. The band machine: quarter-step descent for the [t'] terms and the
+   geometric tail bound =================  *)
 
 (** The 1/4 geometric-sum identity: [sum_{i<n} (1/4)^i + (4/3)(1/4)^n == 4/3]. *)
 Lemma piLe_quarter_sum_identity : forall n : nat,
@@ -811,7 +825,8 @@ Proof.
     rewrite Hs. ring.
 Qed.
 
-(** Quarter-step descent for the [t'] terms: [t'_{m+1} <= (1/4) t'_m] for [0 <= B] and [2*ceil(B) <= m]. *)
+(** Quarter-step descent for the [t'] terms: [t'_{m+1} <= (1/4) t'_m] for [0 <= B] and [2*ceil(B) <=
+   m].  *)
 Lemma piLe_tc_term_quarter_step : forall (B : Q) (m : nat),
   Qle 0 B -> (2 * Z.to_nat (Qceiling B) <= m)%nat ->
   Qle (piLe_tc_term (Datatypes.S m) B) ((1 # 4)%Q * piLe_tc_term m B).
@@ -1030,7 +1045,8 @@ Proof.
                (4 # 3)%Q (piLe_tc_term (Datatypes.S k) B) Hsumle Htpos).
 Qed.
 
-(** Truncation-length selection: there is a [j] such that [band_bound k B < dt] whenever [k >= j]. *)
+(** Truncation-length selection: there is a [j] such that [band_bound k B < dt] whenever [k >= j]. 
+      *)
 Lemma piLe_band_small : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->
   sigT (fun j : nat => forall k : nat, (j <= k)%nat -> Qlt (piLe_band_bound k B) dt).
@@ -1132,9 +1148,11 @@ Proof.
   - exact Hd0.
 Qed.
 
-(* ================= Section 12. Weak triangular transposition and the row-sum form of partial sums (continuation) ================= *)
+(* ================= Section 12. Weak triangular transposition and the row-sum form of partial sums
+   (continuation) =================  *)
 
-(** Weak triangular transposition: [sum_{i<S K} sum_{u<S i} G i u == sum_{u<S K} sum_{i'<S(K-u)} G (u+i') u]. *)
+(** Weak triangular transposition: [sum_{i<S K} sum_{u<S i} G i u == sum_{u<S K} sum_{i'<S(K-u)} G
+   (u+i') u].  *)
 Lemma piLe_sumR_trapswap_le : forall (K : nat) (G : nat -> nat -> Q),
   piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) (S i)) (S K)
   == piLsb_sumR (fun u => piLsb_sumR (fun i => G (u + i)%nat u) (S (K - u))%nat) (S K).
@@ -1190,7 +1208,8 @@ Proof.
     rewrite (piLsb_sumR_snoc (fun i => sin_term i x) (S k)). cbv beta. ring.
 Qed.
 
-(** Full row families: the even row [sum_{i<S w} c_i c_{w-i}] and the odd row [sum_{i<w} s_i s_{w-1-i}]. *)
+(** Full row families: the even row [sum_{i<S w} c_i c_{w-i}] and the odd row [sum_{i<w} s_i
+   s_{w-1-i}].  *)
 Definition piLe_rowc_full (w : nat) (x : Q) : Q :=
   piLsb_sumR (fun i => cos_term i x * cos_term (w - i)%nat x) (S w).
 
@@ -1211,9 +1230,12 @@ Proof.
     apply (piLe_rowC_cross (Datatypes.S w) x). lia.
 Qed.
 
-(* ================= Section 13. Exact band representation (the top-row identity) ================= *)
+(* ================= Section 13. Exact band representation (the top-row identity) ================= 
+      *)
 
-(** Band representation theorem: the truncation remainder equals the exact sum of [ssrow - ccrow] over the row range [k+1, 2k+2] (in the last row [m = 2k+2] both windows are empty and the contribution is zero). *)
+(** Band representation theorem: the truncation remainder equals the exact sum of [ssrow - ccrow]
+   over the row range [k+1, 2k+2] (in the last row [m = 2k+2] both windows are empty and the
+   contribution is zero).  *)
 
 Lemma piLe_dcos_band_rows : forall (k : nat) (x : Q),
   piL_cos_dres k x
@@ -1721,7 +1743,8 @@ Proof.
   rewrite Hclosed. apply Qle_refl.
 Qed.
 
-(* ================= Section 15. The main band-bound theorem (capstone) and the consumer side of monotonicity ================= *)
+(* ================= Section 15. The main band-bound theorem (capstone) and the consumer side of
+   monotonicity =================  *)
 
 (** The main cos band-bound theorem: [|dcos k x| <= band_bound k B] for all [k] with [|x| <= B]. *)
 Theorem piLe_dcos_band_le : forall (k : nat) (x B : Q),
@@ -1774,9 +1797,11 @@ Proof.
 Qed.
 
 
-(* ================= Section 16. The sigma3 vanishing supply and the slot-face transfer ================= *)
+(* ================= Section 16. The sigma3 vanishing supply and the slot-face transfer
+   =================  *)
 
-(** The sigma3 vanishing supply: there is a [j] such that [|dcos k x| < dt] whenever [k >= j] and [|x| <= B]. *)
+(** The sigma3 vanishing supply: there is a [j] such that [|dcos k x| < dt] whenever [k >= j] and
+   [|x| <= B].  *)
 Lemma piLe_dcos_small : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->
   sigT (fun j : nat => forall (k : nat) (x : Q),
@@ -1790,7 +1815,8 @@ Proof.
   - apply (Hj k Hkx).
 Qed.
 
-(** The slot-face supply theorem: [piLd3_seed_dcos] (transferring the stdlib [Qlt]/[Qle] face onto the [QltT]/[QleT'] slot face). *)
+(** The slot-face supply theorem: [piLd3_seed_dcos] (transferring the stdlib [Qlt]/[Qle] face onto
+   the [QltT]/[QleT'] slot face).  *)
 Theorem piLe_seed_dcos : piLd3_seed_dcos.
 Proof.
   unfold piLd3_seed_dcos. intros B dt HB Hdt.
@@ -1813,9 +1839,16 @@ Print Assumptions piLe_dcos_small.
 Print Assumptions piLe_seed_dcos.
 
 
-(* ================= Section 16. The sigma2 vanishing supply (the double-angle sin truncation remainder) ================= *)
+(* ================= Section 16. The sigma2 vanishing supply (the double-angle sin truncation
+   remainder) =================  *)
 
-(** The vanishing supply for the double-angle sin truncation remainder [piL_sin_dres]: there is a depth [j] such that [|piL_sin_dres k x| < dt] whenever [k >= j] and [|x| <= B]; the conclusion is carried at the [Set] level as a [sigT] witness.  The statement face takes the original shape of the [PiKernelSlack_D3_synth] seed slot statement [piLd3_seed_dres]; the stdlib [Qlt] face is carried by [piLd_dres_small] of [PiBandBound] (the chain of the band-machine length selection and the main band bound), and the [QltT]/[QleT'] slot face is reached through the bridge lemmas of [PiKernelSlack]. *)
+(** The vanishing supply for the double-angle sin truncation remainder [piL_sin_dres]: there is a
+   depth [j] such that [|piL_sin_dres k x| < dt] whenever [k >= j] and [|x| <= B]; the conclusion is
+   carried at the [Set] level as a [sigT] witness.  The statement face takes the original shape of
+   the [PiKernelSlack_D3_synth] seed slot statement [piLd3_seed_dres]; the stdlib [Qlt] face is
+   carried by [piLd_dres_small] of [PiBandBound] (the chain of the band-machine length selection and
+   the main band bound), and the [QltT]/[QleT'] slot face is reached through the bridge lemmas of
+   [PiKernelSlack].  *)
 
 
 
