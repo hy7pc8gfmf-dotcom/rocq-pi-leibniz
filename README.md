@@ -95,7 +95,8 @@ A fast-converging variant of this development is on the roadmap
   on the maintainers' machine, Rocq 9.1 line): it seeds the trust cache
   from the local clone, certifies the whole dependency closure with
   `rocqchk -o` (all-none assumption summary), and runs an assumption
-  smoke check on the two main theorems — currently green (badge above).
+  smoke check on the two main theorems plus witness-value assertions on
+  the documented sample points — currently green (badge above).
   The content modules also compiled green across the CI matrix of the
   hosting standard-library submission (Alpine build and Rocq 9.2 / 9.3
   / master Nix bundles; 180/180 checks passed at the submitted head).

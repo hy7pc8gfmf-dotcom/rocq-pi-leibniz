@@ -20,10 +20,20 @@ From Stdlib Require Import QArith.QArith.
 From pi_leibniz Require Import PiLeibniz.
 Print Assumptions pi_leibniz_strong_irrational.
 Print Assumptions pi_leibniz_appart_all_Q.
+(* 4c witness-validity assertions: the documented sample-point contract
+   (the window family must evaluate to the values the README promises;
+   a mismatch fails the compile, hence the CI step). *)
+Example smoke_window_e0 : lw0m_e 0 = 5 # 2.
+Proof. vm_compute. reflexivity. Qed.
+Example smoke_window_e1 : lw0m_e 1 = 5 # 4.
+Proof. vm_compute. reflexivity. Qed.
+Example smoke_window_e2 : lw0m_e 2 = 5 # 6.
+Proof. vm_compute. reflexivity. Qed.
 EOF
 rocq c -q -Q theories pi_leibniz -Q theories/Reals/Cauchy "" piu_smoke_tmp.v 2>&1 | tee smoke.log
 n=$(grep -c "Closed under the global context" smoke.log || true)
 echo "assumption-closed count: ${n} (expect 2)"
 rm -f piu_smoke_tmp.v
 [ "${n}" -eq 2 ] || { echo "SMOKE-FAIL"; exit 1; }
+echo "WITNESS-VALUE-ASSERTED (4c): lw0m_e 0/1/2 = 5#2 / 5#4 / 5#6"
 echo "COQCHK_ALL_PASS"

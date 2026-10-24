@@ -5,6 +5,15 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-10-24
+
+### Added
+
+- CI: the smoke check now asserts the documented witness values — the
+  window family must evaluate to `e 0 = 5 # 2`, `e 1 = 5 # 4`,
+  `e 2 = 5 # 6` (compile-fail on mismatch), alongside the assumption
+  smoke check on the two main theorems.
+
 ## [1.0.1] - 2026-10-24
 
 ### Added
