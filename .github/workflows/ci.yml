@@ -36,11 +36,11 @@ jobs:
 
       - name: Build (skip pass over the trust cache)
         shell: cmd
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_build.sh" -TempLimit 98 -CoreN 2 -AllowG3
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_build.sh" -TempLimit 96 -CoreN 2 -AllowG3
 
       - name: coqchk full-closure certification + assumption smoke
         shell: cmd
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_chk.sh" -TempLimit 98 -CoreN 2 -AllowG3
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_chk.sh" -TempLimit 96 -CoreN 2 -AllowG3
 
       - name: Toolchain version evidence
         if: always()
