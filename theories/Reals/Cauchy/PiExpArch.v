@@ -22,10 +22,10 @@
     Dependencies.  [PiCompareT] (the [Set]-reflected form [QleT']);
     [PiKernelSlack] ([q_pow]/[q_fact], the [Set]-carried [And] and
     [NatLe] with the [NatLe_drop]/[NatLe_lift] bridges,
-    [QleT'_to_Qle]/[Qle_to_QleT'], [qeq_le_prop], [Qle_plus_nonneg_r_prop],
-    [q_le_div_le_prop], [q_fact_pos], [q_pow_nonneg_prop], [q_fact_succ]);
+    [QleT'_to_Qle]/[Qle_to_QleT'], [qeq_leT'], [Qle_plus_nonneg_rT],
+    [q_le_div_leT], [q_fact_pos], [q_pow_nonnegT], [q_fact_succ]);
     [PiExpTrigSeries] (the [exp_series] series and its monotonicity,
-    [q_pow_fact_nonneg_prop]/[q_pow_fact2_nonneg_prop], [Qle_0_1_prop]); stdlib
+    [q_pow_fact_nonnegT]/[q_pow_fact2_nonnegT], [Qle_0_1_prop]); stdlib
     [QArith], [Qfield], [ZArith], [PeanoNat], [Lia], [Setoid],
     [Morphisms].
 
@@ -34,7 +34,7 @@
     :1129] (statements and proofs transcribed verbatim from the source
     passages; one closing step of [geo_sum_le_two_prop] uses [Qhalf_nonneg_prop]
     in place of [Qle_0_1_prop], the same-file [Qhalf_nonneg_prop] form,
-    semantically identical; [q_neq_of_lt_prop] restates the stdlib
+    semantically identical; [q_neq_of_ltT] restates the stdlib
     [Qlt_not_eq], [QArith_base :963]).
 
     Constructivity.  Statements carried at the [Set] level ([sigT]
@@ -132,14 +132,14 @@ Proof.
   setoid_replace (Z.of_nat (Datatypes.S k) # 1) with (Z.of_nat (k + 1) # 1).
   2: { unfold Qeq. simpl. lia. }
   apply (Qle_trans _ ((Qmult (1 + 1)%Q A) * (q_pow A k * q_fact k)) _).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply (Qle_trans _ ((Z.of_nat (k + 1) # 1) * (q_pow A k * q_fact k)) _).
     + apply (Qmult_le_compat_r (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) (q_pow A k * q_fact k)).
       * exact Hle.
       * apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg_prop. exact HA.
+        -- apply QleT'_to_Qle. apply q_pow_nonnegT. apply Qle_to_QleT'. exact HA.
         -- apply (Qlt_le_weak 0 (q_fact k)). apply q_fact_pos.
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 Lemma div_form_lhs : forall (A : Q) (k : nat),
@@ -158,13 +158,13 @@ Proof.
     + apply q_fact_pos.
     + apply (Qle_trans _ ((q_pow A k * q_fact (Datatypes.S k)) * (1 / 2)) _).
       * apply (Qle_trans _ ((q_pow A (Datatypes.S k) * q_fact k * (1 + 1)) * (1 / 2)) _).
-        -- apply qeq_le_prop. apply div_form_lhs.
+        -- apply QleT'_to_Qle. apply qeq_leT'. apply div_form_lhs.
         -- apply (Qmult_le_compat_r (q_pow A (Datatypes.S k) * q_fact k * (1 + 1))
                                    (q_pow A k * q_fact (Datatypes.S k)) (1 / 2)).
            ++ apply (pow_fact_geom_int_prop A k HA Hle).
            ++ apply Qlt_le_weak. unfold Qlt; simpl; lia.
-      * apply qeq_le_prop. field.
-  - apply qeq_le_prop.
+      * apply QleT'_to_Qle. apply qeq_leT'. field.
+  - apply QleT'_to_Qle. apply qeq_leT'.
     field.
     intro Hz. apply (q_neq_of_lt_prop (q_fact k) (q_fact_pos k)). exact Hz.
 Qed.
@@ -229,7 +229,7 @@ Proof.
   2: { ring. }
   apply Qmult_le_0_compat.
   - unfold Qle; simpl; lia.
-  - apply q_pow_nonneg_prop. apply Qhalf_nonneg_prop.
+  - apply QleT'_to_Qle. apply q_pow_nonnegT. apply Qle_to_QleT'. apply Qhalf_nonneg_prop.
 Qed.
 
 (* ---- Tail sum: [exp_tail_abs m n A = sum of A^{S j}/(S j)! for
@@ -288,12 +288,12 @@ Proof.
       * apply Qplus_le_compat.
         -- exact (IH Emn).
         -- apply (Qle_trans _ (q_pow A (m + Datatypes.S (n - m)) / q_fact (m + Datatypes.S (n - m))) _).
-           ++ apply qeq_le_prop.
+           ++ apply QleT'_to_Qle. apply qeq_leT'.
               assert (Hn : (Datatypes.S n = m + Datatypes.S (n - m))%nat) by lia.
               rewrite Hn. reflexivity.
            ++ exact (pow_fact_geom_iter_prop A m (n - m) HA Hgeom).
       * replace (Datatypes.S ((Datatypes.S n) - m))%nat with (Datatypes.S (Datatypes.S (n - m)))%nat by lia.
-        apply qeq_le_prop.
+        apply QleT'_to_Qle. apply qeq_leT'.
         change (geo_sum (Datatypes.S (Datatypes.S (n - m))))
           with (geo_sum (Datatypes.S (n - m)) + q_pow (1 / 2)%Q (Datatypes.S (n - m))).
         ring.
@@ -303,8 +303,8 @@ Proof.
       replace (Datatypes.S ((Datatypes.S n) - m))%nat with (Datatypes.S 0)%nat by lia.
       simpl.
       apply (Qle_trans _ (q_pow A m / q_fact m) _).
-      * apply q_pow_fact_nonneg_prop. exact HA.
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply q_pow_fact_nonnegT. apply Qle_to_QleT'. exact HA.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (* Tail sum <= [(A^m/m!) * 2] (closing with [geo_sum <= 2]). *)
@@ -318,12 +318,12 @@ Proof.
   apply (Qle_trans _ ((q_pow A m / q_fact m) * geo_sum (Datatypes.S (n - m))) _).
   - apply exp_tail_abs_geom_prop; assumption.
   - apply (Qle_trans _ (geo_sum (Datatypes.S (n - m)) * (q_pow A m / q_fact m)) _).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qle_trans _ ((1 + 1)%Q * (q_pow A m / q_fact m)) _).
       * apply (Qmult_le_compat_r (geo_sum (Datatypes.S (n - m))) (1 + 1)%Q (q_pow A m / q_fact m)).
         -- apply geo_sum_le_two_prop.
-        -- apply q_pow_fact_nonneg_prop. exact HA.
-      * apply qeq_le_prop. ring.
+        -- apply QleT'_to_Qle. apply q_pow_fact_nonnegT. apply Qle_to_QleT'. exact HA.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (* ---- Tail difference <= tail sum: [n <= k] implies
@@ -336,7 +336,7 @@ Proof.
   revert n Hnk.
   induction k as [| k IH]; intros n Hnk.
   - assert (Hn0 : n = 0%nat) by lia. subst n. simpl.
-    apply qeq_le_prop. reflexivity.
+    apply QleT'_to_Qle. apply qeq_leT'. reflexivity.
   - simpl.
     destruct (Nat.leb n k) eqn:E.
     + apply Nat.leb_le in E.
@@ -378,7 +378,7 @@ Proof.
       2: reflexivity.
       apply exp_series_mono_prop; [exact (QleT'_to_Qle _ _ HB) | lia].
     + apply (Qle_plus_nonneg_r_prop (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
-      apply q_pow_fact2_nonneg_prop. exact (QleT'_to_Qle _ _ HB).
+      apply QleT'_to_Qle. apply q_pow_fact2_nonnegT. exact (HB).
   - intro n.
     apply Qle_to_QleT'.
     destruct (Nat.leb n N0) eqn:En.
@@ -386,7 +386,7 @@ Proof.
       apply (Qle_trans _ (exp_series N0 B) _).
       * apply exp_series_mono_prop; [exact (QleT'_to_Qle _ _ HB) | exact En].
       * unfold C. apply (Qle_plus_nonneg_r_prop (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
-        apply q_pow_fact2_nonneg_prop. exact (QleT'_to_Qle _ _ HB).
+        apply QleT'_to_Qle. apply q_pow_fact2_nonnegT. exact (HB).
     + apply Nat.leb_gt in En.
       apply (Qle_trans _ (exp_series N0 B + (q_pow B N0 / q_fact N0) * (1 + 1)%Q) _).
       * apply (Qle_trans _ (exp_series N0 B + exp_tail_abs N0 n B) _).

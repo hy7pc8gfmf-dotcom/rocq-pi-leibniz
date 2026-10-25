@@ -19,15 +19,15 @@
 
     Dependencies.  [PiCompareT] (the [Id]-reflected forms [QleT'] and
     [QltT]); [PiKernelSlack] ([q_pow]/[q_fact], [cos_term]/
-    [cos_partial], [sc_cos_term_diff_prop], [q_le_div_le_prop], [qeq_le_prop],
-    [Qle_plus_nonneg_r_prop]); stdlib [QArith], [ZArith], [PeanoNat],
+    [cos_partial], [sc_cos_term_diffT], [q_le_div_leT], [qeq_leT'],
+    [Qle_plus_nonneg_rT]); stdlib [QArith], [ZArith], [PeanoNat],
     [Lia], [Setoid], [Morphisms].
 
     References.  This development, [S03_QExp.v
     :292/:475/:489/:784/:791/:801], [S10_KVQuantTrig.v
     :1783/:1817/:2051/:2227], [S02_CauchyComplete.v :562]
     (statements and proofs transcribed verbatim from the source
-    passages; the bridge statements such as [sc_cos_term_diff_prop] are
+    passages; the bridge statements such as [sc_cos_term_diffT] are
     consumed under the same names from [PiKernelSlack]).
 
     Constructivity.  The statement level is entirely [Qle]/[QleT'],
@@ -70,10 +70,10 @@ Proof.
   - unfold Qlt; simpl; lia.
   - apply q_fact_pos.
   - apply (Qle_trans _ 0 _).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qle_trans _ (q_pow A m) _).
-      * apply q_pow_nonneg_prop. exact HA.
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply q_pow_nonnegT. apply Qle_to_QleT'. exact HA.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 Lemma q_pow_fact2_nonneg_prop : forall A m, Qle 0 A -> Qle 0 ((q_pow A m / q_fact m) * (1 + 1)%Q).
@@ -123,6 +123,23 @@ Fixpoint sc_sin_deriv_series (n : nat) (B : Q) : Q :=
   end.
 
 (* Nonnegativity of the series (a sum of nonnegative terms). *)
+
+(* Set twin of q_pow_fact_nonnegT *)
+Lemma q_pow_fact_nonnegT : forall A m, QleT' 0 A -> QleT' 0 (q_pow A m / q_fact m).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (q_pow_fact_nonneg_prop A m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
 Lemma sc_sin_deriv_series_nonneg_prop : forall n B, QleT' 0 B -> Qle 0 (sc_sin_deriv_series n B).
 Proof.
   intros n B HB. induction n as [| n IH]; simpl.
@@ -132,7 +149,7 @@ Proof.
     + exact IH.
     + apply (Qle_plus_nonneg_r_prop (sc_sin_deriv_series n B)
              (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))).
-      apply q_pow_fact_nonneg_prop. exact (QleT'_to_Qle _ _ HB).
+      apply QleT'_to_Qle. apply q_pow_fact_nonnegT. exact (HB).
 Qed.
 
 (* [sc_sin_deriv_series n B <= exp_series (S(2n)) B]: the odd-power terms form
@@ -145,7 +162,7 @@ Proof.
   - (* n = 0: [B^1/1! <= exp_series 1 B = 1 + B^1/1!]. *)
     change (q_pow B 1 / q_fact 1 <= 1 + (q_pow B 1 / q_fact 1)).
     setoid_replace (1 + (q_pow B 1 / q_fact 1)) with ((q_pow B 1 / q_fact 1) + 1) by ring.
-    apply Qle_plus_nonneg_r_prop. apply Qle_0_1_prop.
+    apply QleT'_to_Qle. apply Qle_plus_nonneg_rT. apply Qle_to_QleT'. apply Qle_0_1_prop.
   - (* [sc_sin_deriv_series (S n)] = [sc_sin_deriv_series n] + [Y]
        ([Y := B^{S(S(S(2n)))}/(S(S(S(2n))))!], definitional);
        [exp_series (S(2(S n))) B] is [exp_series (S(S(S(2n)))) B]
@@ -188,13 +205,13 @@ Proof.
       { unfold cos_term. reflexivity. }
       rewrite Hc0x. rewrite Hc0y. ring. }
     apply (Qle_trans _ (Qabs (cos_term 1 x - cos_term 1 y)) _).
-    + apply qeq_le_prop. apply (Qabs_wd (cos_partial 1 x - cos_partial 1 y) (cos_term 1 x - cos_term 1 y)). exact Hd.
+    + apply QleT'_to_Qle. apply qeq_leT'. apply (Qabs_wd (cos_partial 1 x - cos_partial 1 y) (cos_term 1 x - cos_term 1 y)). exact Hd.
     + apply (Qle_trans _ (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (2 * 0)) / q_fact (Datatypes.S (2 * 0)))) _).
       * apply (sc_cos_term_diff_prop x y B 0);
           [ exact (QleT'_to_Qle _ _ HB)
           | exact (QleT'_to_Qle _ _ Hx)
           | exact (QleT'_to_Qle _ _ Hy) ].
-      * apply qeq_le_prop. reflexivity.
+      * apply QleT'_to_Qle. apply qeq_leT'. reflexivity.
   - (* Step: the [S(S n)] difference splits as the [S n] difference plus the
        [S(S n)] term difference; [sc_sin_deriv_series (S n)] =
        [sc_sin_deriv_series n] + [B^{S(S(S(2n)))}/(S(S(S(2n))))!]. *)
@@ -210,7 +227,7 @@ Proof.
     apply (Qle_trans _ (Qabs (cos_partial (Datatypes.S n) x - cos_partial (Datatypes.S n) y) +
                          Qabs (cos_term (Datatypes.S (Datatypes.S n)) x - cos_term (Datatypes.S (Datatypes.S n)) y)) _).
     + apply Qabs_triangle.
-    + (* Term-bound reshaping: [sc_cos_term_diff_prop (S n)] gives
+    + (* Term-bound reshaping: [sc_cos_term_diffT (S n)] gives
          [B^{S(2(S n))}/(S(2(S n)))!], rewritten into the [S(S(S(2n)))]
          form. *)
       assert (Hterm : Qle (Qabs (cos_term (Datatypes.S (Datatypes.S n)) x - cos_term (Datatypes.S (Datatypes.S n)) y))
@@ -220,13 +237,13 @@ Proof.
             [ exact (QleT'_to_Qle _ _ HB)
             | exact (QleT'_to_Qle _ _ Hx)
             | exact (QleT'_to_Qle _ _ Hy) ].
-        - apply qeq_le_prop. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
+        - apply QleT'_to_Qle. apply qeq_leT'. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
       apply (Qle_trans _ (Qplus (Qmult (Qabs (x - y)) (sc_sin_deriv_series n B))
                                   (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))))) _).
       * apply Qplus_le_compat.
         -- exact IH.
         -- exact Hterm.
-      * apply qeq_le_prop.
+      * apply QleT'_to_Qle. apply qeq_leT'.
         change (sc_sin_deriv_series (Datatypes.S n) B)
           with (sc_sin_deriv_series n B + q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))).
         ring.
@@ -296,24 +313,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of q_pow_fact_nonneg_prop *)
-Lemma q_pow_fact_nonnegT : forall A m, QleT' 0 A -> QleT' 0 (q_pow A m / q_fact m).
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (q_pow_fact_nonneg_prop A m).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of q_pow_fact2_nonneg_prop *)
+(* Set twin of q_pow_fact2_nonnegT *)
 Lemma q_pow_fact2_nonnegT : forall A m, QleT' 0 A -> QleT' 0 ((q_pow A m / q_fact m) * (1 + 1)%Q).
 Proof.
   intros.
@@ -347,7 +347,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_series_mono_prop *)
+(* Set twin of exp_series_monoT *)
 Lemma exp_series_monoT : forall (B : Q) (n m : nat), QleT' 0 B -> NatLe (n) (m) -> QleT' (exp_series n B) (exp_series m B).
 Proof.
   intros.

@@ -564,6 +564,35 @@ Proof.
            ++ split; [exact I4 | exact I5].
 Qed.
 
+(* Set twin of vt_bisect_spec_prop (Path A v2.4): all Q-comparison premises
+   and the And-chain innards are recast on QltT / QleT' / QeqT; the bisection
+   function itself keeps its Qlt argument, fed by QltT_to_Qlt. *)
+Lemma vt_bisect_specT : forall (n K : nat) (a b : Q) (Hab : QltT a b),
+  QleT' 0 a -> QleT' b 2 -> NatLe 2 K ->
+  QltT 0 (cos_partial K a) -> QleT' (cos_partial K b) 0 ->
+  And (QleT' a (fst (vt_bisect K a b (QltT_to_Qlt a b Hab) n)))
+      (And (QleT' (snd (vt_bisect K a b (QltT_to_Qlt a b Hab) n)) b)
+      (And (QeqT ((b - a) * q_pow (1#2) n)
+                (snd (vt_bisect K a b (QltT_to_Qlt a b Hab) n)
+                 - fst (vt_bisect K a b (QltT_to_Qlt a b Hab) n)))
+      (And (QltT 0 (cos_partial K (fst (vt_bisect K a b (QltT_to_Qlt a b Hab) n))))
+           (QleT' (cos_partial K (snd (vt_bisect K a b (QltT_to_Qlt a b Hab) n))) 0)))).
+
+Proof.
+  intros n K a b Hab H0 H1 H2 H3 H4.
+  set (Hab' := QltT_to_Qlt a b Hab) in *.
+  assert (H0' : Qle 0 a) by (apply QleT'_to_Qle; exact H0).
+  assert (H1' : Qle b 2) by (apply QleT'_to_Qle; exact H1).
+  assert (H2' : (2 <= K)%nat) by (apply NatLe_drop; exact H2).
+  destruct (vt_bisect_spec_prop n K a b Hab' H0' H1' H2' H3 H4)
+    as [Ha [Hb [Heq [Hl Hr]]]].
+  apply Qle_to_QleT' in Ha.
+  apply Qle_to_QleT' in Hb.
+  apply qeq_imp_qeqT in Heq.
+  exact (pair Ha (pair Hb (pair Heq (pair Hl Hr)))).
+Qed.
+Print Assumptions vt_bisect_specT.
+
 (* ============================================================ *)
 (* Section 5. Fixed-point assembly on [3/2, 5/3] and downstream interfaces *)
 (* ============================================================ *)
@@ -587,29 +616,40 @@ Proof.
     by (apply Qlt_to_QltT; apply vt_three_halves_pos_prop; lia).
   assert (Hbn : QleT' (cos_partial 5 (5#3)) 0)
     by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg_prop; lia).
-  destruct (vt_bisect_spec_prop n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
+  assert (Hab35T : QltT (3#2) (5#3)) by (apply Qlt_to_QltT; exact Hab35).
+  assert (H0aT : QleT' 0 (3#2)) by (apply Qle_to_QleT'; exact H0a).
+  assert (Hb2T : QleT' (5#3) 2) by (apply Qle_to_QleT'; exact Hb2).
+  assert (HKNat : NatLe 2 5) by (apply NatLe_lift; exact HK).
+  destruct (vt_bisect_specT n 5 (3#2) (5#3) Hab35T H0aT Hb2T HKNat Hap Hbn)
     as [S1 [S2 [S3 [S4 S5]]]].
+  clear Hab35.
+  set (Hab35 := QltT_to_Qlt (3#2) (5#3) Hab35T) in *.
+  assert (S3' : ((5#3) - (3#2)) * q_pow (1#2) n
+              == snd (vt_bisect 5 (3#2) (5#3) Hab35 n)
+               - fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
+    by (apply qeqT_imp_qeq; exact S3).
   assert (Hfs : Qle (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                     (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
   { apply (proj2 (Qle_minus_iff (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                    (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
-    rewrite <- S3. apply Qmult_le_0_compat.
+    rewrite <- S3'. apply Qmult_le_0_compat.
     - unfold Qle; simpl; lia.
     - apply q_pow_nonneg_prop. unfold Qle; simpl; lia. }
   exists (vt_bisect 5 (3#2) (5#3) Hab35 n).
-  split; [apply Qle_to_QleT'; exact S1 | ].
+  split; [exact S1 | ].
   split; [apply Qle_to_QleT'; exact Hfs | ].
-  split; [apply Qle_to_QleT'; exact S2 | ].
-  split; [exact S3 | ].
+  split; [exact S2 | ].
+  split; [apply qeqT_imp_qeq; exact S3 | ].
   split; [exact S4 | exact S5].
 Qed.
 
 (* The function value at the left endpoint of the bracket is at most the Lipschitz constant times the interval length (shrinking to zero with [n]) *)
-Lemma vt_bisect_left_val_le_prop : forall (n : nat) (Hab35 : Qlt (3#2) (5#3)),
-  Qle (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) Hab35 n)))
+Lemma vt_bisect_left_val_le_prop : forall (n : nat) (Hab35T : QltT (3#2) (5#3)),
+  Qle (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) (QltT_to_Qlt (3#2) (5#3) Hab35T) n)))
       (leibsep_abssum_cos (5#3) 5 * ((((5#3) - (3#2))) * q_pow (1#2) n)).
 Proof.
-  intros n Hab35.
+  intros n Hab35T.
+  set (Hab35 := QltT_to_Qlt (3#2) (5#3) Hab35T).
   assert (H0a : Qle 0 (3#2)) by (unfold Qle; simpl; lia).
   assert (Hb2 : Qle (5#3) 2) by (unfold Qle; simpl; lia).
   assert (HK : (2 <= 5)%nat) by lia.
@@ -617,20 +657,27 @@ Proof.
     by (apply Qlt_to_QltT; apply vt_three_halves_pos_prop; lia).
   assert (Hbn : QleT' (cos_partial 5 (5#3)) 0)
     by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg_prop; lia).
-  destruct (vt_bisect_spec_prop n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
+  assert (H0aT : QleT' 0 (3#2)) by (apply Qle_to_QleT'; exact H0a).
+  assert (Hb2T : QleT' (5#3) 2) by (apply Qle_to_QleT'; exact Hb2).
+  assert (HKNat : NatLe 2 5) by (apply NatLe_lift; exact HK).
+  destruct (vt_bisect_specT n 5 (3#2) (5#3) Hab35T H0aT Hb2T HKNat Hap Hbn)
     as [S1 [S2 [S3 [S4 S5]]]].
+  assert (S3' : ((5#3) - (3#2)) * q_pow (1#2) n
+              == snd (vt_bisect 5 (3#2) (5#3) Hab35 n)
+               - fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
+    by (apply qeqT_imp_qeq; exact S3).
   assert (Hfs : Qle (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                     (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
   { apply (proj2 (Qle_minus_iff (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                    (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
-    rewrite <- S3. apply Qmult_le_0_compat.
+    rewrite <- S3'. apply Qmult_le_0_compat.
     - unfold Qle; simpl; lia.
     - apply q_pow_nonneg_prop. unfold Qle; simpl; lia. }
   assert (Habsf : Qabs (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                   == fst (vt_bisect 5 (3#2) (5#3) Hab35 n)).
   { apply Qabs_pos. apply (Qle_trans 0 (3#2)
       (fst (vt_bisect 5 (3#2) (5#3) Hab35 n)));
-      [unfold Qle; simpl; lia | exact S1]. }
+      [unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ S1)]. }
   assert (Habss : Qabs (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))
                   == snd (vt_bisect 5 (3#2) (5#3) Hab35 n)).
   { apply Qabs_pos. apply (Qle_trans 0
@@ -638,7 +685,7 @@ Proof.
       (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
     - apply (Qle_trans 0 (3#2)
         (fst (vt_bisect 5 (3#2) (5#3) Hab35 n)));
-        [unfold Qle; simpl; lia | exact S1].
+        [unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ S1)].
     - exact Hfs. }
   assert (Habsd : Qabs (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)
                         - fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
@@ -652,9 +699,9 @@ Proof.
   { apply Qle_to_QleT'. rewrite Habsf.
     apply (Qle_trans (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
             (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)) (5#3));
-      [exact Hfs | exact S2]. }
+      [exact Hfs | exact (QleT'_to_Qle _ _ S2)]. }
   assert (HB2 : QleT' (Qabs (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))) (5#3)).
-  { apply Qle_to_QleT'. rewrite Habss. exact S2. }
+  { apply Qle_to_QleT'. rewrite Habss. exact (QleT'_to_Qle _ _ S2). }
   assert (HL : Qle (Qabs (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                           - cos_partial 5 (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))))
                    (Qabs (fst (vt_bisect 5 (3#2) (5#3) Hab35 n)
@@ -671,7 +718,7 @@ Proof.
   { rewrite (Qabs_Qminus (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
               (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
     exact Habsd. }
-  rewrite Habsd2 in HL. rewrite <- S3 in HL.
+  rewrite Habsd2 in HL. rewrite <- S3' in HL.
   (* P(fst) <= P(fst) - P(snd) (since P(snd) <= 0); then <= |...| <= L * interval length *)
   assert (Hneg : Qle 0 (- cos_partial 5 (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
   { apply (Qle_trans _ (- 0)); [unfold Qle; simpl; lia | ].
@@ -1022,7 +1069,7 @@ Lemma vt_bisect_left_val_leT : forall (n : nat) (Hab35 : QltT (3#2) (5#3)), QleT
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_bisect_left_val_le_prop n (QltT_to_Qlt _ _ Hab35)).
+  eapply (vt_bisect_left_val_le_prop n Hab35).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption

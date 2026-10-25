@@ -28,7 +28,7 @@
     ([cos_partial]/[q_pow]/[leibsep_cos_partial_lipschitz]);
     [PiVertexPolyDiff]; [PiCosTailScan] (the [vt_*] lemma family);
     [PiCosApproxRoot] (the [vt_*] family); [QCauchyZeroCos]
-    ([log_eps]/[log_eps_pos_prop]); stdlib [QArith], [ZArith], [PeanoNat],
+    ([log_eps]/[log_eps_posT]); stdlib [QArith], [ZArith], [PeanoNat],
     [Setoid], [Morphisms], [Lia].
 
     References.  [PiCosApproxRoot.v], [approx_root_cos_prop] (this file is
@@ -85,28 +85,49 @@ Proof.
   assert (HD1 : Qle 0 ((3#2) * cos_abs_term (5#3) 1))
     by (apply Qmult_le_0_compat;
         [unfold Qle; simpl; lia | apply (vt_abs_term_nonneg_prop (5#3) 1 H053)]).
-  destruct (vt_pow_half_arch_prop ((3#2) * cos_abs_term (5#3) 1) (eps * (1#2)) HD1 Heps2)
-    as [N Harch1].
+  assert (Heps2T : QltT 0 (eps * (1#2))) by (apply Qlt_to_QltT; exact Heps2).
+  assert (HD1T : QleT' 0 ((3#2) * cos_abs_term (5#3) 1))
+    by (apply Qle_to_QleT'; exact HD1).
+  destruct (vt_pow_half_archT ((3#2) * cos_abs_term (5#3) 1) (eps * (1#2)) HD1T Heps2T)
+    as [N Harch1T].
+  assert (Harch1 : Qlt (((3#2) * cos_abs_term (5#3) 1) * q_pow (1#2) N)
+                       (eps * (1#2)))
+    by (apply QltT_to_Qlt; exact Harch1T).
   assert (HAN5 : (5 <= N + 5)%nat) by lia.
   assert (HAGE : (N <= N + 5)%nat) by lia.
   assert (HA2 : (2 <= N + 5)%nat) by lia.
   assert (Hleib0 : Qle 0 (leibsep_abssum_cos (5#3) (N + 5))) by (apply vt_leibsep35_pos_prop).
   assert (HD2 : Qle 0 ((1#6) * leibsep_abssum_cos (5#3) (N + 5)))
     by (apply Qmult_le_0_compat; [unfold Qle; simpl; lia | exact Hleib0]).
-  destruct (vt_pow_half_arch_prop ((1#6) * leibsep_abssum_cos (5#3) (N + 5)) (eps * (1#2)) HD2 Heps2)
-    as [n Harch2].
+  assert (HD2T : QleT' 0 ((1#6) * leibsep_abssum_cos (5#3) (N + 5)))
+    by (apply Qle_to_QleT'; exact HD2).
+  destruct (vt_pow_half_archT ((1#6) * leibsep_abssum_cos (5#3) (N + 5))
+              (eps * (1#2)) HD2T Heps2T) as [n Harch2T].
+  assert (Harch2 : Qlt (((1#6) * leibsep_abssum_cos (5#3) (N + 5)) * q_pow (1#2) n)
+                       (eps * (1#2)))
+    by (apply QltT_to_Qlt; exact Harch2T).
   set (A := (N + 5)%nat).
   assert (Hab35 : Qlt (3#2) (5#3)) by (compute; reflexivity).
   assert (Hpa : QltT 0 (cos_partial A (3#2)))
     by (apply Qlt_to_QltT; apply vt_three_halves_pos_prop; exact HAN5).
   assert (Hpb : QleT' (cos_partial A (5#3)) 0)
     by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg_prop; exact HAN5).
-  destruct (vt_bisect_spec_prop n A (3#2) (5#3) Hab35 H032 H532 HA2 Hpa Hpb)
+  assert (Hab35T : QltT (3#2) (5#3)) by (apply Qlt_to_QltT; exact Hab35).
+  assert (H032T : QleT' 0 (3#2)) by (apply Qle_to_QleT'; exact H032).
+  assert (H532T : QleT' (5#3) 2) by (apply Qle_to_QleT'; exact H532).
+  assert (HA2Nat : NatLe 2 A) by (apply NatLe_lift; exact HA2).
+  destruct (vt_bisect_specT n A (3#2) (5#3) Hab35T H032T H532T HA2Nat Hpa Hpb)
     as [S1 [S2 [S3 [S4 S5]]]].
+  clear Hab35.
+  set (Hab35 := QltT_to_Qlt (3#2) (5#3) Hab35T) in *.
+  assert (S3' : ((5#3) - (3#2)) * q_pow (1#2) n
+              == snd (vt_bisect A (3#2) (5#3) Hab35 n)
+               - fst (vt_bisect A (3#2) (5#3) Hab35 n))
+    by (apply qeqT_imp_qeq; exact S3).
   assert (HSA : Qle (3#2) (fst (vt_bisect A (3#2) (5#3) Hab35 n)))
-    by exact S1.
+    by exact (QleT'_to_Qle _ _ S1).
   assert (HSB : Qle (snd (vt_bisect A (3#2) (5#3) Hab35 n)) (5#3))
-    by exact S2.
+    by exact (QleT'_to_Qle _ _ S2).
   assert (Hlen0 : Qlt 0 (((5#3) - (3#2)) * q_pow (1#2) n))
     by (apply (Qmult_lt_0_compat ((5#3) - (3#2)) (q_pow (1#2) n));
         [unfold Qlt; simpl; lia | apply vt_pos_half_pow_prop]).
@@ -116,7 +137,7 @@ Proof.
                   (snd (vt_bisect A (3#2) (5#3) Hab35 n)))).
     change (Qlt 0 (snd (vt_bisect A (3#2) (5#3) Hab35 n)
                  - fst (vt_bisect A (3#2) (5#3) Hab35 n))).
-    rewrite <- S3. exact Hlen0. }
+    rewrite <- S3'. exact Hlen0. }
   assert (HabUP : Qle (fst (vt_bisect A (3#2) (5#3) Hab35 n))
                       (snd (vt_bisect A (3#2) (5#3) Hab35 n)))
     by (apply Qlt_le_weak; exact Habab).
@@ -165,7 +186,7 @@ Proof.
       apply (Qle_trans _ (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))
                 - (x - fst (vt_bisect A (3#2) (5#3) Hab35 n)) * (1#2))).
       - exact Hdec.
-      - apply vt_sub_le_r_prop. exact Hxa0. }
+      - apply QleT'_to_Qle. apply vt_sub_le_rT. apply Qle_to_QleT'. exact Hxa0. }
     assert (Hlower : Qle (cos_partial A (snd (vt_bisect A (3#2) (5#3) Hab35 n)))
                      (cos_partial A x)).
     { assert (Hdec := vt_cos_decr_half_prop A x (snd (vt_bisect A (3#2) (5#3) Hab35 n))
@@ -173,7 +194,7 @@ Proof.
       apply (Qle_trans _ (cos_partial A x
                 - (snd (vt_bisect A (3#2) (5#3) Hab35 n) - x) * (1#2))).
       - exact Hdec.
-      - apply vt_sub_le_r_prop. exact Hbx0. }
+      - apply QleT'_to_Qle. apply vt_sub_le_rT. apply Qle_to_QleT'. exact Hbx0. }
     assert (Hpa4 : Qlt 0 (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))))
       by exact (QltT_to_Qlt _ _ S4).
     assert (Hpb4 : Qle (cos_partial A (snd (vt_bisect A (3#2) (5#3) Hab35 n))) 0)
@@ -193,14 +214,14 @@ Proof.
                   - cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))) by ring.
         rewrite Hcomm1.
         apply (Qle_trans _ (cos_partial A (snd (vt_bisect A (3#2) (5#3) Hab35 n)))).
-        + apply vt_sub_le_r_prop. apply (Qlt_le_weak 0 _). exact Hpa4.
+        + apply QleT'_to_Qle. apply vt_sub_le_rT. apply Qle_to_QleT'. apply (Qlt_le_weak 0 _). exact Hpa4.
         + exact Hlower.
       - apply (Qle_trans _ (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n)))).
         + exact Hupper.
         + apply (Qle_trans _ (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))
                     + - (cos_partial A (snd (vt_bisect A (3#2) (5#3) Hab35 n))))).
-          * apply vt_add_le_r_prop. exact Hnegb.
-          * apply qeq_le_prop. reflexivity. }
+          * apply QleT'_to_Qle. apply vt_add_le_rT. apply Qle_to_QleT'. exact Hnegb.
+          * apply QleT'_to_Qle. apply qeq_leT'. reflexivity. }
     assert (Hlip : Qle (Qabs (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))
                             - cos_partial A (snd (vt_bisect A (3#2) (5#3) Hab35 n))))
                        (Qabs (fst (vt_bisect A (3#2) (5#3) Hab35 n)
@@ -234,7 +255,7 @@ Proof.
                 - fst (vt_bisect A (3#2) (5#3) Hab35 n)) * leibsep_abssum_cos (5#3) A)).
       - exact Hlip.
       - apply (Qle_trans _ (((1#6) * leibsep_abssum_cos (5#3) A) * q_pow (1#2) n)).
-        + apply qeq_le_prop. rewrite <- S3. rewrite Hc16. ring.
+        + apply QleT'_to_Qle. apply qeq_leT'. rewrite <- S3'. rewrite Hc16. ring.
         + apply Qlt_le_weak. exact Harch2. }
     assert (Hspansmall : Qle (Qabs (cos_partial A x))
                          (Qabs (cos_partial A (fst (vt_bisect A (3#2) (5#3) Hab35 n))
@@ -254,20 +275,20 @@ Proof.
     { apply (Qle_lt_trans _ (((3#2) * cos_abs_term (5#3) 1) * q_pow (1#2) N)).
       - apply (Qle_trans _ ((3#2) * cos_abs_term (5#3) (Datatypes.S A))).
         + apply (Qle_trans _ (cos_abs_term x (Datatypes.S A) * (3#2))).
-          * apply qeq_le_prop. apply Qmult_comm.
+          * apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_comm.
           * apply (Qle_trans _ (cos_abs_term (5#3) (Datatypes.S A) * (3#2))).
             -- exact (Qmult_le_compat_r _ _ _ Hmono53 H032).
-            -- apply qeq_le_prop. apply Qmult_comm.
+            -- apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_comm.
         + apply (Qle_trans _ ((3#2) * (q_pow (1#3) A * cos_abs_term (5#3) 1))).
           * rewrite HSA1.
             apply (Qle_trans _ (cos_abs_term (5#3) (1 + A) * (3#2))).
-            -- apply qeq_le_prop. apply Qmult_comm.
+            -- apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_comm.
             -- apply (Qle_trans _ ((q_pow (1#3) A * cos_abs_term (5#3) 1) * (3#2))).
                ++ exact (Qmult_le_compat_r _ _ _
                       (vt_abs_term_decay_prop (5#3) 1 A H053 H532 H11) H032).
-               ++ apply qeq_le_prop. apply Qmult_comm.
+               ++ apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_comm.
           * apply (Qle_trans _ (((3#2) * cos_abs_term (5#3) 1) * q_pow (1#3) A)).
-            -- apply qeq_le_prop. ring.
+            -- apply QleT'_to_Qle. apply qeq_leT'. ring.
             -- apply (Qle_trans _ (((3#2) * cos_abs_term (5#3) 1) * q_pow (1#2) A)).
                ++ exact (vt_qmult_le_compat_l_prop _ _ _ Hc13 HD1).
                ++ exact (vt_qmult_le_compat_l_prop _ _ _
@@ -290,14 +311,14 @@ Proof.
       split.
       - apply (Qle_trans _ (-(Qabs (cos_partial k x - cos_partial A x))
                 + - (Qabs (cos_partial A x)))).
-        + apply qeq_le_prop. ring.
+        + apply QleT'_to_Qle. apply qeq_leT'. ring.
         + apply (Qle_trans _ (cos_partial k x - cos_partial A x
                     + cos_partial A x)).
           * apply (Qplus_le_compat _ _ _ _ Hdc1 Hxc1).
-          * apply qeq_le_prop. exact Hsid'.
+          * apply QleT'_to_Qle. apply qeq_leT'. exact Hsid'.
       - apply (Qle_trans _ (cos_partial k x - cos_partial A x
                   + cos_partial A x)).
-        + apply qeq_le_prop. exact Hsid.
+        + apply QleT'_to_Qle. apply qeq_leT'. exact Hsid.
         + apply (Qplus_le_compat _ _ _ _ Hdc2 Hxc2). }
     assert (Hepsadd : eps * (1#2) + eps * (1#2) == eps) by ring.
     apply (Qle_lt_trans (Qabs (cos_partial k x))

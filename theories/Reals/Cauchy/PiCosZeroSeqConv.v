@@ -350,7 +350,11 @@ Proof.
     - simpl. exact Heps. }
   assert (H01 : Qle 0 1).
   { apply Qlt_le_weak. change (Qlt 0 1). compute. reflexivity. }
-  destruct (vt_pow_half_arch_prop 1 (eps / 8) H01 Heps8) as [t Ht].
+  assert (H01T : QleT' 0 1) by (apply Qle_to_QleT'; exact H01).
+  assert (Heps8T : QltT 0 (eps / 8)) by (apply Qlt_to_QltT; exact Heps8).
+  destruct (vt_pow_half_archT 1 (eps / 8) H01T Heps8T) as [t HtT].
+  assert (Ht : Qlt (1 * q_pow (1#2) t) (eps / 8))
+    by (apply QltT_to_Qlt; exact HtT).
   exists (Datatypes.S t).
   intros m n Hm Hn.
   assert (Heps_m_lt : Qlt (log_eps m) (eps / 8)).

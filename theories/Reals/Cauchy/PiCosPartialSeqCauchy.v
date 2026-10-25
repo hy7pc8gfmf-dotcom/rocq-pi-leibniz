@@ -51,6 +51,7 @@ From Stdlib Require Import QArith.Qfield.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 From Stdlib Require Import Lia.
 From Stdlib Require Import Setoid Morphisms.
+Require Import PiCompareT.
 Require Import PiKernelSlack.
 Require Import QCauchyZeroCos.
 Require Import PiCosTailScan.
@@ -78,8 +79,13 @@ Proof.
     by (apply (vt_abs_term_nonneg_prop _ _ Hz0)).
   assert (HD : Qle 0 ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3))
     by (apply Qmult_le_0_compat; assumption).
-  destruct (vt_pow_half_arch_prop ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) dt HD Hdt)
-    as [n Hn].
+  assert (HDT : QleT' 0 ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3))
+    by (apply Qle_to_QleT'; exact HD).
+  assert (HdtT : QltT 0 dt) by (apply Qlt_to_QltT; exact Hdt).
+  destruct (vt_pow_half_archT ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) dt HDT HdtT)
+    as [n HnT].
+  assert (Hn : Qlt (((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) * q_pow (1#2) n) dt)
+    by (apply QltT_to_Qlt; exact HnT).
   exists ((n + 2)%nat).
   intros k Hk.
   assert (Hk2 : (2 <= n + 2)%nat) by lia.
