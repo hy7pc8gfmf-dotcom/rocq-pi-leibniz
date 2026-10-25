@@ -53,8 +53,7 @@
       (exit 0); the first eight bytes of the artifact are
       [436f7121 00015ff4].
 
-    WARNING: this file is experimental and likely to change in future
-    releases. *)
+    Derived from the Coq standard library module ConstructiveCauchyReals (LGPL-2.1). Modified by the rocq-pi-leibniz authors. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import ZArith.ZArith.
@@ -64,14 +63,14 @@ Require Import PiKernelSlack.
 
 (* ============ Section 1. The Set-carried strict-order witness ======== *)
 
-(* Set twin of CRealLt (Path A v2.4): the stdlib witness type
+(* Set twin of CRealLt: the stdlib witness type
    [{n : Z | Qlt (2 * 2^n) (seq y n - seq x n)}] with the reflected
    strict-order decision [QltT] in the place of the [Qlt] predicate,
    carried as a [sigT] whose predicate component lives in [Set]. *)
 Definition CRealLtT (x y : CReal) : Set :=
   sigT (fun n : Z => QltT (2 * 2 ^ n)%Q (seq y n - seq x n)%Q).
 
-(* Set twin of CReal_appart (Path A v2.4): the stdlib apartness sum
+(* Set twin of CReal_appart: the stdlib apartness sum
    [CRealLt x y + CRealLt y x] with the [CRealLtT] sides, so the
    whole statement face lives in [Set] with no [Prop] component. *)
 Definition CReal_appartT (x y : CReal) : Set :=

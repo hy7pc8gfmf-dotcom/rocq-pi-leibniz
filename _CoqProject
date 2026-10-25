@@ -21,7 +21,9 @@ theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v
 # Pi stack: five-file core plus nineteen-file supply layer (verbatim),
 # plus the v1.0.1 additions PiLeibnizMargin/PiPadeQLeg/PiSepSearch,
 # plus the separation additions PiCRealAppartT/PiSep361RefaceT/
-# PiSepBNeq0T/PiSepMirrorT/PiSepTriple227
+# PiSepBNeq0T/PiSepMirrorT/PiSepTriple227,
+# plus the Set-carrier twin additions twin46_b23a/wall2_apart/
+# wall2_exblock/wall2_parity
 theories/Reals/Cauchy/PiArctanFixedQ.v
 theories/Reals/Cauchy/PiBandBound.v
 theories/Reals/Cauchy/PiCompareT.v
@@ -55,6 +57,10 @@ theories/Reals/Cauchy/PiSeparation.v
 theories/Reals/Cauchy/PiVertexPolyDiff.v
 theories/Reals/Cauchy/PiWindowCore.v
 theories/Reals/Cauchy/QCauchyZeroCos.v
+theories/Reals/Cauchy/twin46_b23a.v
+theories/Reals/Cauchy/wall2_apart.v
+theories/Reals/Cauchy/wall2_exblock.v
+theories/Reals/Cauchy/wall2_parity.v
 
 # Release scaffolding (root re-export; no statements, no proofs)
 theories/PiLeibniz.v

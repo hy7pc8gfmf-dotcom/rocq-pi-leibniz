@@ -11,10 +11,10 @@
     [P_k = cos_partial] ([PiKernelSlack]).  The proof composes tail
     bounds directly: the tail bound
     [|P_k(x) - P_M(x)| <= (3/2) * t_{M+1}] for [0 <= x <= 2] and
-    [2 <= M <= k] ([PiCosTailScan.vt_cos_partial_tail_bound_prop]); the
-    step-wise decay [t_{M+i} <= (1/3)^i * t_M] ([vt_abs_term_decay_prop]);
+    [2 <= M <= k] ([PiCosTailScan.vt_cos_partial_tail_boundT]); the
+    step-wise decay [t_{M+i} <= (1/3)^i * t_M] ([vt_abs_term_decayT]);
     the base monotonicity [(1/3)^n <= (1/2)^n]
-    ([PiCosApproxRoot.vt_q_pow_base_mono_prop]); and the half-power
+    ([PiCosApproxRoot.vt_q_pow_base_monoT]); and the half-power
     Archimedean property [D * (1/2)^n < dt] ([vt_pow_half_arch_prop]).
     Note: [z_m] is a rational localization point, not an exact zero of
     cosine, so the direct fixed-point statement [|P_k(z_m)| -> 0] is
@@ -99,10 +99,10 @@ Proof.
                            (q_pow (1#3) n * cos_abs_term (cos_zero_seq m) 3)
                            (3#2)%Q Hdec H032).
     - apply (Qle_trans _ (((3#2)%Q * q_pow (1#3) n) * cos_abs_term (cos_zero_seq m) 3)).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + apply (Qle_trans _ (((3#2)%Q * q_pow (1#2) n) * cos_abs_term (cos_zero_seq m) 3)).
         * exact (Qmult_le_compat_r _ _ _ Hsbr H0T3).
-        * apply qeq_le_prop. ring. }
+        * apply QleT'_to_Qle. apply qeq_leT'. ring. }
   apply (Qle_lt_trans
            (Qabs (cos_partial k (cos_zero_seq m) - cos_partial (n + 2) (cos_zero_seq m)))
            ((3#2)%Q * cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2))) dt).

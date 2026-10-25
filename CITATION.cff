@@ -28,8 +28,8 @@ authors:
     email: "6666666@live.cn"
     orcid: "https://orcid.org/0009-0007-9904-1599"
 
-version: 1.0.3
-date-released: "2026-10-25"
+version: 1.0.4
+date-released: "TODO(主会话)：tag 日期候填"
 license: LGPL-2.1
 repository-code: "https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz"
 keywords:
@@ -69,8 +69,15 @@ preferred-citation:
       given-names: Zhinong
     - family-names: Gao
       given-names: Xuefeng
+  # TODO(主会话)：preferred-citation 三字段（version/date-released/doi+url）
+  # 现钉 v1.0.0 与 zenodo 10.5281/zenodo.23527295；1.0.4 是否 mint 新版本
+  # DOI 并随版更新此三字段，由主会话定夺（概念 DOI 10.5281/zenodo.23527294
+  # 全版本不变）。
   version: 1.0.0
   date-released: "2026-10-15"
   doi: "10.5281/zenodo.23527295"
   url: "https://zenodo.org/records/23527295"
 # DOI 已铸（20261021）：版本 DOI 10.5281/zenodo.23527295（钉 v1.0.0）·概念 DOI 10.5281/zenodo.23527294（全版本）
+# 摘要面注：abstract 中定理名 pi_leibniz_strong_irrational 现已改名
+# pi_leibniz_strong_irrational_prop（语句面）；CITATION 摘要是否随名更新，
+# TODO(主会话)——引文摘要惯用语义名，保持现名亦可，须明示定夺。

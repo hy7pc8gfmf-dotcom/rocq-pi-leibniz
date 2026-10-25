@@ -207,7 +207,7 @@ Qed.
 (* are direct [QArith] lemma chains throughout)                       *)
 (* ============================================================ *)
 
-(* [Q] tool lemmas (the reciprocal-comparison lemma [q_le_div_le_prop]
+(* [Q] tool lemmas (the reciprocal-comparison lemma [q_le_div_leT]
    and its dependencies) *)
 Lemma q_neq_of_lt_prop : forall x : Q, Qlt 0 x -> ~ (x == 0).
 Proof.
@@ -228,13 +228,13 @@ Lemma q_le_div_le_prop : forall a b c d : Q,
 Proof.
   intros a b c d Hb Hd Hle.
   apply (Qle_trans _ ((a * d) / (b * d)) _).
-  - apply qeq_le_prop.
+  - apply QleT'_to_Qle. apply qeq_leT'.
     field; split; try (apply q_neq_of_lt_prop; assumption).
   - apply (Qle_trans _ ((c * b) / (b * d)) _).
     + apply (Qle_div_same_denom_prop (a * d) (c * b) (b * d)).
       * apply Qmult_lt_0_compat. exact Hb. exact Hd.
       * exact Hle.
-    + apply qeq_le_prop.
+    + apply QleT'_to_Qle. apply qeq_leT'.
       field; split; try (apply q_neq_of_lt_prop; assumption).
 Qed.
 (* Concrete positive-denominator form: [0 < (2n+1)#1] (direct [Nat2Z] *)
@@ -283,12 +283,21 @@ Proof.
     exact (q_lt_0_odd_den_prop k).
 Qed.
 
+(* Set twin of the original statement named below *)
+Lemma sc_lpa_decr_leT : forall k j : nat, (k <= j)%nat -> QleT' (lp_a j) (lp_a k).
+Proof.
+  intros.
+  apply Qle_to_QleT'.
+  eapply sc_lpa_decr_le_prop.
+  assumption.
+Qed.
+
 Lemma sc_lp_pair_nonneg_prop : forall j : nat, Qle 0 (lp_pair j).
 Proof.
   intro j.
   unfold lp_pair.
   apply (proj1 (Qle_minus_iff (lp_a (2 * j + 1)) (lp_a (2 * j)))).
-  apply sc_lpa_decr_le_prop.
+  apply QleT'_to_Qle. apply sc_lpa_decr_leT.
   rewrite Nat.add_1_r.
   exact (Nat.le_succ_diag_r (2 * j)).
 Qed.
@@ -332,7 +341,7 @@ Proof.
   replace (2 * Datatypes.S m)%nat with (2 * m + 2)%nat
     by (symmetry; apply Nat.mul_succ_r).
   apply (Qle_trans _ (lp_odd m + lp_a (2 * m + 2) + (lp_a (2 * m + 4) - lp_a (2 * m + 3))) _).
-  - apply qeq_le_prop.
+  - apply QleT'_to_Qle. apply qeq_leT'.
     unfold lp_pair.
     replace (2 * Datatypes.S m)%nat with (2 * m + 2)%nat
       by (symmetry; apply Nat.mul_succ_r).
@@ -344,13 +353,13 @@ Proof.
       * apply Qle_refl.
       * (* [a_{2m+4} - a_{2m+3} <= 0] *)
         apply (Qle_trans _ (- (lp_a (2 * m + 3) - lp_a (2 * m + 4))) _).
-        -- apply qeq_le_prop. ring.
+        -- apply QleT'_to_Qle. apply qeq_leT'. ring.
         -- apply (Qopp_le_compat 0 (lp_a (2 * m + 3) - lp_a (2 * m + 4))).
            apply (proj1 (Qle_minus_iff (lp_a (2 * m + 4)) (lp_a (2 * m + 3)))).
-           apply sc_lpa_decr_le_prop.
+           apply QleT'_to_Qle. apply sc_lpa_decr_leT.
            apply Nat.add_le_mono;
              [apply Nat.le_refl | apply Nat.le_le_succ_r; apply Nat.le_refl].
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 (* The [S6] upper bound of [E_n] ([n >= 2]): [E_n <= E_2] *)
 Lemma sc_lp_ev_le_s6_prop : forall n : nat, (2 <= n)%nat ->
@@ -1016,8 +1025,8 @@ Proof.
     setoid_replace (q_pow x 0) with 1 by reflexivity.
     assert (Hxy : Qmult x 1 - Qmult y 1 == x - y) by ring.
     apply (Qle_trans _ (Qabs (x - y)) _).
-    { apply qeq_le_prop. apply (Qabs_wd (Qmult x 1 - Qmult y 1) (x - y)). exact Hxy. }
-    { apply qeq_le_prop. apply Qeq_sym. apply Qmult_1_r. }
+    { apply QleT'_to_Qle. apply qeq_leT'. apply (Qabs_wd (Qmult x 1 - Qmult y 1) (x - y)). exact Hxy. }
+    { apply QleT'_to_Qle. apply qeq_leT'. apply Qeq_sym. apply Qmult_1_r. }
   - (* [n = S m]: split [x*x^{Sm} - y*y^{Sm}], triangle plus the IH *)
     assert (Halg : q_pow x (Datatypes.S (Datatypes.S m)) - q_pow y (Datatypes.S (Datatypes.S m)) ==
                    x * (q_pow x (Datatypes.S m) - q_pow y (Datatypes.S m)) + (x - y) * q_pow y (Datatypes.S m)).
@@ -1029,9 +1038,9 @@ Proof.
     + apply (Qle_trans _ (Qplus (Qmult (Qabs x) (Qabs (q_pow x (Datatypes.S m) - q_pow y (Datatypes.S m))))
                                 (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S m)))) _).
       * apply Qplus_le_compat.
-        -- apply qeq_le_prop. apply Qabs_Qmult.
+        -- apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_Qmult.
         -- apply (Qle_trans _ (Qmult (Qabs (x - y)) (Qabs (q_pow y (Datatypes.S m)))) _).
-           ++ apply qeq_le_prop. apply Qabs_Qmult.
+           ++ apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_Qmult.
            ++ apply (Qmult_le_compat_nonneg (Qabs (x - y)) (Qabs (x - y))
                                             (Qabs (q_pow y (Datatypes.S m))) (q_pow B (Datatypes.S m))).
               ** split; [apply Qabs_nonneg | apply Qle_refl].
@@ -1137,13 +1146,13 @@ Proof.
   apply (Qle_trans _ (Qabs ((q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))) *
                             Qinv (q_fact (Datatypes.S (2 * j))))) _).
   - (* [|sign*t| <= |t|] (with [|sign| == 1]: the equation first, then [<=]) *)
-    apply qeq_le_prop.
+    apply QleT'_to_Qle. apply qeq_leT'.
     rewrite Qabs_Qmult.
     rewrite (sc_abs_sign j).
     ring.
   - apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))))
                               (Qabs (Qinv (q_fact (Datatypes.S (2 * j)))))) _).
-    + apply qeq_le_prop. apply Qabs_Qmult.
+    + apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_Qmult.
     + apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))))
                                 (Qinv (q_fact (Datatypes.S (2 * j))))) _).
       * apply (Qmult_le_compat_nonneg
@@ -1156,7 +1165,7 @@ Proof.
            ++ apply Qabs_nonneg.
            ++ assert (Hinvpos : Qlt 0 (Qinv (q_fact (Datatypes.S (2 * j))))).
               { apply Qinv_lt_0_compat. apply q_fact_pos. }
-              apply qeq_le_prop.
+              apply QleT'_to_Qle. apply qeq_leT'.
               apply (Qabs_pos (Qinv (q_fact (Datatypes.S (2 * j))))
                               (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * j)))) Hinvpos)).
       * apply (Qle_trans _ (Qmult (Qmult (Qabs (x - y))
@@ -1200,13 +1209,13 @@ Proof.
   setoid_rewrite Halg.
   apply (Qle_trans _ (Qabs ((q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))) *
                             Qinv (q_fact (Datatypes.S (2 * m + 1))))) _).
-  - apply qeq_le_prop.
+  - apply QleT'_to_Qle. apply qeq_leT'.
     rewrite Qabs_Qmult.
     rewrite (sc_abs_sign (Datatypes.S m)).
     ring.
   - apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))))
                               (Qabs (Qinv (q_fact (Datatypes.S (2 * m + 1)))))) _).
-    + apply qeq_le_prop. apply Qabs_Qmult.
+    + apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_Qmult.
     + apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))))
                                 (Qinv (q_fact (Datatypes.S (2 * m + 1))))) _).
       * apply (Qmult_le_compat_nonneg
@@ -1219,7 +1228,7 @@ Proof.
            ++ apply Qabs_nonneg.
            ++ assert (Hinvpos : Qlt 0 (Qinv (q_fact (Datatypes.S (2 * m + 1))))).
               { apply Qinv_lt_0_compat. apply q_fact_pos. }
-              apply qeq_le_prop.
+              apply QleT'_to_Qle. apply qeq_leT'.
               apply (Qabs_pos (Qinv (q_fact (Datatypes.S (2 * m + 1))))
                               (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * m + 1)))) Hinvpos)).
       * apply (Qle_trans _ (Qmult (Qmult (Qabs (x - y))
@@ -5207,6 +5216,16 @@ Proof.
   - apply Qinv_lt_0_compat. apply QltT_to_Qlt. exact Hy0.
   - apply QltT_to_Qlt. exact Hxy.
 Qed. 
+(* Set twin of the original statement named below *)
+Lemma q_pow_nonnegT : forall (x : Q) (n : nat), QleT' 0 x -> QleT' 0 (q_pow x n).
+Proof.
+  intros x n Hpm0.
+  apply QleT'_to_Qle in Hpm0.
+  apply Qle_to_QleT'.
+  eapply q_pow_nonneg_prop.
+  exact Hpm0.
+Qed.
+
 Lemma lw0_pitS_pow_dec_helper : forall (x : Q) (t : nat),
   QleT' 0 x -> QleT' x 1 -> QleT' (q_pow x (Datatypes.S t)) (q_pow x t).
 Proof.
@@ -5216,7 +5235,7 @@ Proof.
   - apply (qleT'_trans _ (1 * q_pow x t)%Q).
     + apply Qle_to_QleT'. apply Qmult_le_compat_r.
       * exact (QleT'_to_Qle _ _ H1).
-      * apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ H0).
+      * apply QleT'_to_Qle. apply q_pow_nonnegT. exact (H0).
     + apply qeq_leT'. rewrite Qmult_1_l. reflexivity.
 Qed. 
 Lemma lw0_pitS_pow_le_base_prop : forall (x : Q) (n : nat),
@@ -5458,7 +5477,7 @@ Proof.
                           * q_pow q (Datatypes.S n + Datatypes.S n))%Q).
     - apply Qle_to_QleT'. apply Qmult_le_compat_r.
       + exact (QleT'_to_Qle _ _ Hbpow).
-      + apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ Hq0).
+      + apply QleT'_to_Qle. apply q_pow_nonnegT. exact (Hq0).
     - apply Qle_to_QleT'.
       rewrite (Qmult_comm (q_pow (lw0_q_of_nat d) n)
                 (q_pow q (Datatypes.S n + Datatypes.S n))),
@@ -5466,8 +5485,8 @@ Proof.
                 (q_pow (10 / 3) (Datatypes.S n + Datatypes.S n))).
       apply Qmult_le_compat_r.
       + exact (QleT'_to_Qle _ _ Hqp).
-      + apply q_pow_nonneg_prop.
-        exact (QleT'_to_Qle _ _ (lw0_q_of_nat_nonneg d)). }
+      + apply QleT'_to_Qle. apply q_pow_nonnegT.
+        exact (lw0_q_of_nat_nonneg d). }
   apply Qlt_to_QltT. rewrite lw0_pitS_Wbn0_scale_eq.
   replace (2 * n + 2)%nat with (Datatypes.S n + Datatypes.S n)%nat by ring.
   replace (n + 1)%nat with (Datatypes.S n)%nat by ring.
@@ -5593,6 +5612,18 @@ Proof.
     + exact (QleT'_to_Qle _ _ H).
     + apply leibsep_qeq_le_prop. exact (Qeq_sym _ _ Hbr3).
 Qed. 
+(* Set twin of the original statement named below *)
+Lemma q_pow_monoT : forall (A B : Q) (n : nat), QleT' 0 A -> QleT' A B -> QleT' (q_pow A n) (q_pow B n).
+Proof.
+  intros A B n Hpm0 Hpm1.
+  apply QleT'_to_Qle in Hpm0.
+  apply QleT'_to_Qle in Hpm1.
+  apply Qle_to_QleT'.
+  eapply q_pow_mono_prop.
+  exact Hpm0.
+  exact Hpm1.
+Qed.
+
 Lemma leibsep_w0n_step_prop : forall (b q : Q) (d n : nat),
   QltT 0 b -> QleT' 0 q -> QleT' q (10 / 3)%Q -> QleT' b (lw0_q_of_nat d) ->
   (20 * d <= n)%nat ->
@@ -5623,9 +5654,9 @@ Proof.
     - apply (qeq_leT' (q * q) (q_pow q 2)).
       rewrite (q_pow_succ q 1), (q_pow_succ q 0). cbn [q_pow]. ring.
     - apply (qleT'_trans (q_pow q 2) (q_pow (10 / 3) 2) (100 # 9)).
-      + apply Qle_to_QleT'. apply q_pow_mono_prop.
-        * exact (QleT'_to_Qle _ _ Hq0).
-        * exact (QleT'_to_Qle _ _ Hq103).
+      + apply Qle_to_QleT'. apply QleT'_to_Qle. apply q_pow_monoT.
+        * exact (Hq0).
+        * exact (Hq103).
       + apply (qeq_leT' (q_pow (10 / 3) 2) (100 # 9)).
         rewrite (q_pow_succ (10 / 3) 1), (q_pow_succ (10 / 3) 0). cbn [q_pow].
         transitivity ((10 / 3) * (10 / 3))%Q.
@@ -5776,7 +5807,7 @@ Proof.
   { apply Qmult_le_0_compat.
     - apply q_pow_nonneg_prop. apply (Qlt_le_weak 0). apply QltT_to_Qlt. exact Hb.
     - apply Qmult_le_0_compat.
-      + apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ Hq0).
+      + apply QleT'_to_Qle. apply q_pow_nonnegT. exact (Hq0).
       + apply Qmult_le_0_compat.
         * apply Qlt_le_weak. apply q_fact_pos.
         * apply Qmult_le_0_compat.
@@ -7580,7 +7611,7 @@ Proof.
            ** exact (QleT'_to_Qle _ _ IH).
            ** apply Qle_refl.
       * change (q_pow (2#1) (Datatypes.S L)) with ((2#1) * q_pow (2#1) L)%Q.
-        apply qeq_le_prop. ring.
+        apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 Lemma lw0_pitB_conv_half_le1 : forall L : nat, QleT' (q_pow (1#2) L) 1%Q.
@@ -7702,7 +7733,7 @@ Lemma lw0_pitB_conv_t_nonneg : forall (c : Q) (k : nat),
 Proof.
   intros c k Hc. apply Qle_to_QleT'.
   apply Qmult_le_0_compat.
-  - apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ Hc).
+  - apply QleT'_to_Qle. apply q_pow_nonnegT. exact (Hc).
   - apply Qinv_le_0_compat. apply (Qlt_le_weak 0). apply q_fact_pos.
 Qed.
 
@@ -8038,8 +8069,8 @@ Proof.
                          ((1#2) * eps)).
       + apply (lw0_pitB_conv_mult_le_l (q_pow (1#2) L) (t M1)
                  (q_pow (2#1) L * ((1#2) * eps)) HL).
-        apply Qle_to_QleT'. apply q_pow_nonneg_prop.
-        apply (Qlt_le_weak 0%Q (1#2)%Q).
+        apply q_pow_nonnegT.
+        apply Qle_to_QleT'. apply (Qlt_le_weak 0%Q (1#2)%Q).
         apply (QltT_to_Qlt 0%Q (1#2)%Q).
         unfold QltT. reflexivity.
       + apply (qeq_leT' (q_pow (1#2) L * (q_pow (2#1) L * ((1#2) * eps)))
@@ -9569,7 +9600,7 @@ Proof.
              (lw0_pitB_conv_pwi (cons 1%Q nil) (j + m)%nat c)
              (lw0_pitB_conv_pwi (cons 1%Q nil) j c)
              (lw0_pitB_conv_pwi_add_k_mono (cons 1%Q nil) j m c)).
-    apply Qle_to_QleT'. apply q_pow_nonneg_prop. apply Qabs_nonneg.
+    apply Qle_to_QleT'. apply QleT'_to_Qle. apply q_pow_nonnegT. apply Qle_to_QleT'. apply Qabs_nonneg.
 Qed.
 
 Lemma lw0_pitB_conv_pwi_muliter_scalar : forall (f : QPoly) (s : Q) (m : nat) (k : nat) (c : Q),
@@ -11520,7 +11551,7 @@ Lemma piL_leT'_eq_intro_l : forall a a' m : Q,
 Proof.
   intros a a' m Haa H. apply Qle_to_QleT'.
   apply (Qle_trans a a' m).
-  - apply qeq_le_prop. exact Haa.
+  - apply QleT'_to_Qle. apply qeq_leT'. exact Haa.
   - exact (QleT'_to_Qle _ _ H).
 Qed.
 
@@ -11532,7 +11563,7 @@ Proof.
   intros b b' m Hbb H. apply Qle_to_QleT'.
   apply (Qle_trans m b b').
   - exact (QleT'_to_Qle _ _ H).
-  - apply qeq_le_prop. exact Hbb.
+  - apply QleT'_to_Qle. apply qeq_leT'. exact Hbb.
 Qed.
 
 (* Absolute-value product bound (two factors). *)
@@ -11673,6 +11704,16 @@ Qed.
 (* ========== Section 2. Term-level and partial-sum-level absolute value bounds (|x| <= B) ========== *)
 
 (* The sin term absolute value bound: |sin_term j x| <= B^(2j+1)/(2j+1)!. *)
+(* Set twin of the original statement named below *)
+Lemma Qle_div_same_denomT : forall a b e : Q, QltT 0 e -> QleT' a b -> QleT' (a / e) (b / e).
+Proof.
+  intros.
+  apply Qle_to_QleT'.
+  eapply Qle_div_same_denom_prop.
+  apply QltT_to_Qlt. assumption.
+  apply QleT'_to_Qle. assumption.
+Qed.
+
 Lemma piL_sin_term_abs_bound : forall (j : nat) (x B : Q),
   QleT' (Qabs x) B ->
   QleT' (Qabs (sin_term j x))
@@ -11694,11 +11735,11 @@ Proof.
     ring. }
   apply (piL_leT'_eq_intro_l _ _ _ Heq).
   apply Qle_to_QleT'.
-  apply Qle_div_same_denom_prop.
-  - apply q_fact_pos.
-  - apply q_pow_mono_prop.
-    + apply Qabs_nonneg.
-    + exact (QleT'_to_Qle _ _ Hx).
+  apply QleT'_to_Qle. apply Qle_div_same_denomT.
+  - apply Qlt_to_QltT. apply q_fact_pos.
+  - apply q_pow_monoT.
+    + apply Qle_to_QleT'. apply Qabs_nonneg.
+    + exact (Hx).
 Qed.
 
 (* The cos term absolute value bound: |cos_term j x| <= B^(2j)/(2j)!. *)
@@ -11720,11 +11761,11 @@ Proof.
     ring. }
   apply (piL_leT'_eq_intro_l _ _ _ Heq).
   apply Qle_to_QleT'.
-  apply Qle_div_same_denom_prop.
-  - apply q_fact_pos.
-  - apply q_pow_mono_prop.
-    + apply Qabs_nonneg.
-    + exact (QleT'_to_Qle _ _ Hx).
+  apply QleT'_to_Qle. apply Qle_div_same_denomT.
+  - apply Qlt_to_QltT. apply q_fact_pos.
+  - apply q_pow_monoT.
+    + apply Qle_to_QleT'. apply Qabs_nonneg.
+    + exact (Hx).
 Qed.
 
 (* The sin partial-sum absolute value bound: |sin_partial p x| <=
@@ -12364,9 +12405,9 @@ Proof.
         apply (Qle_trans _ (1 * q_pow (1 # 4)%Q e)).
         -- apply (Qmult_le_compat_r (1 # 4)%Q 1 (q_pow (1 # 4)%Q e)).
            ++ unfold Qle. cbn. apply Z.leb_le; reflexivity.
-           ++ apply q_pow_nonneg_prop.
-              unfold Qle. cbn. apply Z.leb_le; reflexivity.
-        -- apply qeq_le_prop. ring.
+           ++ apply QleT'_to_Qle. apply q_pow_nonnegT.
+              apply Qle_to_QleT'. unfold Qle. cbn. apply Z.leb_le; reflexivity.
+        -- apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply IH. exact Hde'.
 Qed.
 
@@ -12489,7 +12530,7 @@ Lemma d3p_sin_term_nonneg_prop : forall (B : Q) (m : nat),
   QleT' 0 B -> Qle 0 (d3p_sin_term B m).
 Proof.
   intros B m H0B. unfold d3p_sin_term, Qdiv. apply Qmult_le_0_compat.
-  - apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ H0B).
+  - apply QleT'_to_Qle. apply q_pow_nonnegT. exact (H0B).
   - apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
     exact (q_fact_pos (Datatypes.S (2 * m))%nat).
 Qed.
@@ -12499,7 +12540,7 @@ Lemma d3p_cos_term_nonneg_prop : forall (B : Q) (m : nat),
   QleT' 0 B -> Qle 0 (d3p_cos_term B m).
 Proof.
   intros B m H0B. unfold d3p_cos_term, Qdiv. apply Qmult_le_0_compat.
-  - apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ H0B).
+  - apply QleT'_to_Qle. apply q_pow_nonnegT. exact (H0B).
   - apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
     exact (q_fact_pos (2 * m)%nat).
 Qed.
@@ -12544,6 +12585,17 @@ Qed.
 
 (* The sin term step ratio: B <= m implies t(S m) <= t(m)/4
    (the account 4B^2 <= (2m+2)*(2m+3)). *)
+(* Set twin of the original statement named below *)
+Lemma q_le_div_leT : forall a b c d : Q, QltT 0 b -> QltT 0 d -> QleT' (a * d) (c * b) -> QleT' (a / b) (c / d).
+Proof.
+  intros.
+  apply Qle_to_QleT'.
+  eapply q_le_div_le_prop.
+  apply QltT_to_Qlt. assumption.
+  apply QltT_to_Qlt. assumption.
+  apply QleT'_to_Qle. assumption.
+Qed.
+
 Lemma d3p_sin_term_quarter : forall (B : Q) (m : nat),
   QleT' 0 B -> QleT' B (d3p_inject_nat m) ->
   QleT' (d3p_sin_term B (Datatypes.S m)) (d3p_sin_term B m * (1 # 4)%Q).
@@ -12562,8 +12614,8 @@ Proof.
     assert (Hrhs : Qle 0 (d3p_sin_term 0 m * (1 # 4)%Q)).
     { unfold d3p_sin_term, Qdiv. apply Qmult_le_0_compat.
       - apply Qmult_le_0_compat.
-        + apply q_pow_nonneg_prop.
-          unfold Qle. cbn. apply Z.leb_le; reflexivity.
+        + apply QleT'_to_Qle. apply q_pow_nonnegT.
+          apply Qle_to_QleT'. unfold Qle. cbn. apply Z.leb_le; reflexivity.
         + apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
           exact (q_fact_pos (Datatypes.S (2 * m))%nat).
       - unfold Qle. cbn. apply Z.leb_le; reflexivity. }
@@ -12576,7 +12628,7 @@ Proof.
     + apply Qeq_refl.
     + exact (eq_sym Hr0).
     + apply (Qle_trans _ 0%Q).
-      * apply qeq_le_prop. unfold d3p_sin_term, Qdiv.
+      * apply QleT'_to_Qle. apply qeq_leT'. unfold d3p_sin_term, Qdiv.
         rewrite (d3p_q_pow_0_succ (Datatypes.S (2 * Datatypes.S m))%nat).
         ring.
       * exact Hrhs.
@@ -12649,19 +12701,19 @@ Proof.
     rewrite (d3p_qdiv_mul_r_prop (q_pow B (Datatypes.S (2 * m))%nat)
                (q_fact (Datatypes.S (2 * m))%nat) (1 # 4)%Q Hneq1).
     rewrite !d3p_q_fact_step. cbn [q_pow].
-    apply q_le_div_le_prop.
-    + apply Qmult_lt_0_compat.
+    apply QleT'_to_Qle. apply q_le_div_leT.
+    + apply Qlt_to_QltT. apply Qmult_lt_0_compat.
       * apply d3p_inject_pos_prop.
       * apply Qmult_lt_0_compat.
         -- apply d3p_inject_pos_prop.
         -- apply Qmult_lt_0_compat.
            ++ apply d3p_inject_pos_prop.
            ++ exact (q_fact_pos (2 * m)%nat).
-    + exact Hden2.
-    + apply (Qle_trans _ ((B * B) * ((B * q_pow B (2 * m))
+    + apply Qlt_to_QltT. exact Hden2.
+    + apply Qle_to_QleT'. apply (Qle_trans _ ((B * B) * ((B * q_pow B (2 * m))
                                      * (d3p_inject_nat (Datatypes.S (2 * m))
                                         * q_fact (2 * m))))).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply (Qle_trans _
           (((1 # 4)%Q * (d3p_inject_nat (Datatypes.S (Datatypes.S (2 * m)))
                          * d3p_inject_nat (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))))
@@ -12676,7 +12728,7 @@ Proof.
                  --- exact HBpos.
                  --- exact (d3p_q_pow_pos_prop B (2 * m)%nat (Qlt_to_QltT _ _ HBpos)).
               ** exact Hden2.
-        -- apply qeq_le_prop. ring.
+        -- apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (* The cos term step ratio: B <= m implies t'(S m) <= t'(m)/4
@@ -12703,8 +12755,8 @@ Proof.
                           * (1 # 4)%Q)).
     { apply Qmult_le_0_compat.
       - unfold Qdiv. apply Qmult_le_0_compat.
-        + apply q_pow_nonneg_prop.
-          unfold Qle. cbn. apply Z.leb_le; reflexivity.
+        + apply QleT'_to_Qle. apply q_pow_nonnegT.
+          apply Qle_to_QleT'. unfold Qle. cbn. apply Z.leb_le; reflexivity.
         + apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
           exact (q_fact_pos (2 * m)%nat).
       - unfold Qle. cbn. apply Z.leb_le; reflexivity. }
@@ -12717,7 +12769,7 @@ Proof.
     + apply Qeq_refl.
     + exact (eq_sym Hr0).
     + apply (Qle_trans _ 0%Q).
-      * apply qeq_le_prop. unfold d3p_cos_term, Qdiv.
+      * apply QleT'_to_Qle. apply qeq_leT'. unfold d3p_cos_term, Qdiv.
         replace (2 * Datatypes.S m)%nat
           with (Datatypes.S (Datatypes.S (2 * m)))%nat
           by (rewrite Nat.mul_succ_r, Nat.add_succ_r, Nat.add_1_r; reflexivity).
@@ -12783,15 +12835,15 @@ Proof.
     rewrite (d3p_qdiv_mul_r_prop (q_pow B (2 * m)%nat) (q_fact (2 * m)%nat)
                (1 # 4)%Q Hneq1).
     rewrite !d3p_q_fact_step. cbn [q_pow].
-    apply q_le_div_le_prop.
-    + apply Qmult_lt_0_compat.
+    apply QleT'_to_Qle. apply q_le_div_leT.
+    + apply Qlt_to_QltT. apply Qmult_lt_0_compat.
       * apply d3p_inject_pos_prop.
       * apply Qmult_lt_0_compat.
         -- apply d3p_inject_pos_prop.
         -- exact (q_fact_pos (2 * m)%nat).
-    + exact (q_fact_pos (2 * m)%nat).
-    + apply (Qle_trans _ ((B * B) * (q_pow B (2 * m) * q_fact (2 * m)))).
-      * apply qeq_le_prop. ring.
+    + apply Qlt_to_QltT. exact (q_fact_pos (2 * m)%nat).
+    + apply Qle_to_QleT'. apply (Qle_trans _ ((B * B) * (q_pow B (2 * m) * q_fact (2 * m)))).
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply (Qle_trans _
           (((1 # 4)%Q * (d3p_inject_nat (Datatypes.S (2 * m))
                          * d3p_inject_nat (Datatypes.S (Datatypes.S (2 * m)))))
@@ -12803,7 +12855,7 @@ Proof.
            ++ apply Qmult_lt_0_compat.
               ** exact (d3p_q_pow_pos_prop B (2 * m)%nat (Qlt_to_QltT _ _ HBpos)).
               ** exact (q_fact_pos (2 * m)%nat).
-        -- apply qeq_le_prop. ring.
+        -- apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (* The iterated sin step ratio: B <= m implies t(m+d) <= t(m)/4^d. *)
@@ -13265,6 +13317,16 @@ Proof.
 Qed.
 
 (* Monotonicity of the absolute-value summator (B >= 0; used for the uniform partial-sum bound). *)
+(* Set twin of Qle_plus_nonneg_rT *)
+Lemma Qle_plus_nonneg_rT : forall x y : Q, QleT' 0 y -> QleT' x (x + y).
+Proof.
+  intros x y H.
+  apply Qle_to_QleT'.
+  eapply Qle_plus_nonneg_r_prop.
+  apply QleT'_to_Qle.
+  exact H.
+Qed.
+
 Lemma d3p_abssum_mono_prop : forall (B : Q) (p q : nat),
   QleT' 0 B -> (p <= q)%nat ->
   Qle (leibsep_abssum B p) (leibsep_abssum B q).
@@ -13289,9 +13351,9 @@ Proof.
           with (Datatypes.S (Datatypes.S (2 * q)))%nat
           by (rewrite Nat.mul_succ_r, Nat.add_succ_r, Nat.add_1_r; reflexivity).
         unfold d3p_cos_term. unfold Qdiv.
-        apply Qle_plus_nonneg_r_prop.
-        apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ H0B).
+        apply QleT'_to_Qle. apply Qle_plus_nonneg_rT.
+        apply Qle_to_QleT'. apply Qmult_le_0_compat.
+        -- apply QleT'_to_Qle. apply q_pow_nonnegT. exact (H0B).
         -- apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
            exact (q_fact_pos (Datatypes.S (Datatypes.S (2 * q)))%nat).
 Qed.
@@ -13317,9 +13379,9 @@ Proof.
       * exact (IH Hpq').
       * unfold leibsep_abssum_cos.
         unfold d3p_sin_term. unfold Qdiv.
-        apply Qle_plus_nonneg_r_prop.
-        apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg_prop. exact (QleT'_to_Qle _ _ H0B).
+        apply QleT'_to_Qle. apply Qle_plus_nonneg_rT.
+        apply Qle_to_QleT'. apply Qmult_le_0_compat.
+        -- apply QleT'_to_Qle. apply q_pow_nonnegT. exact (H0B).
         -- apply Qinv_le_0_compat. apply (Qlt_le_weak 0%Q _).
            exact (q_fact_pos (Datatypes.S (2 * q))%nat).
 Qed.
@@ -13415,6 +13477,15 @@ Qed.
 (* The sin face: uniformly small for every x with |x| <= B and every
    deep difference -- the Taylor-leg donor of the two-index
    synthesis. *)
+(* Set twin of the original statement named below *)
+Lemma d3p_inject_ceiling_geT : forall B : Q, QleT' 0 B -> QleT' B (d3p_inject_nat (Z.to_nat (Qceiling B))).
+Proof.
+  intros B Hpm0.
+  apply QleT'_to_Qle in Hpm0.
+  eapply d3p_inject_ceiling_ge_prop.
+  exact Hpm0.
+Qed.
+
 Lemma d3p_sin_partial_cauchy_prop : forall (B eps : Q),
   QleT' 0 B -> QltT 0 eps ->
   sigT (fun M : nat => forall (j k : nat) (x : Q),
@@ -13465,7 +13536,7 @@ Proof.
         + exact Hn.
         + exact (QleT'_to_Qle _ _ H0B). }
     assert (Hbn : QleT' B (d3p_inject_nat (Z.to_nat (Qceiling B)))).
-    { apply d3p_inject_ceiling_ge_prop. exact (QleT'_to_Qle _ _ H0B). }
+    { apply d3p_inject_ceiling_geT. exact (H0B). }
     assert (Hcpos : Qlt 0 ((4 # 3)%Q
                            * d3p_sin_term B
                              (Datatypes.S (Z.to_nat (Qceiling B))))).
@@ -13629,7 +13700,7 @@ Proof.
         + exact Hn.
         + exact (QleT'_to_Qle _ _ H0B). }
     assert (Hbn : QleT' B (d3p_inject_nat (Z.to_nat (Qceiling B)))).
-    { apply d3p_inject_ceiling_ge_prop. exact (QleT'_to_Qle _ _ H0B). }
+    { apply d3p_inject_ceiling_geT. exact (H0B). }
     assert (Hcpos : Qlt 0 ((4 # 3)%Q
                            * d3p_cos_term B
                              (Datatypes.S (Z.to_nat (Qceiling B))))).
@@ -13767,7 +13838,7 @@ Qed.
     Mission.  This segment synthesizes the double-index vanishing of
     the sine and cosine partial sums at the window points ([lw0m_xL m]
     equals [lp_four * lp_odd m]) into two statements,
-    [piL_sin_xL_vanish_prop] and [piL_cos_xL_neg1_vanish_prop].  The
+    [piL_sin_xL_vanishT] and [piL_cos_xL_neg1_vanishT].  The
     mathematical core is the pair of synthesis identities (checked
     exactly on numeric samples): [sin_partial m (4*u)] equals
     [2 * S(2*u) * C(2*u) - dres(2*u)], and [cos_partial m (4*u) + 1]
@@ -13869,7 +13940,7 @@ Proof.
   apply (Qlt_le_trans 0 (lp_a 6) (lp_odd 2 + lp_a 6)%Q).
   - exact piLd3_lp_a6_pos_prop.
   - apply (Qle_trans (lp_a 6) (0 + lp_a 6)%Q (lp_odd 2 + lp_a 6)%Q).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply Qplus_le_compat.
       * exact (piLd3_lp_odd_nonneg_prop 2).
       * apply Qle_refl.
@@ -13998,7 +14069,7 @@ Proof.
                     (Qabs (sin_partial m (2 * u) - (1 # 1)%Q) + (1 # 1)%Q)).
   { apply (Qle_trans _ (Qabs ((sin_partial m (2 * u) - (1 # 1)%Q)
                               + (1 # 1)%Q))).
-    - apply qeq_le_prop. apply Qabs_wd. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. ring.
     - apply Qabs_triangle. }
   apply (Qle_trans _ (q + (1 # 1)%Q)).
   - apply (Qle_trans _ (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)
@@ -14007,7 +14078,7 @@ Proof.
     + apply Qplus_le_compat.
       * exact H.
       * apply Qle_refl.
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 (* |[S + 1]| <= 2 + q (from the half-window pair |[S - 1]| < q; the
    [S + 1] leg of the Pythagorean-remainder bound). *)
@@ -14020,7 +14091,7 @@ Proof.
                     (Qabs (sin_partial m (2 * u) - (1 # 1)%Q) + (2 # 1)%Q)).
   { apply (Qle_trans _ (Qabs ((sin_partial m (2 * u) - (1 # 1)%Q)
                               + (2 # 1)%Q))).
-    - apply qeq_le_prop. apply Qabs_wd. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. ring.
     - apply Qabs_triangle. }
   apply (Qle_trans _ (q + (2 # 1)%Q)).
   - apply (Qle_trans _ (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)
@@ -14029,7 +14100,7 @@ Proof.
     + apply Qplus_le_compat.
       * exact H.
       * apply Qle_refl.
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 (* The half-square bound: |2*(1 - S*S)| <= 2*q*(2 + q) (through
    1 - S*S = -(S - 1)*(S + 1) and the [Qabs_opp] bridge). *)
@@ -14060,7 +14131,7 @@ Proof.
     apply Qeq_refl. }
   apply (Qle_trans _ ((2 # 1)%Q * (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)
                                   * Qabs (sin_partial m (2 * u) + (1 # 1)%Q)))).
-  - apply qeq_le_prop. exact Heq.
+  - apply QleT'_to_Qle. apply qeq_leT'. exact Heq.
   - apply (Qle_trans _ ((2 # 1)%Q * (q * ((2 # 1)%Q + q)))).
     + apply (piL_mult_le_l_prop (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)
                             * Qabs (sin_partial m (2 * u) + (1 # 1)%Q))
@@ -14072,7 +14143,7 @@ Proof.
            ++ exact (piLd3_abs_Splus_le_prop m u q HS).
            ++ apply Qlt_le_weak. apply QltT_to_Qlt. exact Hq0.
       * exact (QleT'_to_Qle _ _ piL_qle_0_two).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 (* The Pythagorean-remainder bound: |[piL_pyth_dres m (2*u)]| <=
    q*(2 + q) + q*q (in the ring shape (S - 1)*(S + 1) + C*C; the
@@ -14097,7 +14168,7 @@ Proof.
   apply (Qle_trans _ (Qabs ((sin_partial m (2 * u) - (1 # 1)%Q)
                             * (sin_partial m (2 * u) + (1 # 1)%Q)
                             + cos_partial m (2 * u) * cos_partial m (2 * u)))).
-  - apply qeq_le_prop. apply Qabs_wd. exact Hpyth.
+  - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. exact Hpyth.
   - apply (Qle_trans _ (Qabs ((sin_partial m (2 * u) - (1 # 1)%Q)
                               * (sin_partial m (2 * u) + (1 # 1)%Q))
                         + Qabs (cos_partial m (2 * u) * cos_partial m (2 * u)))).
@@ -14107,9 +14178,9 @@ Proof.
                           + Qabs (cos_partial m (2 * u))
                           * Qabs (cos_partial m (2 * u)))).
       * apply Qplus_le_compat.
-        -- apply qeq_le_prop. exact (piLred_abs_mult (sin_partial m (2 * u) - (1 # 1)%Q)
+        -- apply QleT'_to_Qle. apply qeq_leT'. exact (piLred_abs_mult (sin_partial m (2 * u) - (1 # 1)%Q)
                                  (sin_partial m (2 * u) + (1 # 1)%Q)).
-        -- apply qeq_le_prop. exact (piLred_abs_mult (cos_partial m (2 * u))
+        -- apply QleT'_to_Qle. apply qeq_leT'. exact (piLred_abs_mult (cos_partial m (2 * u))
                                  (cos_partial m (2 * u))).
       * apply (Qle_trans _ (q * Qabs (sin_partial m (2 * u) + (1 # 1)%Q)
                             + q * Qabs (cos_partial m (2 * u)))).
@@ -14130,7 +14201,7 @@ Qed.
 Lemma piLd3_qle_0_mult2_prop : forall a : Q, Qle 0 a -> Qle 0 ((2 # 1)%Q * a).
 Proof.
   intros a Ha. apply (Qle_trans _ (0 * a)).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply Qmult_le_compat_r; [exact (QleT'_to_Qle _ _ piL_qle_0_two) | exact Ha].
 Qed.
 (* The doubled two-arm product bound: a <= c, b <= d, 0 <= a and
@@ -14147,12 +14218,12 @@ Proof.
     + exact Hbd.
     + apply piLd3_qle_0_mult2_prop. exact Ha.
   - apply (Qle_trans _ ((2 # 1)%Q * (a * d))).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qle_trans _ ((2 # 1)%Q * (c * d))).
       * apply (piL_mult_le_l_prop (a * d) (c * d) (2 # 1)%Q).
         -- apply Qmult_le_compat_r; [exact Hac | exact Hd].
         -- exact (QleT'_to_Qle _ _ piL_qle_0_two).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 (* 0 <= q implies 0 <= 1 + q (a double hop 0 <= q <= 1 + q; the hop
    q <= 1 + q departs from q + 0 <= q + 1 and crosses to the other
@@ -14192,10 +14263,10 @@ Proof.
   intros m u q e2 Hq0 HS HC HD.
   apply (Qle_trans _ (Qabs (2 * sin_partial m (2 * u) * cos_partial m (2 * u)
                             - piL_sin_dres m (2 * u)))).
-  - apply qeq_le_prop. apply Qabs_wd. apply piLd3_sin_xL_eq.
+  - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. apply piLd3_sin_xL_eq.
   - apply (Qle_trans _ (Qabs ((2 * sin_partial m (2 * u) * cos_partial m (2 * u))
                               + (- piL_sin_dres m (2 * u))))).
-    + apply qeq_le_prop. apply Qabs_wd. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. ring.
     + apply (Qle_trans _ (Qabs (2 * sin_partial m (2 * u) * cos_partial m (2 * u))
                           + Qabs (- piL_sin_dres m (2 * u)))).
       * apply Qabs_triangle.
@@ -14203,7 +14274,7 @@ Proof.
                             + Qabs (piL_sin_dres m (2 * u)))).
         -- apply Qplus_le_compat.
            ++ apply Qle_refl.
-           ++ apply qeq_le_prop. exact (Qabs_opp (piL_sin_dres m (2 * u))).
+           ++ apply QleT'_to_Qle. apply qeq_leT'. exact (Qabs_opp (piL_sin_dres m (2 * u))).
         -- (* Transport of |2*S*C| == 2*|S|*|C| plus two monotone hops. *)
            assert (Hsum : Qabs (2 * sin_partial m (2 * u) * cos_partial m (2 * u))
                           == ((2 # 1)%Q * Qabs (sin_partial m (2 * u))
@@ -14217,7 +14288,7 @@ Proof.
            apply (Qle_trans _ ((2 # 1)%Q * Qabs (sin_partial m (2 * u))
                                * Qabs (cos_partial m (2 * u))
                                + Qabs (piL_sin_dres m (2 * u)))).
-           ++ apply qeq_le_prop. rewrite Hsum. apply Qeq_refl.
+           ++ apply QleT'_to_Qle. apply qeq_leT'. rewrite Hsum. apply Qeq_refl.
            ++ apply Qplus_le_compat.
               ** exact (piLd3_2SC_le_prop (Qabs (sin_partial m (2 * u)))
                                      (Qabs (cos_partial m (2 * u))) q
@@ -14241,7 +14312,7 @@ Proof.
   apply (Qle_trans _ (Qabs (piL_cos_dres m (2 * u)
                             + 2 * ((1 # 1)%Q - sin_partial m (2 * u) * sin_partial m (2 * u))
                             + piL_pyth_dres m (2 * u)))).
-  - apply qeq_le_prop. apply Qabs_wd. apply piLd3_cos_xL_plus1_eq.
+  - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. apply piLd3_cos_xL_plus1_eq.
   - apply (Qle_trans _ (Qabs (piL_cos_dres m (2 * u)
                               + 2 * ((1 # 1)%Q - sin_partial m (2 * u) * sin_partial m (2 * u)))
                         + Qabs (piL_pyth_dres m (2 * u)))).
@@ -14299,7 +14370,7 @@ Proof.
   assert (Hqq : Qle (q * q) q).
   { apply (Qle_trans _ ((1 # 1)%Q * q)).
     - apply Qmult_le_compat_r; [exact Hq1 | apply Qlt_le_weak; exact Hq0].
-    - apply qeq_le_prop. ring. }
+    - apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (H2qq : Qle ((2 # 1)%Q * (q * q)) ((2 # 1)%Q * q)).
   { apply (piL_mult_le_l_prop (q * q) q (2 # 1)%Q).
     - exact Hqq.
@@ -14318,7 +14389,7 @@ Proof.
                       (((2 # 1)%Q * q + (2 # 1)%Q * (q * q))
                        + d * (1 # 2)%Q)%Q d).
   - apply (Qle_trans _ (((2 # 1)%Q * q + (2 # 1)%Q * (q * q)) + e2)%Q).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (piLred_qle_wd_r_prop (((2 # 1)%Q * q + (2 # 1)%Q * (q * q)) + e2)%Q).
       * rewrite He2. apply Qeq_refl.
       * apply Qle_refl.
@@ -14329,7 +14400,7 @@ Proof.
                           + ((8 # 1)%Q * q))).
       * apply Qplus_le_compat.
         -- apply Qle_refl.
-        -- apply qeq_le_prop. exact He8.
+        -- apply QleT'_to_Qle. apply qeq_leT'. exact He8.
       * apply Qplus_le_compat.
         -- apply Qplus_le_compat; [apply Qle_refl | exact H2qq].
         -- apply Qle_refl.
@@ -14379,7 +14450,7 @@ Proof.
     - apply (piL_mult_le_l_prop (q * q) (q * (1 # 2)%Q) (4 # 1)%Q).
       + apply (piL_mult_le_l_prop q (1 # 2)%Q q); [exact Hq1 | apply Qlt_le_weak; exact Hq0].
       + exact (QleT'_to_Qle _ _ piL_qle_0_four).
-    - apply qeq_le_prop.
+    - apply QleT'_to_Qle. apply qeq_leT'.
       apply (Qeq_trans _ (((4 # 1)%Q * (1 # 2)%Q) * q)).
       * ring.
       * rewrite piLd3_H412. apply Qeq_refl. }
@@ -14406,7 +14477,7 @@ Proof.
   - apply (Qle_lt_trans (e3 + (6 # 1)%Q * q + (4 # 1)%Q * (q * q))%Q
                         ((4 # 1)%Q * q + (6 # 1)%Q * q + (2 # 1)%Q * q)%Q d).
     + apply Qplus_le_compat.
-      * apply qeq_le_prop. rewrite He34. apply Qeq_refl.
+      * apply QleT'_to_Qle. apply qeq_leT'. rewrite He34. apply Qeq_refl.
       * exact H4qq.
     + apply (leibsep_qlt_wd2_prop ((12 # 1)%Q * q)%Q d
                              ((4 # 1)%Q * q + (6 # 1)%Q * q + (2 # 1)%Q * q)%Q d).
@@ -14517,7 +14588,7 @@ Proof.
     apply (Qle_lt_trans (Qabs (sin_partial m (lw0m_xL m))) (12 # 1)%Q dt).
     + apply (Qle_trans _ (((2 # 1)%Q * ((1 # 1)%Q + q) * q + e2)%Q)).
       * exact (piLd3_sin_bound_prop m (lp_odd m) q e2 Hq0 HS HC HD).
-      * apply qeq_le_prop. reflexivity.
+      * apply QleT'_to_Qle. apply qeq_leT'. reflexivity.
     + apply (Qlt_le_trans (12 # 1)%Q (16 # 1)%Q dt).
       * unfold Qlt. cbn. reflexivity.
       * exact Hbig.
@@ -14617,7 +14688,7 @@ Proof.
     + apply (Qle_trans _ ((e3 + 2 * (q * ((2 # 1)%Q + q))
                            + (q * ((2 # 1)%Q + q) + q * q))%Q)).
       * exact (piLd3_cos_bound_prop m (lp_odd m) q e3 Hq0 HS HC HD).
-      * apply qeq_le_prop. reflexivity.
+      * apply QleT'_to_Qle. apply qeq_leT'. reflexivity.
     + apply (Qlt_le_trans (14 # 1)%Q (16 # 1)%Q dt).
       * unfold Qlt. cbn. reflexivity.
       * exact Hbig.
@@ -14938,9 +15009,9 @@ Proof.
   assert (Htwo : QleT' 0 2%Q).
   { apply Qle_to_QleT'. compute. discriminate. }
   assert (Hmono : QleT' (q_pow (Qabs q) 2) (q_pow (lw0_q_of_nat d0) 2)).
-  { apply Qle_to_QleT'. apply q_pow_mono_prop.
-    - apply Qabs_nonneg.
-    - apply QleT'_to_Qle. exact Habs. }
+  { apply Qle_to_QleT'. apply QleT'_to_Qle. apply q_pow_monoT.
+    - apply Qle_to_QleT'. apply Qabs_nonneg.
+    - exact Habs. }
   assert (Hsq2 : q_pow (lw0_q_of_nat d0) 2 == lw0_q_of_nat d0 * lw0_q_of_nat d0).
   { cbn [q_pow]. ring. }
   assert (Hstep1 : QleT' (2 * q_pow (Qabs q) 2) (2 * q_pow (lw0_q_of_nat d0) 2)).
@@ -15438,7 +15509,7 @@ Proof.
   apply (Qle_trans _ (leibsep_abssum_cos B n
                       + q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))%nat)%Q).
   - apply (Qle_trans _ (leibsep_abssum_cos B n + 0)%Q).
-    + apply qeq_le_prop. rewrite Qplus_0_r. reflexivity.
+    + apply QleT'_to_Qle. apply qeq_leT'. rewrite Qplus_0_r. reflexivity.
     + apply Qplus_le_compat; [apply Qle_refl |].
       apply (QleT'_to_Qle 0 (q_pow B (Datatypes.S (2 * n))
                              / q_fact (Datatypes.S (2 * n))%nat)%Q).
@@ -15763,7 +15834,7 @@ Proof.
     apply Qle_to_QleT'.
     rewrite HL.
     change (lw62_rsum (B * B * (1 # 30)) 0) with 1%Q.
-    apply qeq_le_prop. ring.
+    apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply Qle_to_QleT'.
     rewrite (lw62_abssum_S B (Datatypes.S (Datatypes.S n))).
     apply (Qle_trans
@@ -15821,7 +15892,7 @@ Proof.
     + apply Qle_to_QleT'.
       assert (HB2 : Qle (B * B) ((121 # 9))%Q).
       { apply (Qle_trans _ (Qabs B * Qabs B)%Q).
-        - apply qeq_le_prop. rewrite <- Qabs_Qmult.
+        - apply QleT'_to_Qle. apply qeq_leT'. rewrite <- Qabs_Qmult.
           symmetry. apply Qabs_pos. apply lw62_sq_nonneg_prop.
         - apply (lw95_mul_le_compat_prop (Qabs B) (11 # 3) (Qabs B) (11 # 3));
             [apply Qabs_nonneg | exact (QleT'_to_Qle _ _ HB)
@@ -15832,7 +15903,7 @@ Proof.
           + apply qeq_imp_qle_prop. ring.
           + apply (lw95_mul_le_compat_prop (B * B) (121 # 9) (B * B) (121 # 9));
               [apply lw62_sq_nonneg_prop | exact HB2 | apply lw62_sq_nonneg_prop | exact HB2].
-        - apply qeq_le_prop. ring. }
+        - apply QleT'_to_Qle. apply qeq_leT'. ring. }
       assert (Hr149 : Qle (lw62_rsum (B * B * (1 # 30)) n) ((270 # 149))%Q).
       { assert (Hte : Qle (lw62_rsum (B * B * (1 # 30)) n
                            * (1 - B * B * (1 # 30)))%Q 1%Q).
@@ -15842,23 +15913,23 @@ Proof.
               [apply lw62_sq_nonneg_prop | apply Qlt_le_weak; apply lw62_qinv30_pos_prop]. }
           apply (Qle_trans _ (1 + (- (q_pow (B * B * (1 # 30))
                                         (Datatypes.S n)))%Q)%Q).
-          - apply qeq_le_prop. ring.
+          - apply QleT'_to_Qle. apply qeq_leT'. ring.
           - apply (Qle_trans _ (1 + (- 0))%Q).
             + apply (Qplus_le_compat 1%Q 1%Q
                        (- (q_pow (B * B * (1 # 30)) (Datatypes.S n)))%Q (- 0)%Q).
               * apply Qle_refl.
               * apply (Qopp_le_compat 0%Q
                          (q_pow (B * B * (1 # 30)) (Datatypes.S n)) Hp).
-            + apply qeq_le_prop. ring. }
+            + apply QleT'_to_Qle. apply qeq_leT'. ring. }
         assert (H1m : Qle ((149 # 270)) (1 - B * B * (1 # 30))%Q).
         { assert (Hb30 : Qle (B * B * (1 # 30)) ((121 # 270))%Q).
           { apply (Qle_trans _ ((121 # 9) * (1 # 30))%Q).
             - apply (lw95_mul_le_compat_prop (B * B) (121 # 9) (1 # 30) (1 # 30));
                 [apply lw62_sq_nonneg_prop | exact HB2
                 | apply Qlt_le_weak; apply lw62_qinv30_pos_prop | apply Qle_refl].
-            - apply qeq_le_prop. ring. }
+            - apply QleT'_to_Qle. apply qeq_leT'. ring. }
           apply (Qle_trans _ (1 - (121 # 270))%Q).
-          - apply qeq_le_prop. ring.
+          - apply QleT'_to_Qle. apply qeq_leT'. ring.
           - apply (Qplus_le_compat 1%Q 1%Q (- (121 # 270))%Q
                      (- (B * B * (1 # 30)))%Q).
             + apply Qle_refl.
@@ -15876,20 +15947,20 @@ Proof.
           - exact Hte. }
         apply (Qle_trans _ (lw62_rsum (B * B * (1 # 30)) n
                               * ((149 # 270) * (270 # 149)))%Q).
-        - apply qeq_le_prop. ring.
+        - apply QleT'_to_Qle. apply qeq_leT'. ring.
         - apply (Qle_trans _ ((1 # 1) * (270 # 149))%Q).
           + rewrite (Qmult_assoc (lw62_rsum (B * B * (1 # 30)) n)
                               (149 # 270) (270 # 149)).
             apply (Qmult_le_compat_r (lw62_rsum (B * B * (1 # 30)) n
                                        * (149 # 270)) 1%Q (270 # 149) Hrs).
             compute. intro Hc. discriminate Hc.
-          + apply qeq_le_prop. ring. }
+          + apply QleT'_to_Qle. apply qeq_leT'. ring. }
       assert (H2 : Qle (B * B * (1 # 2)) ((121 # 18))%Q).
       { apply (Qle_trans _ ((121 # 9) * (1 # 2))%Q).
         - apply (lw95_mul_le_compat_prop (B * B) (121 # 9) (1 # 2) (1 # 2));
             [apply lw62_sq_nonneg_prop | exact HB2 | apply Qlt_le_weak; compute; reflexivity
             | apply Qle_refl].
-        - apply qeq_le_prop. ring. }
+        - apply QleT'_to_Qle. apply qeq_leT'. ring. }
       assert (H4r : Qle (B * B * B * B * (1 # 24)
                          * lw62_rsum (B * B * (1 # 30)) n) ((73205 # 5364))%Q).
       { apply (Qle_trans _ ((14641 # 81) * (1 # 24) * (270 # 149))%Q).
@@ -15912,7 +15983,7 @@ Proof.
           + apply lw62_rsum_nonneg_prop. apply lw95_mul0_prop;
               [apply lw62_sq_nonneg_prop | apply Qlt_le_weak; apply lw62_qinv30_pos_prop].
           + exact Hr149.
-        - apply qeq_le_prop. ring. }
+        - apply QleT'_to_Qle. apply qeq_leT'. ring. }
       apply Qplus_le_compat.
       * apply Qplus_le_compat.
         -- apply Qle_refl.
@@ -16260,7 +16331,7 @@ Proof.
       * apply (Htail (Nat.max (Nat.max N2 (Nat.max Nt 4)) N1) HmNt).
 Defined.
 
-(* Set twin of sin_slot_eps0_prop (Path A v2.4) *)
+(* Set twin of sin_slot_eps0_prop *)
 Lemma sin_slot_eps0T : forall (eps0 : Q) (N2 Nt : nat) (dtail : Q),
   QltT 0 eps0 -> QltT 0 dtail ->
   (forall m : nat, NatLe N2 m ->
@@ -16628,7 +16699,7 @@ Proof.
       * apply (Htail (Nat.max (Nat.max N2 (Nat.max Nt 4)) N1) HmNt).
 Defined.
 
-(* Set twin of cos_slot_eps0_prop (Path A v2.4) *)
+(* Set twin of cos_slot_eps0_prop *)
 Lemma cos_slot_eps0T : forall (eps0 : Q) (N2 Nt : nat) (dtail : Q),
   QltT 0 eps0 -> QltT 0 dtail ->
   (forall m : nat, NatLe N2 m ->
@@ -17353,7 +17424,7 @@ Proof.
               apply (Qmult_lt_compat_r (1 # 2) 1 WING).
               + exact HX.
               + vm_compute. reflexivity.
-            - apply qeq_le_prop. ring. }
+            - apply QleT'_to_Qle. apply qeq_leT'. ring. }
           apply (Qlt_le_trans _ WING _).
           + apply (Qle_lt_trans _ (WING * (1 # 2))%Q _).
             * exact Hmul2.
@@ -17372,7 +17443,7 @@ Proof.
 Defined.
 
 End KernelDistilled.
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 (* ============================================================ *)
 (* Appended section: Set-carried twins of the order faces        *)
 (*
@@ -17402,28 +17473,7 @@ End KernelDistilled.
      this file for the build recipe.
 *)
 
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma Qle_div_same_denomT : forall a b e : Q, QltT 0 e -> QleT' a b -> QleT' (a / e) (b / e).
-Proof.
-  intros.
-  apply Qle_to_QleT'.
-  eapply Qle_div_same_denom_prop.
-  apply QltT_to_Qlt. assumption.
-  apply QleT'_to_Qle. assumption.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma q_le_div_leT : forall a b c d : Q, QltT 0 b -> QltT 0 d -> QleT' (a * d) (c * b) -> QleT' (a / b) (c / d).
-Proof.
-  intros.
-  apply Qle_to_QleT'.
-  eapply q_le_div_le_prop.
-  apply QltT_to_Qlt. assumption.
-  apply QltT_to_Qlt. assumption.
-  apply QleT'_to_Qle. assumption.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma q_lt_0_odd_denT : forall n : nat, QltT 0 ((Z.of_nat (2 * n + 1)) # 1)%Q.
 Proof.
   intros.
@@ -17431,16 +17481,7 @@ Proof.
   eapply q_lt_0_odd_den_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma sc_lpa_decr_leT : forall k j : nat, (k <= j)%nat -> QleT' (lp_a j) (lp_a k).
-Proof.
-  intros.
-  apply Qle_to_QleT'.
-  eapply sc_lpa_decr_le_prop.
-  assumption.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lpa_nonnegT : forall k : nat, QleT' 0 (lp_a k).
 Proof.
   intros.
@@ -17448,7 +17489,7 @@ Proof.
   eapply sc_lpa_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_pair_nonnegT : forall j : nat, QleT' 0 (lp_pair j).
 Proof.
   intros.
@@ -17456,7 +17497,7 @@ Proof.
   eapply sc_lp_pair_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_odd_monoT : forall m : nat, QleT' (lp_odd m) (lp_odd (Datatypes.S m)).
 Proof.
   intros.
@@ -17464,7 +17505,7 @@ Proof.
   eapply sc_lp_odd_mono_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_odd_chainT : forall m n : nat, (m <= n)%nat -> QleT' (lp_odd m) (lp_odd n).
 Proof.
   intros.
@@ -17473,7 +17514,7 @@ Proof.
   assumption.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_ev_decrT : forall m : nat, QleT' (lp_odd (Datatypes.S m) + lp_a (2 * Datatypes.S m + 2)) (lp_odd m + lp_a (2 * m + 2)).
 Proof.
   intros.
@@ -17481,7 +17522,7 @@ Proof.
   eapply sc_lp_ev_decr_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_ev_le_s6T : forall n : nat, (2 <= n)%nat -> QleT' (lp_odd n + lp_a (2 * n + 2)) (lp_odd 2 + lp_a 6).
 Proof.
   intros.
@@ -17490,7 +17531,7 @@ Proof.
   assumption.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_odd_le_s6T : forall n : nat, QleT' (lp_odd n) (lp_odd 2 + lp_a 6).
 Proof.
   intros.
@@ -17498,7 +17539,7 @@ Proof.
   eapply sc_lp_odd_le_s6_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_four_nonnegT : QleT' 0 lp_four.
 Proof.
   intros.
@@ -17506,7 +17547,7 @@ Proof.
   eapply sc_lp_four_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_three_marginT : QltT (3 + 1 / 100) (lp_four * lp_odd 3).
 Proof.
   intros.
@@ -17514,7 +17555,7 @@ Proof.
   eapply sc_lp_three_margin_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_lp_six_marginT : QltT (1 / 60) ((10 / 3) - lp_four * (lp_odd 2 + lp_a 6)).
 Proof.
   intros.
@@ -17522,7 +17563,7 @@ Proof.
   eapply sc_lp_six_margin_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_xL_under_ten_thirdsT : forall n : nat, (2 <= n)%nat -> QltT (1 / 60)%Q ((10 / 3)%Q - lw0m_xL n)%Q.
 Proof.
   intros.
@@ -17530,7 +17571,7 @@ Proof.
   assumption.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_xL_over_threeT : forall n : nat, (3 <= n)%nat -> QltT (1 / 100)%Q ((lw0m_xL n - 3)%Q).
 Proof.
   intros.
@@ -17538,7 +17579,7 @@ Proof.
   assumption.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma q_lt_0_succ_denT : forall m : nat, QltT 0 ((Z.of_nat (Datatypes.S m)) # 1)%Q.
 Proof.
   intros.
@@ -17546,7 +17587,7 @@ Proof.
   eapply q_lt_0_succ_den_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma q_fact_posT : forall n : nat, QltT 0 (q_fact n).
 Proof.
   intros.
@@ -17554,7 +17595,7 @@ Proof.
   eapply q_fact_pos.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_hn0g2_under_ten_thirdsT : forall (eg eps2 : Q) (N0g : nat), (forall n : nat, NatLe N0g n -> QltT eg ((10 / 3)%Q - lw0m_xL n)%Q) -> QleT' eps2 eg -> forall n : nat, NatLe N0g n -> QltT eps2 ((10 / 3)%Q - lw0m_xL n)%Q.
 Proof.
   intros eg eps2 N0g Hpm0 Hpm1.
@@ -17566,7 +17607,7 @@ Proof.
   exact Htl0_0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_G4c_pair_slack_window_fromT : forall (q : Q) (n : nat) (s t : Q) (M0 : nat), (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (lw0_sin_qp m) q)) s) -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp m)) q + (1 # 1)%Q)) t) -> forall eps : Q, QltT 0 eps -> sigT (fun M : nat => forall m : nat, NatLe M m -> QleT' (Qabs (lw0_qp_pair (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) (lw0_sin_qp m) q - lw0_K (Qnum q) (Zpos (Qden q)) n)) (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n)) q) * s + eps)%Q).
 Proof.
   intros q n s t M0 Hpm0 Hpm1.
@@ -17577,7 +17618,7 @@ Proof.
   exact Htl0_0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_ratio_slotT : forall (q : Q) (d0 : nat), QleT' (Qabs q) (lw0_q_of_nat d0) -> forall j : nat, (d0 <= j)%nat -> QleT' (2 * q_pow (Qabs q) 2)%Q (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j))))%Q.
 Proof.
   intros q d0 Hpm0.
@@ -17587,7 +17628,7 @@ Proof.
   exact Htl0_0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_wd2T : forall a b c e : Q, QeqT a c -> QeqT b e -> QltT a b -> QltT c e.
 Proof.
   intros a b c e Hpm0 Hpm1 Hpm2.
@@ -17601,7 +17642,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qle_wd2T : forall a b c e : Q, QeqT a c -> QeqT b e -> QleT' a b -> QleT' c e.
 Proof.
   intros a b c e Hpm0 Hpm1 Hpm2.
@@ -17615,7 +17656,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_minusT : forall x y : Q, QltT x y -> QltT 0 (y - x).
 Proof.
   intros x y Hpm0.
@@ -17625,7 +17666,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_of_minusT : forall x y : Q, QltT 0 (y - x) -> QltT x y.
 Proof.
   intros x y Hpm0.
@@ -17635,7 +17676,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qle_minusT : forall x y : Q, QleT' x y -> QleT' 0 (y - x).
 Proof.
   intros x y Hpm0.
@@ -17645,7 +17686,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qle_of_minusT : forall x y : Q, QleT' 0 (y - x) -> QleT' x y.
 Proof.
   intros x y Hpm0.
@@ -17655,28 +17696,28 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_1T : QltT 0 1.
 Proof.
   apply Qlt_to_QltT.
   eapply leibsep_qlt_1_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_halfT : QltT 0 (1 # 2).
 Proof.
   apply Qlt_to_QltT.
   eapply leibsep_qlt_half_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qlt_half_1T : QltT (1 # 2) 1.
 Proof.
   apply Qlt_to_QltT.
   eapply leibsep_qlt_half_1_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_qabs_le_twoT : forall d t : Q, QleT' (Qabs d) t -> And (QleT' d t) (QleT' (- t) d).
 Proof.
   intros d t Hpm0.
@@ -17685,7 +17726,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_shore_upperT : forall (q W eps0 : Q) (m0 : nat), QleT' (Qabs ((lw0m_xL m0 - q)%Q)) W -> QleT' (lw0m_xL m0) ((10 / 3)%Q - eps0)%Q -> QleT' W eps0 -> QleT' q (10 / 3)%Q.
 Proof.
   intros q W eps0 m0 Hpm0 Hpm1 Hpm2.
@@ -17696,7 +17737,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_shore_gap_upperT : forall eps0 x y : Q, QltT eps0 (x - y)%Q -> QleT' y (x - eps0)%Q.
 Proof.
   intros eps0 x y Hpm0.
@@ -17705,29 +17746,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma q_pow_nonnegT : forall (x : Q) (n : nat), QleT' 0 x -> QleT' 0 (q_pow x n).
-Proof.
-  intros x n Hpm0.
-  apply QleT'_to_Qle in Hpm0.
-  apply Qle_to_QleT'.
-  eapply q_pow_nonneg_prop.
-  exact Hpm0.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma q_pow_monoT : forall (A B : Q) (n : nat), QleT' 0 A -> QleT' A B -> QleT' (q_pow A n) (q_pow B n).
-Proof.
-  intros A B n Hpm0 Hpm1.
-  apply QleT'_to_Qle in Hpm0.
-  apply QleT'_to_Qle in Hpm1.
-  apply Qle_to_QleT'.
-  eapply q_pow_mono_prop.
-  exact Hpm0.
-  exact Hpm1.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma q_pow_diff_boundT : forall (x y B : Q) (n : nat), QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B -> QleT' (Qabs (q_pow x (Datatypes.S n) - q_pow y (Datatypes.S n))) (Qmult (Qabs (x - y)) (Qmult (Z.of_nat (Datatypes.S n) # 1) (q_pow B n))).
 Proof.
   intros x y B n Hpm0 Hpm1 Hpm2.
@@ -17741,7 +17760,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_sin_term_diffT : forall (x y B : Q) (j : nat), QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B -> QleT' (Qabs (sin_term j x - sin_term j y)) (Qmult (Qabs (x - y)) (q_pow B (2 * j) / q_fact (2 * j))).
 Proof.
   intros x y B j Hpm0 Hpm1 Hpm2.
@@ -17755,7 +17774,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma sc_cos_term_diffT : forall (x y B : Q) (m : nat), QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B -> QleT' (Qabs (cos_term (Datatypes.S m) x - cos_term (Datatypes.S m) y)) (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m)))).
 Proof.
   intros x y B m Hpm0 Hpm1 Hpm2.
@@ -17769,7 +17788,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma qeq_imp_qleT : forall a b : Q, QeqT a b -> QleT' a b.
 Proof.
   intros a b Hpm0.
@@ -17779,7 +17798,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_q_of_nat_le_monoT : forall a b : nat, (a <= b)%nat -> QleT' (lw0_q_of_nat a) (lw0_q_of_nat b).
 Proof.
   intros a b Hpm0.
@@ -17787,21 +17806,21 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_qp_deriv_iter_plusT : forall n m p, qpoly_deriv_iter (n + m) p = qpoly_deriv_iter n (qpoly_deriv_iter m p).
 Proof.
   intros n m p .
   eapply lw0_qp_deriv_iter_plus_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Qmake_succ_eqT : forall z : Z, ((1 + z) # 1)%Q = (1 + (z # 1)%Q)%Q.
 Proof.
   intros z .
   eapply lw0_Qmake_succ_eq_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_die_budget_monoT : forall (p : QPoly) (m k : nat), lw0_die p m = true -> (m <= k)%nat -> lw0_die p k = true.
 Proof.
   intros p m k Hpm0 Hpm1.
@@ -17810,14 +17829,14 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_die_scalarT : forall (c : Q) (p : qpoly) (M : nat), lw0_die (qpoly_scalar c p) M = lw0_die p M.
 Proof.
   intros c p M .
   eapply lw0_die_scalar_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_die_addT : forall (M : nat) (p q : qpoly), lw0_die p M = true -> lw0_die q M = true -> lw0_die (qpoly_add p q) M = true.
 Proof.
   intros M p q Hpm0 Hpm1.
@@ -17826,7 +17845,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_die_mul_sharpT : forall (f g : qpoly) (a b : nat), lw0_die f (Datatypes.S a) = true -> lw0_die g (Datatypes.S b) = true -> lw0_die (qpoly_mul f g) (Datatypes.S (a + b)) = true.
 Proof.
   intros f g a b Hpm0 Hpm1.
@@ -17835,35 +17854,35 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pi_mono_dieT : forall m : nat, lw0_die (lw0_pi_mono m) (Datatypes.S m) = true.
 Proof.
   intros m .
   eapply lw0_pi_mono_die_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pi_qminus_pow_dieT : forall (q : Q) (n : nat), lw0_die (lw0_pi_qminus_pow q n) (Datatypes.S n) = true.
 Proof.
   intros q n .
   eapply lw0_pi_qminus_pow_die_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_niven_f_dieT : forall (q b : Q) (n : nat), lw0_die (lw0_niven_f q b n) (2 * Datatypes.S n) = true.
 Proof.
   intros q b n .
   eapply lw0_niven_f_die_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_qpoly_add_assocT : forall p q r : qpoly, lw0_qpoly_eqT (qpoly_add (qpoly_add p q) r) (qpoly_add p (qpoly_add q r)).
 Proof.
   intros p q r .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_qpoly_add_assoc_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_qpoly_eq_derivT : forall p q : qpoly, lw0_qpoly_eqT p q -> lw0_qpoly_eqT (qpoly_deriv p) (qpoly_deriv q).
 Proof.
   intros p q Hpm0.
@@ -17871,21 +17890,21 @@ Proof.
   apply lw0_qpoly_eq_prop_of_eqT. exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_shift_addT : forall (m : nat) (p q : qpoly), lw0_qpoly_eqT (qpoly_shift m (qpoly_add p q)) (qpoly_add (qpoly_shift m p) (qpoly_shift m q)).
 Proof.
   intros m p q .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_shift_add_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_shift_shiftT : forall (m n : nat) (p : qpoly), lw0_qpoly_eqT (qpoly_shift (m + n) p) (qpoly_shift m (qpoly_shift n p)).
 Proof.
   intros m n p .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_shift_shift_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_shift_congrT : forall (m : nat) (p q : qpoly), lw0_qpoly_eqT p q -> lw0_qpoly_eqT (qpoly_shift m p) (qpoly_shift m q).
 Proof.
   intros m p q Hpm0.
@@ -17893,28 +17912,28 @@ Proof.
   apply lw0_qpoly_eq_prop_of_eqT. exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_cons2_shift2T : forall (a b : Q) (w : qpoly), lw0_qpoly_eqT (cons a (cons b w)) (qpoly_add (cons a (cons b nil)) (qpoly_shift 2 w)).
 Proof.
   intros a b w .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_cons2_shift2_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_scal_pair_shiftT : forall (c x y : Q) (w : qpoly), lw0_qpoly_eqT (qpoly_scalar c (cons x (cons y w))) (qpoly_add (qpoly_scalar c (cons x (cons y nil))) (qpoly_shift 2 (qpoly_scalar c w))).
 Proof.
   intros c x y w .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_scal_pair_shift_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sin_aux_scal_appendT : forall (j : nat) (c : Q) (w : qpoly), lw0_qpoly_eqT (qpoly_scalar c (lw0_sin_aux j w)) (qpoly_add (qpoly_scalar c (lw0_sin_aux j nil)) (qpoly_shift (Datatypes.S (Datatypes.S (j + j))) (qpoly_scalar c w))).
 Proof.
   intros j c w .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_sin_aux_scal_append_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_cos_aux_congrT : forall (j : nat) (w1 w2 : qpoly), lw0_qpoly_eqT w1 w2 -> lw0_qpoly_eqT (lw0_cos_aux j w1) (lw0_cos_aux j w2).
 Proof.
   intros j w1 w2 Hpm0.
@@ -17922,7 +17941,7 @@ Proof.
   apply lw0_qpoly_eq_prop_of_eqT. exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sin_aux_congrT : forall (j : nat) (w1 w2 : qpoly), lw0_qpoly_eqT w1 w2 -> lw0_qpoly_eqT (lw0_sin_aux j w1) (lw0_sin_aux j w2).
 Proof.
   intros j w1 w2 Hpm0.
@@ -17930,70 +17949,70 @@ Proof.
   apply lw0_qpoly_eq_prop_of_eqT. exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Wp_nilT : forall j : nat, lw0_qpoly_eqT (lw0_Wp j nil) nil.
 Proof.
   intros j .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_Wp_nil_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Xc_nilT : forall j : nat, lw0_qpoly_eqT (lw0_Xc j nil) nil.
 Proof.
   intros j .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_Xc_nil_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Wp_pushT : forall (j : nat) (c : Q) (acc : qpoly), lw0_qpoly_eqT (lw0_Wp j (cons 0%Q (cons c acc))) (cons 0%Q (cons ((Z.of_nat (Datatypes.S (Datatypes.S (Datatypes.S (j + j)))) # 1)%Q * c)%Q (lw0_Wp (Datatypes.S j) acc))).
 Proof.
   intros j c acc .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_Wp_push_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Xc_pushT : forall (j : nat) (c : Q) (acc : qpoly), lw0_qpoly_eqT (lw0_Xc j (cons 0%Q (cons c acc))) (cons 0%Q (cons ((Z.of_nat (Datatypes.S (Datatypes.S (Datatypes.S (Datatypes.S (j + j))))) # 1)%Q * c)%Q (lw0_Xc (Datatypes.S j) acc))).
 Proof.
   intros j c acc .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_Xc_push_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sin_aux_deriv_poly_genT : forall (j : nat) (acc : qpoly), lw0_qpoly_eqT (qpoly_deriv (lw0_sin_aux j acc)) (lw0_cos_aux j (lw0_Wp j acc)).
 Proof.
   intros j acc .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_sin_aux_deriv_poly_gen_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_cos_aux_deriv_S_poly_genT : forall (j : nat) (acc : qpoly), lw0_qpoly_eqT (qpoly_deriv (lw0_cos_aux (Datatypes.S j) acc)) (qpoly_add (qpoly_scalar (-1)%Q (lw0_sin_aux j nil)) (qpoly_shift (Datatypes.S (Datatypes.S (j + j))) (lw0_Xc j acc))).
 Proof.
   intros j acc .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_cos_aux_deriv_S_poly_gen_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sin_qp_deriv_polyT : forall N : nat, lw0_qpoly_eqT (qpoly_deriv (lw0_sin_qp N)) (lw0_cos_qp N).
 Proof.
   intros N .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_sin_qp_deriv_poly_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_cos_qp_deriv_polyT : forall N : nat, lw0_qpoly_eqT (qpoly_deriv (lw0_cos_qp (Datatypes.S N))) (qpoly_scalar (-1)%Q (lw0_sin_qp N)).
 Proof.
   intros N .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_cos_qp_deriv_poly_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sin_qp_deriv2T : forall m : nat, lw0_qpoly_eqT (qpoly_deriv_iter 2 (lw0_sin_qp (Datatypes.S m))) (qpoly_scalar (-1)%Q (lw0_sin_qp m)).
 Proof.
   intros m .
   apply lw0_qpoly_eqT_of_prop_prop. apply lw0_sin_qp_deriv2_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw385_eq_IdT : forall b : bool, b = true -> Id b true.
 Proof.
   intros b Hpm0.
@@ -18001,7 +18020,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw385_die_lengthT : forall (p : qpoly) (n : nat), Id (lw0_die p n) true -> (length p <= n)%nat.
 Proof.
   intros p n Hpm0.
@@ -18009,7 +18028,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Qlt_leT : forall x : Q, QltT 0 x -> QleT' 0 x.
 Proof.
   intros x Hpm0.
@@ -18018,7 +18037,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma qltT_not_eq_zeroT : forall x : Q, QltT 0 x -> QeqT x 0 -> False.
 Proof.
   intros x Hpm0 Hpm1.
@@ -18028,7 +18047,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_q_of_nat_lt0TT : forall m : nat, (1 <= m)%nat -> QltT 0 (lw0_q_of_nat m).
 Proof.
   intros m Hpm0.
@@ -18036,7 +18055,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_mul_lt_oneT : forall z x : Q, QltT 0 z -> QltT x 1 -> QltT (z * x) z.
 Proof.
   intros z x Hpm0 Hpm1.
@@ -18048,7 +18067,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_twelve_AB_leT : forall (n j : nat), (2 <= n)%nat -> QleT' ((12#1) * lw0_q_of_nat (n + 2*j + 2) * lw0_q_of_nat (n + 2*j + 3)) (lw0_q_of_nat (2*j + 2) * lw0_q_of_nat (2*j + 3) * lw0_q_of_nat (2*n + 2*j + 3) * lw0_q_of_nat (2*n + 2*j + 4)).
 Proof.
   intros n j Hpm0.
@@ -18056,7 +18075,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Wb_ratio_boundT : forall (b q : Q) (n j : nat), QleT' 0 b -> QltT 0 q -> QleT' q (10/3) -> (2 <= n)%nat -> QleT' (lw0_Wb b q n (Datatypes.S j)) (lw0_Wb b q n j * (25#27)).
 Proof.
   intros b q n j Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18067,7 +18086,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_Wb_seq_decrT : forall (b q : Q) (n j : nat), QleT' 0 b -> QltT 0 q -> QleT' q (10/3) -> (2 <= n)%nat -> QleT' (lw0_Wb b q n (Datatypes.S j)) (lw0_Wb b q n j).
 Proof.
   intros b q n j Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18078,7 +18097,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitS_pow_le_baseT : forall (x : Q) (n : nat), QleT' 0 x -> QleT' x 1 -> (1 <= n)%nat -> QleT' (q_pow x n) x.
 Proof.
   intros x n Hpm0 Hpm1 Hpm2.
@@ -18088,7 +18107,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_w0n_xferT : forall A B C D : Q, QltT 0 C -> QltT 0 D -> QleT' (A * D) (B * C) -> QleT' (A * / C) (B * / D).
 Proof.
   intros A B C D Hpm0 Hpm1 Hpm2.
@@ -18100,7 +18119,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_w0n_stepT : forall (b q : Q) (d n : nat), QltT 0 b -> QleT' 0 q -> QleT' q (10 / 3)%Q -> QleT' b (lw0_q_of_nat d) -> (20 * d <= n)%nat -> QleT' (q_fact (Datatypes.S n) * lw0_Wb b q (Datatypes.S n) 0)%Q ((1 # 5) * (q_fact n * lw0_Wb b q n 0))%Q.
 Proof.
   intros b q d n Hpm0 Hpm1 Hpm2 Hpm3 Hpm4.
@@ -18112,7 +18131,7 @@ Proof.
   exact Hpm4.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_w0n_powT : forall (b q : Q) (d n j : nat), QltT 0 b -> QleT' 0 q -> QleT' q (10 / 3)%Q -> QleT' b (lw0_q_of_nat d) -> (20 * d <= n)%nat -> QleT' (q_fact (n + j) * lw0_Wb b q (n + j) 0)%Q (q_pow (1 # 5) j * (q_fact n * lw0_Wb b q n 0))%Q.
 Proof.
   intros b q d n j Hpm0 Hpm1 Hpm2 Hpm3 Hpm4.
@@ -18124,7 +18143,7 @@ Proof.
   exact Hpm4.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_w0n_halfT : forall (b q : Q) (d k j : nat), QltT 0 b -> QleT' 0 q -> QleT' q (10 / 3)%Q -> QleT' b (lw0_q_of_nat d) -> (1 <= j)%nat -> QltT (q_fact (lw0_n_select (10 * d) k + j) * lw0_Wb b q (lw0_n_select (10 * d) k + j) 0)%Q (1 # 2)%Q.
 Proof.
   intros b q d k j Hpm0 Hpm1 Hpm2 Hpm3 Hpm4.
@@ -18136,28 +18155,28 @@ Proof.
   exact Hpm4.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma qpoly_deriv_iter_commuteT : forall n p, qpoly_deriv_iter (S n) p = qpoly_deriv_iter n (qpoly_deriv p).
 Proof.
   intros n p .
   eapply qpoly_deriv_iter_commute_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma bpa_binom_pascalT : forall n k : nat, bpa_binom (Datatypes.S n) (Datatypes.S k) = (bpa_binom n k + bpa_binom n (Datatypes.S k))%Q.
 Proof.
   intros n k .
   eapply bpa_binom_pascal_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma bpa_binom_0T : forall n : nat, bpa_binom n 0%nat = 1%Q.
 Proof.
   intros n .
   eapply bpa_binom_0_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sub_succ_eqT : forall m j' : nat, (Datatypes.S j' <= m)%nat -> (m - j')%nat = Datatypes.S (m - Datatypes.S j')%nat.
 Proof.
   intros m j' Hpm0.
@@ -18165,7 +18184,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_fact_ratioT : forall k n, (n <= k)%nat -> fact k = (fact n * lw0_ratio n k)%nat.
 Proof.
   intros k n Hpm0.
@@ -18173,7 +18192,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_binom_outT : forall n k : nat, (n < k)%nat -> lw0_binom n k = 0%nat.
 Proof.
   intros n k Hpm0.
@@ -18181,14 +18200,14 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_zsign_stepT : forall m : nat, lw0_zsign (Datatypes.S m) = (- lw0_zsign m)%Z.
 Proof.
   intros m .
   eapply lw0_zsign_step_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_posnat_zeqT : forall m : nat, (1 <= m)%nat -> Zpos (Pos.of_nat m) = Z.of_nat m.
 Proof.
   intros m Hpm0.
@@ -18196,21 +18215,21 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_zpower_nat_addT : forall (z : Z) (m n : nat), Zpower_nat z (m + n) = (Zpower_nat z m * Zpower_nat z n)%Z.
 Proof.
   intros z m n .
   eapply lw0_zpower_nat_add_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_zpos_pospowT : forall (p : positive) (m : nat), Zpos (Powpos p m) = Zpower_nat (Zpos p) m.
 Proof.
   intros p m .
   eapply lw0_zpos_pospow_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_sub_sub_shiftT : forall n k : nat, (n <= k)%nat -> (n - (k - n))%nat = (2 * n - k)%nat.
 Proof.
   intros n k Hpm0.
@@ -18218,7 +18237,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_half_monoT : forall a b : nat, (b <= a)%nat -> QleT' (q_pow (1#2) a) (q_pow (1#2) b).
 Proof.
   intros a b Hpm0.
@@ -18226,7 +18245,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_half_iterT : forall (t : nat -> Q) (L M : nat), (forall j : nat, (M <= j)%nat -> QleT' (t (Datatypes.S j)) ((1#2) * t j)) -> QleT' (t (M + L)%nat) (t M * q_pow (1#2) L).
 Proof.
   intros t L M Hpm0.
@@ -18234,7 +18253,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_qthrT : forall (c : Q) (K j : nat), QleT' c (lw0_q_of_nat (Datatypes.S K)) -> QleT' 0 c -> (K <= j)%nat -> QleT' (2 * q_pow c 2) (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j)))).
 Proof.
   intros c K j Hpm0 Hpm1 Hpm2.
@@ -18244,7 +18263,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_t_vanishT : forall (c : Q) (eps : Q), QleT' 0 c -> QltT 0 eps -> sigT (fun M0 : nat => sigT (fun _ : QleT' c (lw0_q_of_nat (Datatypes.S M0)) => forall M : nat, (M0 <= M)%nat -> QltT (q_pow c (Datatypes.S (2 * M)) / q_fact (Datatypes.S (2 * M))) eps)).
 Proof.
   intros c eps Hpm0 Hpm1.
@@ -18253,7 +18272,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_pair_vanishT : forall (tau : nat -> QPoly) (Wg c eps : Q), QleT' 0 c -> QltT 0 eps -> QltT 0 Wg -> (forall M : nat, QleT' (lw0_pitB_conv_pwi (tau M) 0 c) (Wg * (q_pow c (Datatypes.S (2 * M)) / q_fact (Datatypes.S (2 * M))))) -> sigT (fun M0 : nat => forall M : nat, (M0 <= M)%nat -> QltT (Qabs (c * qpoly_eval (lw0_qp_ai (tau M) 0) c)) eps).
 Proof.
   intros tau Wg c eps Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18264,14 +18283,14 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_add_nil_rT : forall p : QPoly, qpoly_add p nil = p.
 Proof.
   intros p .
   eapply lw0_add_nil_r_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_pair_vanish_deltamT : forall (F : QPoly) (eps q : Q), QltT 0 eps -> sigT (fun M0 : nat => forall M : nat, (M0 <= M)%nat -> QltT (Qabs (Qabs q * qpoly_eval (lw0_qp_ai (qpoly_mul F (qpoly_scalar (1 / q_fact (Datatypes.S (2 * M))) (lw0_pitB_conv_zero_shift (Datatypes.S (2 * M)) (cons 1%Q nil)))) 0) (Qabs q))) eps).
 Proof.
   intros F eps q Hpm0.
@@ -18279,7 +18298,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pi_contra_gateT : forall (v : Q) (z : Z), QltT 0 v -> QltT v 1 -> QeqT v ((z # 1)%Q) -> Id false true.
 Proof.
   intros v z Hpm0 Hpm1 Hpm2.
@@ -18290,7 +18309,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_beta_contraT : forall (q : Q) (n : nat) (s t : Q) (M0 : nat) (eps : Q), QltT 0 ((Zpos (Qden q) # 1)%Q) -> QltT 0 q -> QleT' q (10 / 3)%Q -> (2 <= n)%nat -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (lw0_sin_qp m) q)) s) -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp m)) q + (1 # 1)%Q)) t) -> QltT 0 eps -> QltT (q_fact n * lw0_Wb (Zpos (Qden q) # 1)%Q q n 0%nat + (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n)) q) * s + eps)%Q) 1 -> QltT (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q n) n)) q) * s + eps) (q_fact n * (lw0_Wb (Zpos (Qden q) # 1)%Q q n 0%nat - lw0_Wb (Zpos (Qden q) # 1)%Q q n 1%nat))%Q -> Id false true.
 Proof.
   intros q n s t M0 eps Hpm0 Hpm1 Hpm2 Hpm3 Hpm4 Hpm5 Hpm6 Hpm7 Hpm8.
@@ -18306,7 +18325,7 @@ Proof.
   exact Hpm8.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_false_branch_contraT : forall (q : Q) (k j : nat) (s t : Q) (M0 : nat) (eps : Q), QltT 0 q -> QleT' q (10 / 3)%Q -> QltT 0 eps -> (1 <= j)%nat -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (lw0_sin_qp m) q)) s) -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp m)) q + (1 # 1)%Q)) t) -> QleT' (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j))) q) * s + eps)%Q (1 # 2)%Q -> QltT (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j)) (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j))) q) * s + eps)%Q (q_fact (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j) * (lw0_Wb (Zpos (Qden q) # 1)%Q q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j) 0%nat - lw0_Wb (Zpos (Qden q) # 1)%Q q (lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) k + j) 1%nat))%Q -> Id false true.
 Proof.
   intros q k j s t M0 eps Hpm0 Hpm1 Hpm2 Hpm3 Hpm4 Hpm5 Hpm6 Hpm7.
@@ -18321,7 +18340,7 @@ Proof.
   exact Hpm7.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_gate_open_trueT : forall (q : Q) (N : nat) (c0 : Q), leibsep_gate_open q N c0 = true -> QltT (lw0m_e N + 2 * c0) (Qabs ((lw0m_xL N - q)%Q)).
 Proof.
   intros q N c0 Hpm0.
@@ -18329,7 +18348,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0m_tail_bounded_piT : forall (N m : nat), (1 <= N)%nat -> NatLe N m -> QltT (Qabs ((lw0m_xL m - lw0m_xL N)%Q)) (lw0m_e N).
 Proof.
   intros N m Hpm0 Hpm1.
@@ -18339,7 +18358,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_q_kernel_guardedT : forall (q : Q) (N : nat) (c0 : Q), (1 <= N)%nat -> QltT (lw0m_e N + 2 * c0) (Qabs ((lw0m_xL N - q)%Q)) -> sigT (fun M : nat => forall m : nat, NatLe M m -> QltT (2 * c0)%Q (Qabs ((lw0m_xL m - q)%Q))).
 Proof.
   intros q N c0 Hpm0 Hpm1.
@@ -18348,7 +18367,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_gate_open_falseT : forall (q : Q) (N : nat) (c0 : Q), leibsep_gate_open q N c0 = false -> QleT' (Qabs ((lw0m_xL N - q)%Q)) (lw0m_e N + 2 * c0)%Q.
 Proof.
   intros q N c0 Hpm0.
@@ -18356,7 +18375,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_closedband_of_gate_falseT : forall (q : Q) (N : nat) (c0 s eps : Q), (1 <= N)%nat -> leibsep_gate_open q N c0 = false -> QltT 0 s -> QltT 0 eps -> sigT (fun N2 : nat => forall m : nat, NatLe N2 m -> QleT' (Qabs ((lw0m_xL m - q)%Q)) ((lw0m_e N + 2 * c0 + s + lw0m_e N + eps)%Q)).
 Proof.
   intros q N c0 s eps Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18367,7 +18386,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_shore_q_le_ten_thirdsT : forall (q eps0 : Q) (N0 Nv : nat), QltT 0 eps0 -> (forall n : nat, NatLe N0 n -> QltT eps0 ((10 / 3)%Q - lw0m_xL n)%Q) -> (forall n : nat, (Nv <= n)%nat -> QltT (lw0m_e n) (eps0 * (1 # 4))%Q) -> leibsep_gate_open q (Nat.max Nv 1) (eps0 * (1 # 8))%Q = false -> QleT' q (10 / 3)%Q.
 Proof.
   intros q eps0 N0 Nv Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18378,7 +18397,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_shore_q_posT : forall (q eps0 : Q) (N0 Nv : nat), QltT 0 eps0 -> (forall n : nat, NatLe N0 n -> QltT eps0 ((10 / 3)%Q - lw0m_xL n)%Q) -> (forall n : nat, (Nv <= n)%nat -> QltT (lw0m_e n) (eps0 * (1 # 4))%Q) -> leibsep_gate_open q (Nat.max Nv 1) (eps0 * (1 # 8))%Q = false -> QltT 0 q.
 Proof.
   intros q eps0 N0 Nv Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18389,7 +18408,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_q_kernel_gate_carrierT : forall (q : Q) (eps0 : Q) (N0 Nv : nat) (s t : Q) (M0 : nat), QltT 0 eps0 -> (forall n : nat, NatLe N0 n -> QltT eps0 ((10 / 3)%Q - lw0m_xL n)%Q) -> (forall n : nat, (Nv <= n)%nat -> QltT (lw0m_e n) (eps0 * (1 # 4))%Q) -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (lw0_sin_qp m) q)) s) -> (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp m)) q + (1 # 1)%Q)) t) -> QleT' (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat))) q) * s + eps0 * (1 # 8))%Q (1 # 2)%Q -> QltT (Qabs (qpoly_eval (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) q) * t + Qabs (qpoly_eval (qpoly_deriv (lw0_F (lw0_niven_f q (Zpos (Qden q) # 1)%Q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat)) ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat))) q) * s + eps0 * (1 # 8))%Q (q_fact ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat) * (lw0_Wb (Zpos (Qden q) # 1)%Q q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat) 0%nat - lw0_Wb (Zpos (Qden q) # 1)%Q q ((lw0_n_select (10 * lw0_pi_d0_of ((Zpos (Qden q) # 1)%Q)) 0 + 1)%nat) 1%nat))%Q -> sigT (fun c : Q => And (QltT 0 c) (sigT (fun N : nat => forall m : nat, NatLe N m -> QltT c (Qabs ((lw0m_xL m - q)%Q))))).
 Proof.
   intros q eps0 N0 Nv s t M0 Hpm0 Hpm1 Hpm2 Hpm3 Hpm4 Hpm5 Hpm6.
@@ -18403,7 +18422,7 @@ Proof.
   exact Hpm6.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_mult_le_lT : forall x y z : Q, QleT' x y -> QleT' 0 z -> QleT' (z * x) (z * y).
 Proof.
   intros x y z Hpm0 Hpm1.
@@ -18415,7 +18434,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLred_qle_wd_lT : forall u v w : Q, QeqT u v -> QleT' u w -> QleT' v w.
 Proof.
   intros u v w Hpm0 Hpm1.
@@ -18427,7 +18446,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLred_qle_wd_rT : forall u v w : Q, QeqT u v -> QleT' w u -> QleT' w v.
 Proof.
   intros u v w Hpm0 Hpm1.
@@ -18439,7 +18458,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_inject_monoT : forall a b : nat, (a <= b)%nat -> QleT' (d3p_inject_nat a) (d3p_inject_nat b).
 Proof.
   intros a b Hpm0.
@@ -18448,23 +18467,14 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
-Lemma d3p_inject_ceiling_geT : forall B : Q, QleT' 0 B -> QleT' B (d3p_inject_nat (Z.to_nat (Qceiling B))).
-Proof.
-  intros B Hpm0.
-  apply QleT'_to_Qle in Hpm0.
-  eapply d3p_inject_ceiling_ge_prop.
-  exact Hpm0.
-Qed.
-
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_nat_pow2_ge_succT : forall n : nat, (n + 1 <= 2 ^ n)%nat.
 Proof.
   intros n .
   eapply d3p_nat_pow2_ge_succ_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_q_pow_quarter_antitoneT : forall d e : nat, (d <= e)%nat -> QleT' (q_pow (1 # 4)%Q e) (q_pow (1 # 4)%Q d).
 Proof.
   intros d e Hpm0.
@@ -18473,7 +18483,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_mult_le_r_posT : forall x y u : Q, QleT' x y -> QltT 0 u -> QleT' (x * u) (y * u).
 Proof.
   intros x y u Hpm0 Hpm1.
@@ -18485,7 +18495,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_fact_dom_powT : forall (B : Q) (n1 n : nat), QleT' 0 B -> QleT' (2 * B) (d3p_inject_nat (Datatypes.S n1)) -> (n1 <= n)%nat -> QleT' (q_pow (2 * B) (n - n1) * q_fact n1) (q_fact n).
 Proof.
   intros B n1 n Hpm0 Hpm1 Hpm2.
@@ -18495,7 +18505,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_q_pow_posT : forall (x : Q) (k : nat), QltT 0 x -> QltT 0 (q_pow x k).
 Proof.
   intros x k Hpm0.
@@ -18504,7 +18514,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_inject_posT : forall k : nat, QltT 0 (d3p_inject_nat (Datatypes.S k)).
 Proof.
   intros k .
@@ -18512,7 +18522,7 @@ Proof.
   eapply d3p_inject_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_sin_term_posT : forall (B : Q) (m : nat), QltT 0 B -> QltT 0 (d3p_sin_term B m).
 Proof.
   intros B m Hpm0.
@@ -18522,7 +18532,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_sin_term_nonnegT : forall (B : Q) (m : nat), QleT' 0 B -> QleT' 0 (d3p_sin_term B m).
 Proof.
   intros B m Hpm0.
@@ -18531,7 +18541,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_cos_term_nonnegT : forall (B : Q) (m : nat), QleT' 0 B -> QleT' 0 (d3p_cos_term B m).
 Proof.
   intros B m Hpm0.
@@ -18540,7 +18550,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_cos_term_posT : forall (B : Q) (m : nat), QltT 0 B -> QltT 0 (d3p_cos_term B m).
 Proof.
   intros B m Hpm0.
@@ -18550,7 +18560,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_two_le_injectT : forall k j : nat, (k <= j)%nat -> QleT' (d3p_inject_nat (2 * k)) (d3p_inject_nat (2 * j)).
 Proof.
   intros k j Hpm0.
@@ -18559,7 +18569,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_B_le_two_injectT : forall (B : Q) (k : nat), QleT' B (d3p_inject_nat k) -> QleT' (2 * B) (d3p_inject_nat (2 * k)).
 Proof.
   intros B k Hpm0.
@@ -18568,7 +18578,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_qlt_plus_1T : forall x : Q, QltT x (x + 1).
 Proof.
   intros x .
@@ -18576,7 +18586,7 @@ Proof.
   eapply d3p_qlt_plus_1_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_sub_add_eqT : forall j k : nat, (j <= k)%nat -> (k = (k - j) + j)%nat.
 Proof.
   intros j k Hpm0.
@@ -18584,7 +18594,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_abssum_monoT : forall (B : Q) (p q : nat), QleT' 0 B -> (p <= q)%nat -> QleT' (leibsep_abssum B p) (leibsep_abssum B q).
 Proof.
   intros B p q Hpm0 Hpm1.
@@ -18594,7 +18604,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_abssum_cos_monoT : forall (B : Q) (p q : nat), QleT' 0 B -> (p <= q)%nat -> QleT' (leibsep_abssum_cos B p) (leibsep_abssum_cos B q).
 Proof.
   intros B p q Hpm0 Hpm1.
@@ -18604,7 +18614,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_sin_term_decT : forall (B : Q) (r n1 j : nat), QleT' 0 B -> QleT' B (d3p_inject_nat n1) -> (n1 <= j)%nat -> (j - n1 <= r)%nat -> QleT' (d3p_sin_term B (Datatypes.S j)) (d3p_sin_term B (Datatypes.S n1) * q_pow (1 # 4)%Q (j - n1)).
 Proof.
   intros B r n1 j Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18615,7 +18625,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_sin_partial_cauchyT : forall (B eps : Q), QleT' 0 B -> QltT 0 eps -> sigT (fun M : nat => forall (j k : nat) (x : Q), (M <= j)%nat -> (j <= k)%nat -> QleT' (Qabs x) B -> QltT (Qabs (sin_partial k x - sin_partial j x)) eps).
 Proof.
   intros B eps Hpm0 Hpm1.
@@ -18624,7 +18634,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma d3p_cos_partial_cauchyT : forall (B eps : Q), QleT' 0 B -> QltT 0 eps -> sigT (fun M : nat => forall (j k : nat) (x : Q), (M <= j)%nat -> (j <= k)%nat -> QleT' (Qabs x) B -> QltT (Qabs (cos_partial k x - cos_partial j x)) eps).
 Proof.
   intros B eps Hpm0 Hpm1.
@@ -18633,7 +18643,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_lp_odd_nonnegT : forall m : nat, QleT' 0 (lp_odd m).
 Proof.
   intros m .
@@ -18641,21 +18651,21 @@ Proof.
   eapply piLd3_lp_odd_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_lp_a6_posT : QltT 0 (lp_a 6).
 Proof.
   apply Qlt_to_QltT.
   eapply piLd3_lp_a6_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_s6_posT : QltT 0 (lp_odd 2 + lp_a 6)%Q.
 Proof.
   apply Qlt_to_QltT.
   eapply piLd3_s6_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_qlt_add_rT : forall x y : Q, QltT 0 y -> QltT x (x + y)%Q.
 Proof.
   intros x y Hpm0.
@@ -18665,21 +18675,21 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_c16_posT : QltT 0 (1 # 16)%Q.
 Proof.
   apply Qlt_to_QltT.
   eapply piLd3_c16_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_c32_posT : QltT 0 (1 # 32)%Q.
 Proof.
   apply Qlt_to_QltT.
   eapply piLd3_c32_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_abs_S_leT : forall (m : nat) (u q : Q), QleT' (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)) q -> QleT' (Qabs (sin_partial m (2 * u))) ((1 # 1)%Q + q).
 Proof.
   intros m u q Hpm0.
@@ -18689,7 +18699,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_abs_Splus_leT : forall (m : nat) (u q : Q), QleT' (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)) q -> QleT' (Qabs (sin_partial m (2 * u) + (1 # 1)%Q)) ((2 # 1)%Q + q).
 Proof.
   intros m u q Hpm0.
@@ -18699,7 +18709,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_halfsq_boundT : forall (m : nat) (u q : Q), QltT 0 q -> QleT' (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)) q -> QleT' (Qabs (2 * ((1 # 1)%Q - sin_partial m (2 * u) * sin_partial m (2 * u)))) (2 * (q * ((2 # 1)%Q + q)))%Q.
 Proof.
   intros m u q Hpm0 Hpm1.
@@ -18710,7 +18720,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_dpit_boundT : forall (m : nat) (u q : Q), QltT 0 q -> QleT' (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)) q -> QleT' (Qabs (cos_partial m (2 * u))) q -> QleT' (Qabs (piL_pyth_dres m (2 * u))) (q * ((2 # 1)%Q + q) + q * q)%Q.
 Proof.
   intros m u q Hpm0 Hpm1 Hpm2.
@@ -18723,7 +18733,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_qle_0_mult2T : forall a : Q, QleT' 0 a -> QleT' 0 ((2 # 1)%Q * a).
 Proof.
   intros a Hpm0.
@@ -18733,7 +18743,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_mult2_leT : forall a b c d : Q, QleT' a c -> QleT' b d -> QleT' 0 a -> QleT' 0 d -> QleT' ((2 # 1)%Q * a * b) ((2 # 1)%Q * c * d).
 Proof.
   intros a b c d Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18749,7 +18759,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_qle_0_plus1T : forall q : Q, QleT' 0 q -> QleT' 0 ((1 # 1)%Q + q).
 Proof.
   intros q Hpm0.
@@ -18759,7 +18769,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_2SC_leT : forall s c q : Q, QleT' 0 q -> QleT' s ((1 # 1)%Q + q) -> QleT' c q -> QleT' 0 s -> QleT' 0 c -> QleT' ((2 # 1)%Q * s * c) ((2 # 1)%Q * ((1 # 1)%Q + q) * q).
 Proof.
   intros s c q Hpm0 Hpm1 Hpm2 Hpm3 Hpm4.
@@ -18777,7 +18787,7 @@ Proof.
   exact Hpm4.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_sin_boundT : forall (m : nat) (u q e2 : Q), QltT 0 q -> QleT' (Qabs (sin_partial m (2 * u))) ((1 # 1)%Q + q) -> QleT' (Qabs (cos_partial m (2 * u))) q -> QleT' (Qabs (piL_sin_dres m (2 * u))) e2 -> QleT' (Qabs (sin_partial m (lp_four * u)%Q)) ((2 # 1)%Q * ((1 # 1)%Q + q) * q + e2)%Q.
 Proof.
   intros m u q e2 Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18792,7 +18802,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_cos_boundT : forall (m : nat) (u q e3 : Q), QltT 0 q -> QleT' (Qabs (sin_partial m (2 * u) - (1 # 1)%Q)) q -> QleT' (Qabs (cos_partial m (2 * u))) q -> QleT' (Qabs (piL_cos_dres m (2 * u))) e3 -> QleT' (Qabs (cos_partial m (lp_four * u)%Q + (1 # 1)%Q)) (e3 + 2 * (q * ((2 # 1)%Q + q)) + (q * ((2 # 1)%Q + q) + q * q))%Q.
 Proof.
   intros m u q e3 Hpm0 Hpm1 Hpm2 Hpm3.
@@ -18807,7 +18817,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_sin_xL_vanish_carryT : forall (H1 : piLd3_seed_halfwin) (H2 : piLd3_seed_dres) (dt : Q), QltT 0 dt -> sigT (fun N1 : nat => forall m : nat, NatLe N1 m -> QltT (Qabs (sin_partial m (lw0m_xL m))) dt).
 Proof.
   intros H1 H2 dt Hpm0.
@@ -18817,7 +18827,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_sin_xL_vanishT : forall (H1 : piLd3_seed_halfwin) (H2 : piLd3_seed_dres) (dt : Q), QltT 0 dt -> sigT (fun N1 : nat => forall m : nat, NatLe N1 m -> QltT (Qabs (sin_partial m (lw0m_xL m))) dt).
 Proof.
   intros H1 H2 dt Hpm0.
@@ -18827,7 +18837,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piLd3_cos_xL_vanish_carryT : forall (H1 : piLd3_seed_halfwin) (H3 : piLd3_seed_dcos) (dt : Q), QltT 0 dt -> sigT (fun N1 : nat => forall m : nat, NatLe N1 m -> QltT (Qabs (cos_partial m (lw0m_xL m) + (1 # 1)%Q)) dt).
 Proof.
   intros H1 H3 dt Hpm0.
@@ -18837,7 +18847,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma piL_cos_xL_neg1_vanishT : forall (H1 : piLd3_seed_halfwin) (H3 : piLd3_seed_dcos) (dt : Q), QltT 0 dt -> sigT (fun N1 : nat => forall m : nat, NatLe N1 m -> QltT (Qabs (cos_partial m (lw0m_xL m) + (1 # 1)%Q)) dt).
 Proof.
   intros H1 H3 dt Hpm0.
@@ -18847,7 +18857,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_cos_tailT : forall (q : Q) (M D : nat), (forall j : nat, (M <= j)%nat -> QleT' (2 * q_pow (Qabs q) 2) (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j))))) -> QleT' (Qabs (cos_partial (M + D) q - cos_partial M q)) (2 * (q_pow (Qabs q) (2 * M) / q_fact (2 * M))).
 Proof.
   intros q M D Hpm0.
@@ -18855,7 +18865,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_cos_qp_deriv_tail_stableT : forall (q : Q) (M D : nat), (forall j : nat, (M <= j)%nat -> QleT' (2 * q_pow (Qabs q) 2) (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j))))) -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp (M + D))) q + (1 # 1)%Q)) (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp M)) q + (1 # 1)%Q) + 2 * (q_pow (Qabs q) (2 * M) / q_fact (2 * M))%Q)%Q.
 Proof.
   intros q M D Hpm0.
@@ -18863,7 +18873,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw0_pitB_conv_sin_tailT : forall (q : Q) (M D : nat), (forall j : nat, (M <= j)%nat -> QleT' (2 * q_pow (Qabs q) 2) (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j))))) -> QleT' (Qabs (sin_partial (M + D) q - sin_partial M q)) (2 * (q_pow (Qabs q) (Datatypes.S (2 * M)) / q_fact (Datatypes.S (2 * M)))).
 Proof.
   intros q M D Hpm0.
@@ -18871,7 +18881,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_sin_qp_tail_stableT : forall (q : Q) (M D : nat), (forall j : nat, (M <= j)%nat -> QleT' (2 * q_pow (Qabs q) 2) (lw0_q_of_nat (Datatypes.S (2 * j)) * lw0_q_of_nat (Datatypes.S (Datatypes.S (2 * j))))) -> QleT' (Qabs (qpoly_eval (lw0_sin_qp (M + D)) q)) (Qabs (qpoly_eval (lw0_sin_qp M) q) + 2 * (q_pow (Qabs q) (Datatypes.S (2 * M)) / q_fact (Datatypes.S (2 * M)))%Q)%Q.
 Proof.
   intros q M D Hpm0.
@@ -18879,7 +18889,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_qdiv_nonnegT : forall a b : Q, QleT' 0 a -> QltT 0 b -> QleT' 0 (a / b).
 Proof.
   intros a b Hpm0 Hpm1.
@@ -18889,7 +18899,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw95_mul0T : forall x y : Q, QleT' 0 x -> QleT' 0 y -> QleT' 0 (x * y).
 Proof.
   intros x y Hpm0 Hpm1.
@@ -18901,7 +18911,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw95_qpow_nonnegT : forall (x : Q) (m : nat), QleT' 0 x -> QleT' 0 (q_pow x m).
 Proof.
   intros x m Hpm0.
@@ -18911,7 +18921,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw1131_abssum_cos_nonnegT : forall (B : Q) (n : nat), QleT' 0 B -> QleT' 0 (leibsep_abssum_cos B n).
 Proof.
   intros B n Hpm0.
@@ -18921,7 +18931,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_cos_term_domT : forall (B : Q) (m : nat), QleT' (q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))%nat)%Q (q_pow (Qabs B) (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))%nat)%Q.
 Proof.
   intros B m .
@@ -18929,7 +18939,7 @@ Proof.
   eapply lw62_cos_term_dom_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_abssum_cos_domT : forall (B : Q) (n : nat), QleT' (leibsep_abssum_cos B n) (leibsep_abssum_cos (Qabs B) n).
 Proof.
   intros B n .
@@ -18937,7 +18947,7 @@ Proof.
   eapply lw62_abssum_cos_dom_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_qdiv_leT : forall a b c d : Q, QltT 0 b -> QltT 0 d -> QleT' (a * d) (c * b) -> QleT' (a / b) (c / d).
 Proof.
   intros a b c d Hpm0 Hpm1 Hpm2.
@@ -18951,7 +18961,7 @@ Proof.
   exact Hpm2.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw95_qfact_monoT : forall (d i : nat), QleT' (q_fact i) (q_fact (i + d)%nat).
 Proof.
   intros d i .
@@ -18959,7 +18969,7 @@ Proof.
   eapply lw95_qfact_mono_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw95_qfact_leT : forall (a b : nat), (a <= b)%nat -> QleT' (q_fact a) (q_fact b).
 Proof.
   intros a b Hpm0.
@@ -18968,7 +18978,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_abssum_cos_leT : forall (B : Q) (n : nat), QleT' 0 B -> QleT' (leibsep_abssum_cos B n) (B * leibsep_abssum B n)%Q.
 Proof.
   intros B n Hpm0.
@@ -18978,14 +18988,14 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_zsquare_nonnegT : forall n : Z, (0 <= n * n)%Z.
 Proof.
   intros n .
   eapply lw62_zsquare_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_sq_nonnegT : forall x : Q, QleT' 0 (x * x).
 Proof.
   intros x .
@@ -18993,7 +19003,7 @@ Proof.
   eapply lw62_sq_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_abssum_monoT : forall (B : Q) (n m : nat), (n <= m)%nat -> QleT' (leibsep_abssum B n) (leibsep_abssum B m).
 Proof.
   intros B n m Hpm0.
@@ -19001,14 +19011,14 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_q30_posT : QltT 0 (30 # 1)%Q.
 Proof.
   apply Qlt_to_QltT.
   eapply lw62_q30_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw95_mul_le_compatT : forall w x y z : Q, QleT' 0 w -> QleT' w x -> QleT' 0 y -> QleT' y z -> QleT' (w * y) (x * z).
 Proof.
   intros w x y z Hpm0 Hpm1 Hpm2 Hpm3.
@@ -19024,7 +19034,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw65_qdiv_le_prodT : forall a b c : Q, QltT 0 b -> QleT' a (c * b) -> QleT' (a / b) c.
 Proof.
   intros a b c Hpm0 Hpm1.
@@ -19036,7 +19046,7 @@ Proof.
   exact Hpm1.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_item_domT : forall (B : Q) (n : nat), QleT' (q_pow B (2 * Datatypes.S (Datatypes.S (Datatypes.S n))) / q_fact (2 * Datatypes.S (Datatypes.S (Datatypes.S n)))%nat)%Q (B * B * B * B * (1 # 24) * q_pow (B * B * (1 # 30)) (Datatypes.S n))%Q.
 Proof.
   intros B n .
@@ -19044,14 +19054,14 @@ Proof.
   eapply lw62_item_dom_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_qinv30_posT : QltT 0 (1 # 30)%Q.
 Proof.
   apply Qlt_to_QltT.
   eapply lw62_qinv30_pos_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_rsum_nonnegT : forall (r : Q) (n : nat), QleT' 0 r -> QleT' 0 (lw62_rsum r n).
 Proof.
   intros r n Hpm0.
@@ -19061,7 +19071,7 @@ Proof.
   exact Hpm0.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma lw62_abssum_nonnegT : forall (B : Q) (n : nat), QleT' 0 (leibsep_abssum B n).
 Proof.
   intros B n .
@@ -19069,7 +19079,7 @@ Proof.
   eapply lw62_abssum_nonneg_prop.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma leibsep_Wb01_diff_lowerT : forall (b q : Q) (n : nat), QleT' 0 b -> QltT 0 q -> QleT' q (10 # 3) -> (2 <= n)%nat -> QleT' (lw0_Wb b q n 0 * (2 # 27))%Q (lw0_Wb b q n 0 - lw0_Wb b q n 1)%Q.
 Proof.
   intros b q n Hpm0 Hpm1 Hpm2 Hpm3.
@@ -19080,7 +19090,7 @@ Proof.
   exact Hpm3.
 Qed.
 
-(* Set twin of the original statement named below (Path A v2.4) *)
+(* Set twin of the original statement named below *)
 Lemma caps_scaledT : forall (H1 : piLd3_seed_halfwin) (H2 : piLd3_seed_dres) (H3 : piLd3_seed_dcos) (q : Q) (eps0 : Q) (N0 Nv : nat), QltT 0 eps0 -> QleT' eps0 ((1 # 3)%Q) -> (forall n : nat, NatLe N0 n -> QltT eps0 ((10 / 3)%Q - lw0m_xL n)%Q) -> (forall n : nat, (Nv <= n)%nat -> QltT (lw0m_e n) (eps0 * (1 # 4))%Q) -> leibsep_gate_open q (Nat.max Nv 1) (eps0 * (1 # 8))%Q = false -> sigT (fun s : Q => sigT (fun t : Q => sigT (fun M0 : nat => And (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (lw0_sin_qp m) q)) s) (And (forall m : nat, (M0 <= m)%nat -> QleT' (Qabs (qpoly_eval (qpoly_deriv (lw0_sin_qp m)) q + (1 # 1)%Q)) t) (And (QleT' 0 s) (And (QleT' 0 t) (And (QleT' s (eps0 * (S973 + (1 # 4))%Q)%Q) (QleT' t (eps0 * ((11 # 3)%Q * S973 + (1 # 4))%Q)%Q)))))))).
 Proof.
   intros H1 H2 H3 q eps0 N0 Nv Hpm0 Hpm1 Hpm2 Hpm3 Hpm4.
@@ -19098,19 +19108,9 @@ Qed.
 (* Set-twin block: recasts of the paradigmatic statements above whose
    premises and conclusions carry only decidable [Set] predicates
    ([QltT] / [QleT'] / [QeqT] / [NatLe] / [ZltT]), with negation
-   conclusions in the [Empty_set] form (Path A v2.4). *)
+   conclusions in the [Empty_set] form. *)
 
-(* Set twin of Qle_plus_nonneg_r_prop (Path A v2.4) *)
-Lemma Qle_plus_nonneg_rT : forall x y : Q, QleT' 0 y -> QleT' x (x + y).
-Proof.
-  intros x y H.
-  apply Qle_to_QleT'.
-  eapply Qle_plus_nonneg_r_prop.
-  apply QleT'_to_Qle.
-  exact H.
-Qed.
-
-(* Set twin of leibsep_qeq_le_prop (Path A v2.4) *)
+(* Set twin of leibsep_qeq_le_prop *)
 Lemma leibsep_qeq_leT : forall x y : Q, QeqT x y -> QleT' x y.
 Proof.
   intros x y H.
@@ -19120,7 +19120,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_q_eq_le_prop (Path A v2.4) *)
+(* Set twin of lw0_q_eq_le_prop *)
 Lemma lw0_q_eq_leT : forall x y : Q, QeqT x y -> QleT' x y.
 Proof.
   intros x y H.
@@ -19130,7 +19130,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_q_mult_le_l_prop (Path A v2.4) *)
+(* Set twin of lw0_q_mult_le_l_prop *)
 Lemma lw0_q_mult_le_lT : forall c x y : Q, QleT' 0 c -> QleT' x y -> QleT' (c * x) (c * y).
 Proof.
   intros c x y H1 H2.
@@ -19142,7 +19142,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of lw0_q_int_inv_prop (Path A v2.4) *)
+(* Set twin of lw0_q_int_inv_prop *)
 Lemma lw0_q_int_invT : forall z : Z, ZltT 0 z -> QeqT ((z # 1) * (/ (z # 1))) 1.
 Proof.
   intros z H.
@@ -19152,7 +19152,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_q_div_int_mul_prop (Path A v2.4) *)
+(* Set twin of lw0_q_div_int_mul_prop *)
 Lemma lw0_q_div_int_mulT : forall (z : Z) (a : Q), ZltT 0 z -> QeqT ((z # 1) * (a / (z # 1))) a.
 Proof.
   intros z a H.
@@ -19162,7 +19162,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_q_div_int_mul_gen_prop (Path A v2.4) *)
+(* Set twin of lw0_q_div_int_mul_gen_prop *)
 Lemma lw0_q_div_int_mul_genT : forall (z : Z) (a b : Q), ZltT 0 z -> QeqT ((z # 1) * (a / ((z # 1) * b))) (a / b).
 Proof.
   intros z a b H.
@@ -19172,7 +19172,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_q_abs_div_prop (Path A v2.4) *)
+(* Set twin of lw0_q_abs_div_prop *)
 Lemma lw0_q_abs_divT : forall (z : Z) (a : Q), ZltT 0 z -> QeqT (Qabs (a / (z # 1))) (Qabs a / (z # 1)).
 Proof.
   intros z a H.
@@ -19182,7 +19182,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_qp_ai_abs_bound_prop (Path A v2.4) *)
+(* Set twin of lw0_qp_ai_abs_bound_prop *)
 Lemma lw0_qp_ai_abs_boundT : forall p k x, QleT' (Qabs (qpoly_eval (lw0_qp_ai p k) x)) (qpoly_eval (lw0_qp_ai (qpoly_map Qabs p) k) (Qabs x)).
 Proof.
   intros p k x.
@@ -19190,7 +19190,7 @@ Proof.
   eapply lw0_qp_ai_abs_bound_prop.
 Qed.
 
-(* Set twin of piL_abs_div_pos_den_prop (Path A v2.4) *)
+(* Set twin of piL_abs_div_pos_den_prop *)
 Lemma piL_abs_div_pos_denT : forall a d : Q, QltT 0 d -> QeqT (Qabs (a / d)) (Qabs a / d).
 Proof.
   intros a d H.
@@ -19200,7 +19200,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of d3p_qdiv_mul_r_prop (Path A v2.4) *)
+(* Set twin of d3p_qdiv_mul_r_prop *)
 Lemma d3p_qdiv_mul_rT : forall a b c : Q, QltT 0 b -> QeqT ((a / b) * c) ((a * c) / b).
 Proof.
   intros a b c H.
@@ -19210,7 +19210,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of piLd3_budget_v1_prop (Path A v2.4) *)
+(* Set twin of piLd3_budget_v1_prop *)
 Lemma piLd3_budget_v1T : forall d q e2 : Q,
   QeqT q (d * (1 # 16)%Q) -> QeqT e2 (d * (1 # 2)%Q) ->
   QltT 0 d -> QleT' d (16 # 1)%Q ->
@@ -19225,7 +19225,7 @@ Proof.
   - exact Hb.
 Qed.
 
-(* Set twin of piLd3_budget_v2_prop (Path A v2.4) *)
+(* Set twin of piLd3_budget_v2_prop *)
 Lemma piLd3_budget_v2T : forall d q e3 : Q,
   QeqT q (d * (1 # 32)%Q) -> QeqT e3 (d * (1 # 8)%Q) ->
   QltT 0 d -> QleT' d (16 # 1)%Q ->
@@ -19240,7 +19240,7 @@ Proof.
   - exact Hb.
 Qed.
 
-(* Set twin of lw62_qdiv_den_id_prop (Path A v2.4) *)
+(* Set twin of lw62_qdiv_den_id_prop *)
 Lemma lw62_qdiv_den_idT : forall x y z : Q, QltT 0 y -> QltT 0 z -> QeqT (x / y) (x * z * (/ (y * z))).
 Proof.
   intros x y z H1 H2.
@@ -19252,7 +19252,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of lw0_coef_shift_lt_prop (Path A v2.4) *)
+(* Set twin of lw0_coef_shift_lt_prop *)
 Lemma lw0_coef_shift_ltT : forall (m k : nat) (p : qpoly), NatLe (S k) m -> QeqT (lw0_coef k (qpoly_shift m p)) 0%Q.
 Proof.
   intros m k p H.
@@ -19262,7 +19262,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw385_coef_len_zero_prop (Path A v2.4) *)
+(* Set twin of lw385_coef_len_zero_prop *)
 Lemma lw385_coef_len_zeroT : forall (p : qpoly) (k : nat), NatLe (length p) k -> QeqT (lw0_coef k p) 0%Q.
 Proof.
   intros p k H.
@@ -19272,7 +19272,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_pitS_w0n_core_prop (Path A v2.4) *)
+(* Set twin of lw0_pitS_w0n_core_prop *)
 Lemma lw0_pitS_w0n_coreT : forall (b q : Q) (d n : nat), QltT 0 b -> QleT' 0 q -> QleT' q (10 / 3) -> QleT' b (lw0_q_of_nat d) -> NatLe (22 + 2 * (10 * d)) n -> QltT (q_fact n * lw0_Wb b q n 0) 1.
 Proof.
   intros b q d n H1 H2 H3 H4 H5.
@@ -19285,7 +19285,7 @@ Proof.
   exact H5.
 Qed.
 
-(* Set twin of lw0_coef_mul_mono_lt_prop (Path A v2.4) *)
+(* Set twin of lw0_coef_mul_mono_lt_prop *)
 Lemma lw0_coef_mul_mono_ltT : forall n k (W : QPoly), NatLe (S k) n -> QeqT (lw0_coef k (qpoly_mul (lw0_mono n) W)) 0.
 Proof.
   intros n k W H.
@@ -19295,7 +19295,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_coef_mul_mono_ge_prop (Path A v2.4) *)
+(* Set twin of lw0_coef_mul_mono_ge_prop *)
 Lemma lw0_coef_mul_mono_geT : forall n k (W : QPoly), NatLe n k -> QeqT (lw0_coef k (qpoly_mul (lw0_mono n) W)) (lw0_coef (k - n) W).
 Proof.
   intros n k W H.
@@ -19305,7 +19305,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_niven_deriv_zero_0_prop (Path A v2.4) *)
+(* Set twin of lw0_niven_deriv_zero_0_prop *)
 Lemma lw0_niven_deriv_zero_0T : forall q b n k, NatLe (S k) n -> QeqT (qpoly_eval (qpoly_deriv_iter k (lw0_niven_f_z q b n)) 0) 0.
 Proof.
   intros q b n k H.
@@ -19315,7 +19315,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of bpa_binom_out_prop (Path A v2.4) *)
+(* Set twin of bpa_binom_outT *)
 Lemma bpa_binom_outT : forall n k : nat, NatLe (S n) k -> QeqT (bpa_binom n k) 0%Q.
 Proof.
   intros n k H.
@@ -19325,7 +19325,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_conn_lo_prop (Path A v2.4) *)
+(* Set twin of lw0_conn_lo_prop *)
 Lemma lw0_conn_loT : forall (a : Z) (b : positive) (n k : nat), NatLe n k -> QeqT (qpoly_eval (qpoly_deriv_iter k (lw0_niven_f_z (a # b)%Q (Zpos b) n)) 0) (lw0_z_lo a (Zpos b) n k).
 Proof.
   intros a b n k H.
@@ -19335,7 +19335,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_conn_hi_prop (Path A v2.4) *)
+(* Set twin of lw0_conn_hi_prop *)
 Lemma lw0_conn_hiT : forall (a : Z) (b : positive) (n j : nat), NatLe n (2 * j) -> NatLe j n -> QeqT (qpoly_eval (qpoly_deriv_iter (2 * j) (lw0_niven_f_z (a # b)%Q (Zpos b) n)) 0) (lw0_z_hi a (Zpos b) n (2 * (n - j))).
 Proof.
   intros a b n j H1 H2.
@@ -19347,7 +19347,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of lw0_niven_deriv_zero_0_ab_prop (Path A v2.4) *)
+(* Set twin of lw0_niven_deriv_zero_0_ab_prop *)
 Lemma lw0_niven_deriv_zero_0_abT : forall (a : Z) (b : positive) (n k : nat), NatLe (S k) n -> QeqT (qpoly_eval (qpoly_deriv_iter k (lw0_niven_f (a # b)%Q (Zpos b # 1)%Q n)) 0) 0.
 Proof.
   intros a b n k H.
@@ -19357,7 +19357,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_niven_deriv_conn_lo_ab_prop (Path A v2.4) *)
+(* Set twin of lw0_niven_deriv_conn_lo_ab_prop *)
 Lemma lw0_niven_deriv_conn_lo_abT : forall (a : Z) (b : positive) (n k : nat), NatLe n k -> QeqT (qpoly_eval (qpoly_deriv_iter k (lw0_niven_f (a # b)%Q (Zpos b # 1)%Q n)) 0) (lw0_z_lo a (Zpos b) n k).
 Proof.
   intros a b n k H.
@@ -19367,7 +19367,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_niven_deriv_conn_hi_ab_prop (Path A v2.4) *)
+(* Set twin of lw0_niven_deriv_conn_hi_ab_prop *)
 Lemma lw0_niven_deriv_conn_hi_abT : forall (a : Z) (b : positive) (n j : nat), NatLe n (2 * j) -> NatLe j n -> QeqT (qpoly_eval (qpoly_deriv_iter (2 * j)%nat (lw0_niven_f (a # b)%Q (Zpos b # 1)%Q n)) 0) (lw0_z_hi a (Zpos b) n (2 * (n - j))%nat).
 Proof.
   intros a b n j H1 H2.
@@ -19379,7 +19379,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of lw0_qsum_ext2_prop (Path A v2.4) *)
+(* Set twin of lw0_qsum_ext2_prop *)
 Lemma lw0_qsum_ext2T : forall (g h1 h2 : nat -> Q) (m : nat), (forall j : nat, NatLe j m -> g j == h1 j + h2 j) -> QeqT (lw0_qsum g m) (lw0_qsum h1 m + lw0_qsum h2 m).
 Proof.
   intros g h1 h2 m H.
@@ -19391,7 +19391,7 @@ Proof.
   exact Hj.
 Qed.
 
-(* Set twin of lw0_pitB_pair_conv_sin_aux_lo_prop (Path A v2.4) *)
+(* Set twin of lw0_pitB_pair_conv_sin_aux_lo_prop *)
 Lemma lw0_pitB_pair_conv_sin_aux_loT : forall (j : nat) (acc : qpoly) (k : nat), NatLe (Datatypes.S k) (Datatypes.S (Datatypes.S (2 * j))) -> QeqT (lw0_coef k (lw0_sin_aux j acc)) (lw0_coef k (lw0_sin_aux j nil)).
 Proof.
   intros j acc k H.
@@ -19401,7 +19401,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_pitB_conv_tail_gen_prop (Path A v2.4) *)
+(* Set twin of lw0_pitB_conv_tail_gen_prop *)
 Lemma lw0_pitB_conv_tail_genT : forall (P Pd w : nat -> Q) (D M : nat), (forall n : nat, P (Datatypes.S n) == P n + Pd n) -> (forall n : nat, Qabs (Pd n) == w n) -> (forall n : nat, QleT' 0 (w n)) -> (forall j : nat, NatLe M j -> QleT' (w (Datatypes.S j)) ((1#2) * w j)) -> QleT' (Qabs (P (M + D)%nat - P M)) (2 * w M).
 Proof.
   intros P Pd w D M H1 H2 H3 H4.
@@ -19415,7 +19415,7 @@ Proof.
   exact Hj.
 Qed.
 
-(* Set twin of q_neq_of_lt_prop (Path A v2.4) *)
+(* Set twin of q_neq_of_ltT *)
 Lemma q_neq_of_ltT : forall x : Q, Qlt 0 x -> x == 0 -> Empty_set.
 Proof.
   intros x Hx Hz.
@@ -19423,14 +19423,14 @@ Proof.
   destruct Hz.
 Qed.
 
-(* Set twin of nat_le_Sn_n_absurd_prop (Path A v2.4) *)
+(* Set twin of nat_le_Sn_n_absurd_prop *)
 Lemma nat_le_Sn_n_absurdT : forall n : nat, NatLe (S n) n -> Empty_set.
 Proof.
   intros n H.
   destruct (nat_le_Sn_n_absurd_prop n (NatLe_drop (S n) n H)).
 Qed.
 
-(* Set twin of lw0_pitS_qne0_of_pos_prop (Path A v2.4) *)
+(* Set twin of lw0_pitS_qne0_of_pos_prop *)
 Lemma lw0_pitS_qne0_of_posT : forall x : Q, QltT 0 x -> x == 0 -> Empty_set.
 Proof.
   intros x Hx Hz.
@@ -19438,21 +19438,21 @@ Proof.
   destruct Hz.
 Qed.
 
-(* Set twin of lw385_q_fact_neq_prop (Path A v2.4) *)
+(* Set twin of lw385_q_fact_neq_prop *)
 Lemma lw385_q_fact_neqT : forall j : nat, q_fact j == 0%Q -> Empty_set.
 Proof.
   intros j H.
   destruct (lw385_q_fact_neq_prop j H).
 Qed.
 
-(* Set twin of lw0_q_fact_ne0_prop (Path A v2.4) *)
+(* Set twin of lw0_q_fact_ne0_prop *)
 Lemma lw0_q_fact_ne0T : forall k : nat, q_fact k == 0 -> Empty_set.
 Proof.
   intros k H.
   destruct (lw0_q_fact_ne0_prop k H).
 Qed.
 
-(* Set twin of lw0_pitS_qmul_div_cancel_prop (Path A v2.4) *)
+(* Set twin of lw0_pitS_qmul_div_cancel_prop *)
 Lemma lw0_pitS_qmul_div_cancelT : forall c a d : Q, ~ (c == 0) -> ~ (d == 0) -> QeqT (c * (a * / (c * d))) (a * / d).
 Proof.
   intros c a d H1 H2.
@@ -19462,7 +19462,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of lw0_pitB_div_scale_prop (Path A v2.4) *)
+(* Set twin of lw0_pitB_div_scale_prop *)
 Lemma lw0_pitB_div_scaleT : forall a d E : Q, ~ E == 0 -> QeqT (a / d) (a * E / (E * d)).
 Proof.
   intros a d E H.
@@ -19471,7 +19471,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw0_pitB_Qeq_cancel_l_prop (Path A v2.4) *)
+(* Set twin of lw0_pitB_Qeq_cancel_l_prop *)
 Lemma lw0_pitB_Qeq_cancel_lT : forall (z X Y : Q), ~ z == 0 -> z * X == z * Y -> QeqT X Y.
 Proof.
   intros z X Y H1 H2.
@@ -19481,7 +19481,7 @@ Proof.
   exact H2.
 Qed.
 
-(* Set twin of d3p_qmult_neq0_prop (Path A v2.4) *)
+(* Set twin of d3p_qmult_neq0_prop *)
 Lemma d3p_qmult_neq0T : forall x y : Q, ~ (x == 0) -> ~ (y == 0) -> x * y == 0 -> Empty_set.
 Proof.
   intros x y H1 H2 H3.
@@ -19489,7 +19489,7 @@ Proof.
   destruct H3.
 Qed.
 
-(* Set twin of lw65_qpow_inv_pair_prop (Path A v2.4) *)
+(* Set twin of lw65_qpow_inv_pair_prop *)
 Lemma lw65_qpow_inv_pairT : forall (x : Q) (k : nat), (~ x == 0)%Q -> QeqT (q_pow x k * q_pow (/ x) k) 1%Q.
 Proof.
   intros x k H.
@@ -19498,7 +19498,7 @@ Proof.
   exact H.
 Qed.
 
-(* Set twin of lw1190_div_mul_cancel_prop (Path A v2.4) *)
+(* Set twin of lw1190_div_mul_cancel_prop *)
 Lemma lw1190_div_mul_cancelT : forall a b : Q, ~ b == 0 -> QeqT ((a / b) * b) a.
 Proof.
   intros a b H.
@@ -19506,7 +19506,7 @@ Proof.
   eapply lw1190_div_mul_cancel_prop.
   exact H.
 Qed.
-(* Set twin of lw0_sigT_plus_prop (Path A v2.4) *)
+(* Set twin of lw0_sigT_plus_prop *)
 Lemma lw0_sigT_plusT : forall v1 v2 : Q,
   sigT (fun w : Z => QeqT v1 ((w # 1)%Q)) ->
   sigT (fun w : Z => QeqT v2 ((w # 1)%Q)) ->
@@ -19524,7 +19524,7 @@ Proof.
   - apply lw0_Qmake_plus.
 Qed.
 
-(* Set twin of lw0_sigT_Zscale_prop (Path A v2.4) *)
+(* Set twin of lw0_sigT_Zscale_prop *)
 Lemma lw0_sigT_ZscaleT : forall (u : Z) (v : Q),
   sigT (fun w : Z => QeqT v ((w # 1)%Q)) ->
   sigT (fun w : Z => QeqT ((u # 1)%Q * v) ((w # 1)%Q)).
@@ -19540,7 +19540,7 @@ Proof.
   - apply lw0_Qmake_mul.
 Qed.
 
-(* Set twin of lw0_z_lo_integer_prop (Path A v2.4) *)
+(* Set twin of lw0_z_lo_integer_prop *)
 Lemma lw0_z_lo_integerT : forall (a b : Z) (n k : nat),
   sigT (fun w : Z => QeqT (lw0_z_lo a b n k) ((w # 1)%Q)).
 Proof.
@@ -19556,7 +19556,7 @@ Proof.
           (Z.of_nat (lw0_ratio n k))).
 Qed.
 
-(* Set twin of lw0_z_hi_integer_prop (Path A v2.4) *)
+(* Set twin of lw0_z_hi_integer_prop *)
 Lemma lw0_z_hi_integerT : forall (a b : Z) (n k : nat), NatLe k n ->
   sigT (fun w : Z => QeqT (lw0_z_hi a b n k) ((w # 1)%Q)).
 Proof.
@@ -19572,7 +19572,7 @@ Proof.
           (Z.of_nat (lw0_ratio n (2 * n - k)))).
 Qed.
 
-(* Set twin of lw0_qsum_integer_prop (Path A v2.4) *)
+(* Set twin of lw0_qsum_integer_prop *)
 Lemma lw0_qsum_integerT : forall (g : nat -> Q) (m : nat),
   (forall j : nat, sigT (fun w : Z => QeqT (g j) ((w # 1)%Q))) ->
   sigT (fun w : Z => QeqT (lw0_qsum g m) ((w # 1)%Q)).
@@ -19587,7 +19587,7 @@ Proof.
     + exact (Hg (Datatypes.S m')).
 Qed.
 
-(* Set twin of lw0_K_leg_integer_prop (Path A v2.4) *)
+(* Set twin of lw0_K_leg_integer_prop *)
 Lemma lw0_K_leg_integerT : forall (a b : Z) (n j : nat),
   sigT (fun w : Z => QeqT (lw0_K_leg a b n j) ((w # 1)%Q)).
 Proof.
@@ -19618,7 +19618,7 @@ Proof.
     + rewrite Z.mul_0_r. reflexivity.
 Qed.
 
-(* Set twin of lw0_K_integer_prop (Path A v2.4) *)
+(* Set twin of lw0_K_integer_prop *)
 Lemma lw0_K_integerT : forall (a b : Z) (n : nat),
   sigT (fun w : Z => QeqT (lw0_K a b n) ((w # 1)%Q)).
 Proof.
@@ -19627,7 +19627,7 @@ Proof.
   intros j. apply lw0_K_leg_integerT.
 Qed.
 
-(* Set twin of d3p_quarter_pow_lt_prop (Path A v2.4) *)
+(* Set twin of d3p_quarter_pow_ltT *)
 Lemma d3p_quarter_pow_ltT : forall c eps : Q,
   QltT 0 c -> QltT 0 eps ->
   sigT (fun d : nat => QltT (c * q_pow (1 # 4)%Q d) eps).

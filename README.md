@@ -11,7 +11,7 @@ library (`ConstructiveCauchyReals`), realized by the alternating Leibniz
 series, with the strong irrationality separation theorem
 
 ```coq
-Theorem pi_leibniz_strong_irrational :
+Theorem pi_leibniz_strong_irrational_prop :
   forall a b : Q, b <> 0 -> CReal_appart pi_leibniz (inject_Q (a / b)).
 ```
 
@@ -21,6 +21,12 @@ together with its premise-free companion
 Theorem pi_leibniz_appart_all_Q :
   forall q : Q, CReal_appart pi_leibniz (inject_Q q).
 ```
+
+As of v1.0.4, a statement name that carries a `Set`-carried twin is
+suffixed `_prop` (`pi_leibniz_strong_irrational_prop`); the `Prop`-level
+originals carry the suffix and the bare names remain reserved for the
+`Set`-carried statements, so a name without a twin, such as
+`pi_leibniz_appart_all_Q`, keeps its bare form.
 
 pi is apart, in the sense of `CReal_appart`, from every embedded rational
 constant, and the apartness witness comes with an explicit positive margin
@@ -66,13 +72,18 @@ tradition the development builds on (O'Connor 2008; Krebbers and
 Spitters 2013), in which Leibniz-type series serve as correctness
 baselines while fast-converging series drive the actual computation.
 A fast-converging variant of this development is on the roadmap
-(see *Roadmap* below).
+(see *Roadmap* below).  The cost of evaluating the witnesses of the main
+theorems is entered in the package's exception register (its first
+performance case; registration accepted): the exponential term count
+above stands as the recorded order-of-magnitude qualification, with the
+fast-converging variant on the roadmap as the registered improvement
+path.
 
 ## Guarantees
 
 - **Premise-free.**  Both main theorems are stated with no section
   variables and no hypotheses beyond the rational `q` itself.  The one
-  registered antecedent, `b <> 0` in `pi_leibniz_strong_irrational`,
+  registered antecedent, `b <> 0` in `pi_leibniz_strong_irrational_prop`,
   is zero-consumption: the proof discards it, the content rests on the
   premise-free companion `pi_leibniz_appart_all_Q`, and it serves only
   as the semantic guard of the notion of a rational number (header
@@ -84,7 +95,7 @@ A fast-converging variant of this development is on the roadmap
   (`leibniz_qeq_transport_blocked`, counterexample `0 # 2`), and the
   chain is one-way, from `~ (b == 0)` to `Qneq0T b` to `b <> 0`
   (`qeq_face_to_leibniz_face`).
-- **Zero axioms.**  `Print Assumptions pi_leibniz_strong_irrational` and
+- **Zero axioms.**  `Print Assumptions pi_leibniz_strong_irrational_prop` and
   `Print Assumptions pi_leibniz_appart_all_Q` report *Closed under the
   global context*; the same holds for the main statements of every
   supply-layer file.  `coqchk -o` over the whole dependency closure:
@@ -210,14 +221,18 @@ Three layers, all under `theories/Reals/Cauchy/`:
   stdlib `CRealLt`/`CReal_appart` over the `QltT` carrier, with two-way
   bridges), `PiSepBNeq0T` (a `Set`-carried nonzero premise for the
   strong irrationality theorem), `PiSep361RefaceT` (the re-faced
-  premise of `pi_leibniz_strong_irrational` registered in
+  premise of `pi_leibniz_strong_irrational_prop` registered in
   machine-checked form), `PiSepMirrorT` (the closing theorems re-faced
   to the `Set`-carried apartness twin), and `PiSepTriple227`
   (witness-value assertions for the documented escape triple at
   `22 # 7`).
 
-Counting: 32 pi-stack files (about 47,000 lines) plus the 230-line engine
-file they build on = 33 content modules, about 47,200 lines.
+- **v1.0.4 additions (1 file).**  `PiPascalResidueT` (Set-carried
+  twins of the anti-diagonal band residue statements of
+  `PiPascalResidue`, over the `QltT`/`QeqT` carriers).
+
+Counting: 33 pi-stack files (about 47,300 lines) plus the 230-line engine
+file they build on = 34 content modules, about 47,600 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 

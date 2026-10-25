@@ -254,7 +254,7 @@ Proof.
         | exact H ]).
   rewrite Qmult_0_l in Hstep.
   apply (Qle_trans (- x) ((- (1#1)%Q) * x) 0).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - exact Hstep.
 Qed.
 
@@ -310,7 +310,7 @@ Proof.
       { apply (Qmult_lt_compat_r _ _ _ Hb0 Hlt). }
       assert (H2 : Qle (Qabs a * b) (Qabs a * Qabs a)).
       { apply (Qle_trans (Qabs a * b) (b * Qabs a) (Qabs a * Qabs a)).
-        - apply qeq_le_prop. ring.
+        - apply QleT'_to_Qle. apply qeq_leT'. ring.
         - exact (piLe_qmult_le_nonneg4_prop b (Qabs a) (Qabs a) (Qabs a)
                    (Qlt_le_weak _ _ Hb0) (Qlt_le_weak _ _ Hlt)
                    (Qabs_nonneg a) (Qle_refl (Qabs a))). }
@@ -336,12 +336,12 @@ Proof.
     assert (Hv2 : Qle 0 (v * v)) by (apply piLw_sq_nonneg_prop).
     apply (Qle_trans _ (1 + d)).
     - apply (Qle_trans _ ((1 + d) + (-(v * v)))).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + apply (Qle_trans _ ((1 + d) + 0)).
         * apply (Qplus_le_compat (1 + d) (1 + d) (-(v * v)) 0).
           -- apply Qle_refl.
           -- apply (piLw_opp_le_0_prop (v * v) Hv2).
-        * apply qeq_le_prop. ring.
+        * apply QleT'_to_Qle. apply qeq_leT'. ring.
     - apply (Qplus_le_compat (1#1)%Q (1#1)%Q d (Qabs d)).
       + apply Qle_refl.
       + apply piLw_le_abs_prop. }
@@ -355,7 +355,7 @@ Proof.
   - apply (Qlt_le_trans _ (1#1)%Q).
     + exact piLw_q1_pos_prop.
     + apply (Qle_trans _ ((1#1)%Q + 0)).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply (Qplus_le_compat (1#1)%Q (1#1)%Q 0 e).
         -- apply Qle_refl.
         -- exact He.
@@ -367,7 +367,7 @@ Proof.
     + assert (Hbb : (1 + e) * (1 + e) == (1 + e) + (1 + e) * e) by ring.
       rewrite Hbb.
       apply (Qle_trans _ ((1 + e) + 0)).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply (Qplus_le_compat (1 + e) (1 + e) 0 ((1 + e) * e)).
         -- apply Qle_refl.
         -- apply piLe_qmult_nonneg_r_prop; [ exact Hb1 | exact He ].
@@ -388,7 +388,7 @@ Proof.
       + apply Qle_refl.
       + apply piLw_sq_nonneg_prop.
       + exact Hsq.
-    - apply qeq_le_prop. ring. }
+    - apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (H4 : Qle ((4#1)%Q * (t * t) * / (169#1)%Q)
                    (((104#1)%Q * t) * / (169#1)%Q))
     by (apply Qmult_le_compat_r;
@@ -428,7 +428,7 @@ Proof.
       + apply Qle_refl.
       + apply piLw_sq_nonneg_prop.
       + exact Hsq.
-    - apply qeq_le_prop. ring. }
+    - apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (H4 : Qle ((4#1)%Q * (t * t) * / (169#1)%Q)
                    (((8#1)%Q * t) * / (13#1)%Q)).
   { assert (H4b : Qle ((4#1)%Q * (t * t) * / (169#1)%Q)
@@ -438,7 +438,7 @@ Proof.
           | (change (Qle 0 (/ (169#1)%Q)); unfold Qle; simpl; lia) ]).
     apply (Qle_trans _ (((104#1)%Q * t) * / (169#1)%Q)).
     - exact H4b.
-    - apply qeq_le_prop. field. }
+    - apply QleT'_to_Qle. apply qeq_leT'. field. }
   assert (H10 : ((8#1)%Q * t) * / (13#1)%Q + Qdiv t 13 + Qdiv t 13
                 == ((10#1)%Q * t) * / (13#1)%Q) by field.
   assert (H1 : ((13#1)%Q * t) * / (13#1)%Q == t) by field.
@@ -450,10 +450,10 @@ Proof.
     - apply Qmult_le_compat_r.
       + change (Qle (10#1)%Q (13#1)%Q). unfold Qle. simpl. lia.
       + change (Qle 0 (t * / (13#1)%Q)).
-        apply piLe_qmult_nonneg_r_prop.
-        * exact Ht0.
-        * change (Qle 0 (/ (13#1)%Q)). unfold Qle. simpl. lia.
-    - apply qeq_le_prop. field. }
+        apply QleT'_to_Qle. apply piLe_qmult_nonneg_rT.
+        * apply Qle_to_QleT'. exact Ht0.
+        * apply Qle_to_QleT'. change (Qle 0 (/ (13#1)%Q)). unfold Qle. simpl. lia.
+    - apply QleT'_to_Qle. apply qeq_leT'. field. }
   assert (Hexp : Qdiv (2 * t) 13 * Qdiv (2 * t) 13
                  == ((4#1)%Q * (t * t)) * / (169#1)%Q)
     by (unfold Qdiv; field).
@@ -484,11 +484,11 @@ Proof.
       + apply Qle_refl.
       + change (Qle 0 (Qdiv (2 * dt0) 13)).
         unfold Qdiv.
-        apply piLe_qmult_nonneg_r_prop.
-        * apply (piLe_qmult_nonneg_r_prop (2#1)%Q dt0).
+        apply QleT'_to_Qle. apply piLe_qmult_nonneg_rT.
+        * apply Qle_to_QleT'. apply (piLe_qmult_nonneg_r_prop (2#1)%Q dt0).
           -- change (Qle 0 (2#1)%Q). unfold Qle. simpl. lia.
           -- apply Qlt_le_weak. exact Hdt0.
-        * change (Qle 0 (/ (13#1)%Q)). unfold Qle. simpl. lia. }
+        * apply Qle_to_QleT'. change (Qle 0 (/ (13#1)%Q)). unfold Qle. simpl. lia. }
   destruct (piLh_seed_share_prop piLh_seed_t5alpha_supply_prop dt0 Hdt0) as [K1 HK1].
   destruct (piLh_pyth_small_prop (lp_odd 2 + lp_a 6)%Q (Qdiv dt0 13)
                             piLd3_s6_pos_prop Hdivpos) as [K2 HK2].
@@ -585,7 +585,7 @@ Proof.
           -- assert (Hbb : (1 + Qdiv dt0 13) + (1 + Qdiv dt0 13)
                            == 2 + Qdiv (2 * dt0) 13)
                by (unfold Qdiv; ring).
-             apply qeq_le_prop. exact Hbb. }
+             apply QleT'_to_Qle. apply qeq_leT'. exact Hbb. }
   { apply (Qlt_le_trans _
       (Qdiv (2 * dt0) 13 * (2 + Qdiv (2 * dt0) 13) + Qdiv dt0 13)).
     - apply (piLw_plus_lt_same_prop _ _ _). exact Hdc.
@@ -706,7 +706,7 @@ Proof.
         exact (Qplus_lt_compat _ _ _ _ Hpy Hdres).
     - apply (Qle_trans _ (Qdiv (2 * dt0) 13 * Qdiv (2 * dt0) 13
                           + Qdiv dt0 13 + Qdiv dt0 13)).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + exact (piLw_sin_num_prop dt0 (Qlt_le_weak _ _ Hdt0) Ht26). }
 Qed.
 

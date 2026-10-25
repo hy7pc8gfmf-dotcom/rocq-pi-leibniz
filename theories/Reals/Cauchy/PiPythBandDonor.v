@@ -352,7 +352,7 @@ Proof.
            0%Q
            (piLe_tc_term (S (k + S k))%nat B)).
   - apply Qle_refl.
-  - apply piLe_tc_term_nonneg_prop. exact H0B.
+  - apply QleT'_to_Qle. apply piLe_tc_term_nonnegT. apply Qle_to_QleT'. exact H0B.
 Qed.
 
 (* Slot-face supply: there is j such that k >= j and |x| <= B imply

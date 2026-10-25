@@ -28,9 +28,9 @@
     [QArith.Qfield], [ZArith.ZArith], [Arith.PeanoNat], [Lia];
     [PiLeibnizCReal] (the source of [lp_a]/[lp_pair]/[lp_odd]) and
     [PiKernelSlack] ([q_pow], [q_fact], [sin_partial], [cos_partial],
-    [qeq_le_prop], [q_pow_nonneg_prop], [q_pow_mono_prop], [q_fact_pos],
-    [q_lt_0_succ_den_prop], [q_lt_0_odd_den_prop], [sc_q_pow_one],
-    [sc_lpa_decr_le_prop]).
+    [qeq_leT'], [q_pow_nonnegT], [q_pow_monoT], [q_fact_pos],
+    [q_lt_0_succ_den_prop], [q_lt_0_odd_denT], [sc_q_pow_one],
+    [sc_lpa_decr_leT]).
 
     References.  [S10_KVQuantTrig.v], the [sc_lp] family (the source
     coordinates of the [PiKernelSlack] port); the discrete-Gronwall
@@ -71,7 +71,7 @@ Proof.
   intros x y z Hxy Heq.
   apply (Qle_trans _ y _).
   - exact Hxy.
-  - apply qeq_le_prop.
+  - apply QleT'_to_Qle. apply qeq_leT'.
     exact Heq.
 Qed.
 
@@ -197,7 +197,7 @@ Proof.
         ((Z.of_nat (Datatypes.S (Datatypes.S q)) # 1) * q_pow x (Datatypes.S q))
         (((Z.of_nat (Datatypes.S q) # 1)%Q + 1) * (x * q_pow x q))
         (x * ((Z.of_nat (Datatypes.S q) # 1)%Q * q_pow x q) + x * q_pow x q)).
-      * apply qeq_le_prop.
+      * apply QleT'_to_Qle. apply qeq_leT'.
         rewrite pa_zsucc_qmake.
         change (q_pow x (Datatypes.S q)) with (x * q_pow x q).
         ring.
@@ -207,7 +207,7 @@ Proof.
     + change (gsum (Datatypes.S (Datatypes.S q)) x y)
         with (q_pow x (Datatypes.S q) + y * gsum (Datatypes.S q) x y).
       apply (Qle_trans _ (x * q_pow x q + x * ((Z.of_nat (Datatypes.S q) # 1)%Q * q_pow x q)) _).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply (Qplus_le_compat _ (q_pow x (Datatypes.S q)) _ (y * gsum (Datatypes.S q) x y)).
         -- apply Qle_refl.
         -- apply (Qle_trans _ (x * gsum (Datatypes.S q) x y) _).
@@ -340,7 +340,7 @@ Proof.
     + apply (pa_Qminus_le_prop (lp_a 0) 0 (lp_a (2 * m + 1))).
       apply Qlt_le_weak.
       apply (pa_lpa_pos_prop (2 * m + 1)).
-    + apply qeq_le_prop.
+    + apply QleT'_to_Qle. apply qeq_leT'.
       rewrite pa_lp_a_0_one.
       ring.
 Qed.
@@ -384,18 +384,18 @@ Proof.
     - apply (pa_Qmult_le_l_prop x 1%Q x); assumption.
     - apply (Qle_trans _ (1%Q * 1%Q) _).
       + apply (Qmult_le_compat_r x 1 1 H1 H01).
-      + apply qeq_le_prop. ring. }
+      + apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (HB1pos : Qle 0 (Z.of_nat (4 * j + 1) # 1))
     by (unfold Qle; simpl; lia).
   assert (HdB1 : Qle ((Z.of_nat (4 * j + 1) # 1) * (x * x)) ((Z.of_nat (4 * j + 3) # 1))).
   { apply (Qle_trans _ ((Z.of_nat (4 * j + 1) # 1) * 1%Q) _).
     - apply (pa_Qmult_le_l_prop (x * x) 1%Q (Z.of_nat (4 * j + 1) # 1)%Q); [exact Hx2 | exact HB1pos].
     - apply (Qle_trans _ (Z.of_nat (4 * j + 1) # 1)%Q _).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + unfold Qle; simpl; lia. }
   assert (Hdpos : Qle 0 ((Z.of_nat (4 * j + 3) # 1) - (Z.of_nat (4 * j + 1) # 1) * (x * x))).
   { apply (Qle_trans _ ((Z.of_nat (4 * j + 3) # 1) - (Z.of_nat (4 * j + 3) # 1)) _).
-    - apply qeq_le_prop. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. ring.
     - apply (pa_Qminus_le_prop (Z.of_nat (4 * j + 3) # 1)%Q
                ((Z.of_nat (4 * j + 1) # 1) * (x * x))
                (Z.of_nat (4 * j + 3) # 1)%Q).
@@ -543,7 +543,7 @@ Proof.
     apply (Qle_trans _ (((1 - x)%Q * (1 + 1)%Q) * ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j))) _).
     - apply (Qle_trans _ ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j+1) * ((1 - x)%Q * (1 + 1)%Q)) _).
       { apply (Qle_trans _ ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j+1) * ((1 - x)%Q * (1 + x)%Q)) _).
-        { apply qeq_le_prop. ring. }
+        { apply QleT'_to_Qle. apply qeq_leT'. ring. }
         { apply (pa_Qmult_le_l_prop
                    ((1 - x)%Q * (1 + x)%Q)
                    ((1 - x)%Q * (1 + 1)%Q)
@@ -553,14 +553,14 @@ Proof.
           { apply Qmult_le_0_compat;
               [apply Qlt_le_weak; exact HA1pos | apply (q_pow_nonneg_prop x (4*j+1) H0)]. } } }
       { apply (Qle_trans _ (((1 - x)%Q * (1 + 1)%Q) * ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j+1))) _).
-        { apply qeq_le_prop. ring. }
+        { apply QleT'_to_Qle. apply qeq_leT'. ring. }
         { apply (pa_Qmult_le_l_prop
                    ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j+1))
                    ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j))
                    ((1 - x)%Q * (1 + 1)%Q)); [exact HA1le | exact Hw2]. } }
     - apply (Qle_trans _ ((1 + 1)%Q * (1 - x)%Q * (gsum (4*j+1) x 1)) _).
       { apply (Qle_trans _ ((1 + 1)%Q * (1 - x)%Q * ((Z.of_nat (4*j+1) # 1)%Q * q_pow x (4*j))) _).
-        { apply qeq_le_prop. ring. }
+        { apply QleT'_to_Qle. apply qeq_leT'. ring. }
         { pose proof (pa_gsum_lower_prop (4*j) x 1 H0 H01 H1) as Hgl.
           replace (Datatypes.S (4*j)) with (4*j+1)%nat in Hgl by lia.
           apply (pa_Qmult_le_l_prop _ _ ((1 + 1)%Q * (1 - x)%Q)); [exact Hgl | exact Hw1]. } }
@@ -640,8 +640,8 @@ Proof.
        | field; split;
           [ intros Hc; apply HA3ne; exact Hc
           | intros Hc; apply HA1ne; exact Hc ]]. }
-  apply leibsep_qle_of_minus_prop.
-  exact HRfinal.
+  apply QleT'_to_Qle. apply leibsep_qle_of_minusT.
+  apply Qle_to_QleT'. exact HRfinal.
 Qed.
 
 (* ================= Section 3c. The forward-difference bound family
@@ -697,7 +697,7 @@ Proof.
   assert (Hyh : Qle 0 (y + h)) by (apply (Qplus_le_compat 0 y 0 h); assumption).
   assert (Hyhy : Qle y (y + h)).
   { apply (Qle_trans _ (y + 0%Q) _).
-    - apply qeq_le_prop. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. ring.
     - apply Qplus_le_compat; [apply Qle_refl | exact Hh]. }
   rewrite (pa_pow_diff (Datatypes.S q) y (y + h)).
   assert (Hhy : ((y + h) - y)%Q == h%Q) by ring.
@@ -706,11 +706,11 @@ Proof.
   assert (Hmul : Qle ((Z.of_nat (Datatypes.S q) # 1) * q_pow y q * h)
                      (h * gsum (Datatypes.S q) y (y + h))).
   { apply (Qle_trans _ (h * ((Z.of_nat (Datatypes.S q) # 1) * q_pow y q)) _).
-    - apply qeq_le_prop. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. ring.
     - apply (pa_Qmult_le_l_prop ((Z.of_nat (Datatypes.S q) # 1) * q_pow y q)
                (gsum (Datatypes.S q) y (y + h)) h); [exact Hgl | exact Hh]. }
-  apply leibsep_qle_minus_prop.
-  exact Hmul.
+  apply QleT'_to_Qle. apply leibsep_qle_minusT.
+  apply Qle_to_QleT'. exact Hmul.
 Qed.
 
 (* ================= Section 3d. Upper bounds from the difference family (the [E] recursion, stepping supply) ================= *)
@@ -723,7 +723,7 @@ Proof.
   assert (Hd : Qle 1 ((Z.of_nat (2*k+1) # 1)%Q)) by (unfold Qle; simpl; lia).
   assert (Hdpos : Qlt 0 ((Z.of_nat (2*k+1) # 1)%Q)) by (unfold Qlt; simpl; lia).
   apply (Qle_trans _ ((/ (Z.of_nat (2*k+1) # 1))%Q * 1%Q) _).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply (pa_le_qeq_r_prop _ ((/ (Z.of_nat (2*k+1) # 1))%Q * (Z.of_nat (2*k+1) # 1)%Q) _).
     + apply (pa_Qmult_le_l_prop 1%Q (Z.of_nat (2*k+1) # 1)%Q (/ (Z.of_nat (2*k+1) # 1))).
       * exact Hd.
@@ -793,7 +793,7 @@ Proof.
     rewrite H1c.
     assert (HD : (y + h - y - 1%Q * 1%Q * h)%Q == 0%Q) by ring.
     assert (HE0 : pa_E 0 == 0%Q) by (unfold pa_E; reflexivity).
-    apply qeq_le_prop.
+    apply QleT'_to_Qle. apply qeq_leT'.
     rewrite HD.
     rewrite HE0.
     ring.
@@ -818,7 +818,7 @@ Proof.
     assert (Hyh2 : Qle (y + h) 2%Q).
     { apply (Qle_trans _ (1%Q + 1%Q) _).
       - apply Qplus_le_compat; [exact H1 | exact Hh1].
-      - apply qeq_le_prop. ring. }
+      - apply QleT'_to_Qle. apply qeq_leT'. ring. }
     assert (Hhh : Qle 0 (h * h)) by exact (Qmult_le_0_compat h h Hh Hh).
     assert (HXpos : Qle 0 (pa_E p * (h * h)))
       by exact (Qmult_le_0_compat (pa_E p) (h * h) (pa_E_pos_prop p) Hhh).
@@ -834,7 +834,7 @@ Proof.
     assert (Hsum2 : Qle ((Z.of_nat (Datatypes.S p) # 1)%Q * q_pow y p * h * h)
                         ((h * h) * (Z.of_nat (Datatypes.S p) # 1)%Q)).
     { apply (Qle_trans _ ((h * h) * ((Z.of_nat (Datatypes.S p) # 1)%Q * q_pow y p)) _).
-      - apply qeq_le_prop. ring.
+      - apply QleT'_to_Qle. apply qeq_leT'. ring.
       - exact (pa_Qmult_le_l_prop ((Z.of_nat (Datatypes.S p) # 1)%Q * q_pow y p)
                  ((Z.of_nat (Datatypes.S p) # 1)%Q) (h * h) HT2 Hhh). }
     assert (HP1 : Qle ((y + h) * (q_pow (y + h) (Datatypes.S p)
@@ -847,7 +847,7 @@ Proof.
                                 - (Z.of_nat (Datatypes.S p) # 1) * q_pow y p * h)
                  (pa_E p * (h * h)) (y + h) (IH y h H0 H1 Hh Hh1) Hyh).
       - apply (Qle_trans _ ((pa_E p * (h * h)) * (y + h)) _).
-        + apply qeq_le_prop. ring.
+        + apply QleT'_to_Qle. apply qeq_leT'. ring.
         + exact (pa_Qmult_le_l_prop (y + h) 2%Q (pa_E p * (h * h)) Hyh2 HXpos). }
     apply (pa_le_qeq_r_prop
              _ ((pa_E p * (h * h)) * 2%Q
@@ -990,17 +990,17 @@ Proof.
         * exact (pa_lpa_le_1_prop (2 * j + 1)).
         * apply Qmult_le_0_compat; [exact (pa_E_pos_prop (4 * j + 2)) | exact Hhh0].
       + apply (Qle_trans _ (pa_E (4 * j + 2) * (h * h)) _).
-        * apply qeq_le_prop. ring.
+        * apply QleT'_to_Qle. apply qeq_leT'. ring.
         * apply (Qmult_le_compat_r _ _ (h * h)); [exact HEb | exact Hhh0]. }
   rewrite (pa_aA_term_step_D j x h).
   apply (Qle_trans _ (- (lp_a (2 * j + 1) * pa_D3 j x h)) _).
   - apply (Qle_trans _ (- ((Z.of_nat (2 ^ (4 * j + 3))%nat # 1) * (h * h))) _).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply Qopp_le_compat. exact Hneg3.
   - change (lp_a (2 * j) * pa_D1 j x h - lp_a (2 * j + 1) * pa_D3 j x h)
       with (lp_a (2 * j) * pa_D1 j x h + - (lp_a (2 * j + 1) * pa_D3 j x h)).
     apply (Qle_trans _ (0%Q + - (lp_a (2 * j + 1) * pa_D3 j x h)) _).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qplus_le_compat 0%Q (lp_a (2 * j) * pa_D1 j x h)
                (- (lp_a (2 * j + 1) * pa_D3 j x h))
                (- (lp_a (2 * j + 1) * pa_D3 j x h))).
@@ -1067,7 +1067,7 @@ Proof.
         unfold Qle. cbn [Qnum Qden]. lia. }
       apply (Qle_trans _ ((Z.of_nat (2 ^ (4 * p + 4) + 2 ^ (4 * p + 7))%nat # 1)%Q
                             * (h * h)) _).
-      * apply qeq_le_prop.
+      * apply QleT'_to_Qle. apply qeq_leT'.
         unfold Qeq.
         cbn [Qnum Qden Qplus Qmult Qopp Qminus].
         lia.
@@ -1130,7 +1130,7 @@ Proof.
         unfold Qle. cbn [Qnum Qden]. lia. }
       apply (Qle_trans _ ((Z.of_nat (2 ^ (4 * p + 4) + 2 ^ (4 * p + 7))%nat # 1)%Q
                             * (h * h)) _).
-      - apply qeq_le_prop.
+      - apply QleT'_to_Qle. apply qeq_leT'.
         unfold Qeq.
         cbn [Qnum Qden Qplus Qmult Qopp Qminus].
         lia.
@@ -1138,11 +1138,11 @@ Proof.
     apply (Qle_trans _ (- ((Z.of_nat (2 ^ (4 * p + 4))%nat # 1)%Q * (h * h)
                           + (Z.of_nat (2 ^ (4 * p + 7))%nat # 1)%Q * (h * h))) _).
     + apply (Qle_trans _ (- ((Z.of_nat (2 ^ (4 * p + 8))%nat # 1)%Q * (h * h))) _).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply Qopp_le_compat. exact Hsum.
     + apply (Qle_trans _ (((- (Z.of_nat (2 ^ (4 * p + 4))%nat # 1)) * (h * h))
                          + ((- (Z.of_nat (2 ^ (4 * p + 7))%nat # 1)) * (h * h))) _).
-      * apply qeq_le_prop.
+      * apply QleT'_to_Qle. apply qeq_leT'.
         assert (Hsplit : (- ((Z.of_nat (2 ^ (4 * p + 4))%nat # 1)%Q * (h * h)
                               + (Z.of_nat (2 ^ (4 * p + 7))%nat # 1)%Q * (h * h)))
                        == (((- (Z.of_nat (2 ^ (4 * p + 4))%nat # 1)) * (h * h))
@@ -1221,7 +1221,7 @@ Proof.
     - apply (Qlt_le_trans 0 a b); [exact Ha | exact Hab].
     - exact Ha. }
   apply (Qle_trans _ (1%Q * (/ b)) _).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply (pa_le_qeq_r_prop (1%Q * (/ b)) (1%Q * (/ a)) (/ a)).
     + exact Hmain.
     + ring.
@@ -1254,7 +1254,7 @@ Proof.
     rewrite HD.
     rewrite HE0.
     change (Qabs 0%Q) with 0%Q.
-    apply qeq_le_prop. ring.
+    apply QleT'_to_Qle. apply qeq_leT'. ring.
   - intros y e Hy He.
     unfold pa_Df.
     change (q_pow (y + e) (Datatypes.S (Datatypes.S p)))
@@ -1278,7 +1278,7 @@ Proof.
       - apply Qabs_triangle.
       - apply (Qle_trans _ (1%Q + 1%Q) _).
         + apply Qplus_le_compat; assumption.
-        + apply qeq_le_prop. ring. }
+        + apply QleT'_to_Qle. apply qeq_leT'. ring. }
     assert (HT0 : Qle 0 ((Z.of_nat (Datatypes.S p) # 1)%Q))
       by (unfold Qle; simpl; lia).
     assert (HEnonneg : Qle 0 (pa_E p * (e * e)))
@@ -1491,7 +1491,7 @@ Proof.
         apply (Qle_trans _ ((4 # 1) * (((Z.of_nat (Datatypes.S (Datatypes.S (2 * j))) # 1))
                                         * q_fact (Datatypes.S (2 * j)))) _).
         - apply (Qle_trans _ ((4 # 1) * ((4 # 1) * q_fact (Datatypes.S (2 * j)))) _).
-          + apply qeq_le_prop. ring.
+          + apply QleT'_to_Qle. apply qeq_leT'. ring.
           + apply (pa_Qmult_le_l_prop ((4 # 1) * q_fact (Datatypes.S (2 * j)))
                      (((Z.of_nat (Datatypes.S (Datatypes.S (2 * j))) # 1))
                       * q_fact (Datatypes.S (2 * j))) (4 # 1)).
@@ -1524,7 +1524,7 @@ Proof.
                ((1 # 4) * (Z.of_nat (2 ^ (Datatypes.S (2 * j)))%nat # 1))
                ((16 # 1) * q_fact (Datatypes.S (2 * j)))
                (q_fact (Datatypes.S (2 * j)))).
-       * apply qeq_le_prop. ring.
+       * apply QleT'_to_Qle. apply qeq_leT'. ring.
        * apply Qmult_lt_0_compat.
          -- unfold Qlt. simpl. lia.
          -- exact (q_fact_pos (Datatypes.S (2 * j))).
@@ -1579,7 +1579,7 @@ Proof.
     { apply (Qle_trans _ (pa_srhow p
                 + (pa_sT (Datatypes.S p)
                    + (4 # 3) * pa_sT (Datatypes.S (Datatypes.S p)))) _).
-      - apply qeq_le_prop. ring.
+      - apply QleT'_to_Qle. apply qeq_leT'. ring.
       - apply (Qplus_le_compat (pa_srhow p) (pa_srhow p)
                  ((pa_sT (Datatypes.S p)
                    + (4 # 3) * pa_sT (Datatypes.S (Datatypes.S p))))
@@ -1604,7 +1604,7 @@ Proof.
   pose proof (pa_srhow_tail4_prop k) as H.
   apply (Qle_trans _ (pa_srhow k + (4 # 3) * pa_sT (Datatypes.S k)) _).
   - apply (Qle_trans _ (pa_srhow k + 0%Q)).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qplus_le_compat (pa_srhow k) (pa_srhow k) 0%Q
                ((4 # 3) * pa_sT (Datatypes.S k))).
       * apply Qle_refl.
@@ -1652,7 +1652,7 @@ Proof.
       * apply Qplus_le_compat.
         -- exact (IH y e Hy He).
         -- exact (pa_sterm_step_le_prop (Datatypes.S p) y e Hy He).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (** The main sin stepping lemma: [srho_k <= 4]. *)
@@ -1822,7 +1822,7 @@ Proof.
       { apply (Qle_trans _ ((4 # 1) * ((Z.of_nat (Datatypes.S (Datatypes.S (Datatypes.S (2 * k)))) # 1)
                                         * q_fact (Datatypes.S (Datatypes.S (2 * k))))) _).
         - apply (Qle_trans _ ((4 # 1) * ((4 # 1) * q_fact (Datatypes.S (Datatypes.S (2 * k))))) _).
-          + apply qeq_le_prop. ring.
+          + apply QleT'_to_Qle. apply qeq_leT'. ring.
           + apply (pa_Qmult_le_l_prop ((4 # 1) * q_fact (Datatypes.S (Datatypes.S (2 * k))))
                      (((Z.of_nat (Datatypes.S (Datatypes.S (Datatypes.S (2 * k)))) # 1))
                       * q_fact (Datatypes.S (Datatypes.S (2 * k)))) (4 # 1)).
@@ -1857,7 +1857,7 @@ Proof.
                ((1 # 4) * (Z.of_nat (2 ^ (Datatypes.S (Datatypes.S (2 * k))))%nat # 1))
                ((16 # 1) * q_fact (Datatypes.S (Datatypes.S (2 * k))))
                (q_fact (Datatypes.S (Datatypes.S (2 * k))))).
-       * apply qeq_le_prop. ring.
+       * apply QleT'_to_Qle. apply qeq_leT'. ring.
        * apply Qmult_lt_0_compat.
          -- unfold Qlt. simpl. lia.
          -- exact (q_fact_pos (Datatypes.S (Datatypes.S (2 * k)))).
@@ -1930,7 +1930,7 @@ Proof.
     { apply (Qle_trans _ (pa_crhow p
                 + (pa_sT2 (Datatypes.S p)
                    + (4 # 3) * pa_sT2 (Datatypes.S (Datatypes.S p)))) _).
-      - apply qeq_le_prop. ring.
+      - apply QleT'_to_Qle. apply qeq_leT'. ring.
       - apply (Qplus_le_compat (pa_crhow p) (pa_crhow p)
                  ((pa_sT2 (Datatypes.S p)
                    + (4 # 3) * pa_sT2 (Datatypes.S (Datatypes.S p))))
@@ -1955,7 +1955,7 @@ Proof.
   pose proof (pa_crhow_tail4_prop k) as H.
   apply (Qle_trans _ (pa_crhow k + (4 # 3) * pa_sT2 (Datatypes.S k)) _).
   - apply (Qle_trans _ (pa_crhow k + 0%Q)).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qplus_le_compat (pa_crhow k) (pa_crhow k) 0%Q
                ((4 # 3) * pa_sT2 (Datatypes.S k))).
       * apply Qle_refl.
@@ -2032,7 +2032,7 @@ Proof.
       * apply Qplus_le_compat.
         -- exact (IH y e Hy He).
         -- exact (pa_cterm_step_le_prop (Datatypes.S q) y e Hy He).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 Lemma pa_cos_step_prop : forall (k : nat) (y e : Q),
@@ -2414,7 +2414,7 @@ Proof.
              (Z.of_nat (Datatypes.S (Datatypes.S (2 * p))) # 1));
       [exact Hinner | unfold Qle; simpl; lia]. }
   apply (Qle_trans _ ((2 # 1) * ((2 # 1) * ((1 # 2) * (/ pa_gp4 p)))) _).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - apply (Qle_trans _ ((2 # 1) * ((2 # 1) * q_fact (2 * p))) _).
     + exact Hstep2.
     + apply (Qle_trans _ ((Z.of_nat (Datatypes.S (Datatypes.S (2 * p))) # 1)
@@ -2459,13 +2459,13 @@ Proof.
                     (q_fact (2 * j)) (2 # 1));
             [exact (piu1596_qfact2j_ge_half_prop j) | unfold Qle; simpl; lia]).
       apply (Qle_trans _ ((2 # 1) * ((1 # 2) * (/ pa_gp4 j))) _).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + exact Hs1.
     - exact (q_fact_pos (2 * j)).
     - apply Qinv_lt_0_compat. exact (pa_gp4_pos_prop j). }
   rewrite Qinv_involutive in Hraw.
   apply (Qle_trans _ (1%Q * (/ q_fact (2 * j))) _).
-  - apply qeq_le_prop. ring.
+  - apply QleT'_to_Qle. apply qeq_leT'. ring.
   - exact Hraw.
 Qed.
 
@@ -2495,12 +2495,12 @@ Proof.
       [apply Qabs_nonneg | exact Hy]. }
   assert (Hinv : Qle (/ q_fact (Datatypes.S (2 * j))) (pa_gp4 j)).
   { apply (Qle_trans _ (1%Q * / q_fact (Datatypes.S (2 * j))) _).
-    - apply qeq_le_prop. symmetry. apply Qmult_1_l.
+    - apply QleT'_to_Qle. apply qeq_leT'. symmetry. apply Qmult_1_l.
     - apply (pa_le_qeq_r_prop (1%Q * / q_fact (Datatypes.S (2 * j)))
                (pa_gp4 j * / 1%Q) (pa_gp4 j)).
       + apply (pa_div_le_prop 1%Q (pa_gp4 j) (q_fact (Datatypes.S (2 * j))) 1%Q).
         * apply (Qle_trans _ (pa_gp4 j * q_pow (4 # 1)%Q j) _).
-          -- apply qeq_le_prop. rewrite (pa_gp4_qpow4_prod j). apply Qmult_1_l.
+          -- apply QleT'_to_Qle. apply qeq_leT'. rewrite (pa_gp4_qpow4_prod j). apply Qmult_1_l.
           -- apply (pa_Qmult_le_l_prop (q_pow (4 # 1)%Q j)
                      (q_fact (Datatypes.S (2 * j))) (pa_gp4 j));
               [exact (pa_qfact_ge_qpow4_prop j) | apply Qlt_le_weak; exact (pa_gp4_pos_prop j)].
@@ -2509,7 +2509,7 @@ Proof.
       + apply Qmult_1_r. }
   apply (Qle_trans _ (q_pow (Qabs y) (Datatypes.S (2 * j))
                                 * (/ q_fact (Datatypes.S (2 * j)))) _).
-  { apply qeq_le_prop. apply Qmult_1_l. }
+  { apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_1_l. }
   assert (Hcomm : q_pow (Qabs y) (Datatypes.S (2 * j)) * (/ q_fact (Datatypes.S (2 * j)))
                   == (/ q_fact (Datatypes.S (2 * j)))
                      * q_pow (Qabs y) (Datatypes.S (2 * j))) by ring.
@@ -2521,7 +2521,7 @@ Proof.
       | apply Qlt_le_weak; apply Qinv_lt_0_compat;
           exact (q_fact_pos (Datatypes.S (2 * j)))]. }
   apply (Qle_trans _ (/ q_fact (Datatypes.S (2 * j))) _).
-  { apply qeq_le_prop. apply Qmult_1_r. }
+  { apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_1_r. }
   exact Hinv.
 Qed.
 
@@ -2552,7 +2552,7 @@ Proof.
   assert (Hinv : Qle (/ q_fact (2 * j)) ((2 # 1) * pa_gp4 j))
     by (apply (piu1596_cos_hinv_prop j)).
   apply (Qle_trans _ (q_pow (Qabs y) (2 * j) * (/ q_fact (2 * j))) _).
-  { apply qeq_le_prop. apply Qmult_1_l. }
+  { apply QleT'_to_Qle. apply qeq_leT'. apply Qmult_1_l. }
   apply (Qle_trans _ ((q_pow (Qabs y) (2 * j)) * ((2 # 1) * pa_gp4 j)) _).
   { apply (pa_Qmult_le_l_prop (/ q_fact (2 * j)) ((2 # 1) * pa_gp4 j)
              (q_pow (Qabs y) (2 * j)));
@@ -2563,7 +2563,7 @@ Proof.
       [exact Hpow1
       | apply Qlt_le_weak; apply Qmult_lt_0_compat;
           [unfold Qlt; simpl; lia | exact (pa_gp4_pos_prop j)]]. }
-  apply qeq_le_prop. ring.
+  apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (** [|S_k(y)| <= sum_{j <= k} (1/4)^j] and
@@ -2605,7 +2605,7 @@ Proof.
       * apply Qplus_le_compat.
         -- exact IH.
         -- apply (pa_cos_term_abs_le_prop (Datatypes.S p) y Hy).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (** The telescoping identity:
@@ -2706,10 +2706,10 @@ Lemma pa_aG_term_nonneg_prop : forall (j : nat) (x : Q),
 Proof.
   intros j x H0 H1.
   unfold aG_term.
-  apply leibsep_qle_of_minus_prop.
-  apply leibsep_qle_minus_prop.
-  apply leibsep_qle_minus_prop.
-  apply (pa_qpow_exp_mono_prop x (4 * j) (4 * j + 2) H0 H1).
+  apply QleT'_to_Qle. apply leibsep_qle_of_minusT.
+  apply leibsep_qle_minusT.
+  apply leibsep_qle_minusT.
+  apply Qle_to_QleT'. apply (pa_qpow_exp_mono_prop x (4 * j) (4 * j + 2) H0 H1).
   lia.
 Qed.
 
@@ -2722,7 +2722,7 @@ Proof.
   - apply (pa_Qminus_le_prop (q_pow x (4 * j)) 0%Q (q_pow x (4 * j + 2))).
     apply (q_pow_nonneg_prop x (4 * j + 2)). exact H0.
   - apply (Qle_trans _ (q_pow x (4 * j)) _).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + exact (pa_qpow_le_one_prop (4 * j) x H0 H1).
 Qed.
 
@@ -2746,7 +2746,7 @@ Proof.
   - change (aG 0 x) with (aG_term 0 x).
     apply (Qle_trans _ 1%Q).
     + apply (pa_aG_term_le_one_prop 0 x H0 H1).
-    + apply qeq_le_prop. unfold Qeq. simpl. lia.
+    + apply QleT'_to_Qle. apply qeq_leT'. unfold Qeq. simpl. lia.
   - change (aG (Datatypes.S p) x) with (aG p x + aG_term (Datatypes.S p) x).
     apply (Qle_trans _ ((Z.of_nat (Datatypes.S p) # 1) + 1%Q)).
     + apply Qplus_le_compat.
@@ -2982,7 +2982,7 @@ Proof.
              (((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) * (h * h))).
     - apply (pa_aA_step_le_prop m x h Hx0 Hx1 Hh0 Hh1).
     - apply (Qle_trans _ ((- (Z.of_nat (2 ^ (4 * m + 4))%nat # 1)) * (h * h)) _).
-      + apply qeq_le_prop. ring.
+      + apply QleT'_to_Qle. apply qeq_leT'. ring.
       + apply (pa_aA_step_ge_prop m x h Hx0 Hx1 Hh0 Hh1). }
   assert (HGle : Qle (aG m x) ((Z.of_nat (Datatypes.S m)) # 1))
     by (apply (pa_aG_le_prop m x Hx0 Hx1)).
@@ -3024,7 +3024,7 @@ Proof.
       { apply (Qle_trans _ (((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1)
                             + ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1))).
         - apply Qplus_le_compat; [apply Qle_refl | exact HSml].
-        - apply qeq_le_prop. ring. }
+        - apply QleT'_to_Qle. apply qeq_leT'. ring. }
       rewrite pa_rho5_q.
       apply (Qle_trans _ (((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) * h
                           + ((Z.of_nat (Datatypes.S m)) # 1) * h)).
@@ -3034,7 +3034,7 @@ Proof.
         * apply Qle_refl.
       + apply (Qle_trans _ ((((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1)
                             + ((Z.of_nat (Datatypes.S m)) # 1)) * h)).
-        * apply qeq_le_prop. ring.
+        * apply QleT'_to_Qle. apply qeq_leT'. ring.
         * apply (Qmult_le_compat_r (((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1)
                                     + ((Z.of_nat (Datatypes.S m)) # 1))
                    ((2 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1)) h);
@@ -3063,7 +3063,7 @@ Proof.
         + apply (pa_Qmult_le_l_prop (dA * dA) _ (4 # 1));
             [exact Hsq | unfold Qle; simpl; lia].
         + rewrite Hkapow.
-          apply qeq_le_prop. ring. }
+          apply QleT'_to_Qle. apply qeq_leT'. ring. }
     rewrite <- (pa_sin_wd k (aA m x + dA) (aA m (x + h)) HeqA).
     exact Hbound. }
   assert (HsCq : Qle (Qabs (cos_partial k (aA m (x + h)) - cos_partial k (aA m x)
@@ -3088,7 +3088,7 @@ Proof.
         + apply (pa_Qmult_le_l_prop (dA * dA) _ (4 # 1));
             [exact Hsq | unfold Qle; simpl; lia].
         + rewrite Hkapow.
-          apply qeq_le_prop. ring. }
+          apply QleT'_to_Qle. apply qeq_leT'. ring. }
     rewrite <- (pa_cos_wd k (aA m x + dA) (aA m (x + h)) HeqA).
     exact Hbound. }
 (* The five absolute-value bounds for [U]. *)
@@ -3150,7 +3150,7 @@ Proof.
           [exact Hc3
           | apply Qmult_le_0_compat;
               [exact HrhoA0 | apply Qmult_le_0_compat; [exact Hh0 | exact Hh0]]].
-      + apply qeq_le_prop. ring. }
+      + apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (HPc3 : Qle (Qabs (h * h * sin_partial (Nat.pred k) (aA m x) * aG m x))
                      ((h * h) * ((3 # 1) * ((Z.of_nat (Datatypes.S m)) # 1)))).
   { assert (HsaG : Qle (Qabs (sin_partial (Nat.pred k) (aA m x)) * Qabs (aG m x))
@@ -3167,7 +3167,7 @@ Proof.
     apply (Qle_trans _
              ((h * h) * (Qabs (sin_partial (Nat.pred k) (aA m x))
                          * Qabs (aG m x)))).
-    - apply qeq_le_prop. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. ring.
     - apply (pa_Qmult_le_l_prop (Qabs (sin_partial (Nat.pred k) (aA m x))
                             * Qabs (aG m x))
                ((3 # 1) * ((Z.of_nat (Datatypes.S m)) # 1)) (h * h));
@@ -3177,7 +3177,7 @@ Proof.
                      ((h * h) * ((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1))).
   { apply (Qle_trans _ (((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1) * (h * h)) _).
     - exact HsSq.
-    - apply qeq_le_prop. ring. }
+    - apply QleT'_to_Qle. apply qeq_leT'. ring. }
   assert (HPc5 : Qle (Qabs ((x + h) * (cos_partial k (aA m (x + h))
                                       - cos_partial k (aA m x)
                                       + sin_partial (Nat.pred k) (aA m x) * dA)))
@@ -3195,7 +3195,7 @@ Proof.
           [exact Hxh1
           | apply Qmult_le_0_compat;
               [exact Hkapow0 | apply Qmult_le_0_compat; [exact Hh0 | exact Hh0]]].
-      + apply qeq_le_prop. ring. }
+      + apply QleT'_to_Qle. apply qeq_leT'. ring. }
 (* Collecting the five bounds:
    [|U| <= h^2 * (6 rho_A + 3(m+1) + 2 kappa)]. *)
   assert (HU : Qle (Qabs (cos_partial k (aA m x) * (dA - aG m x * h)
@@ -3372,7 +3372,7 @@ Qed.
    ([aF]/[aA]/[aG]/[pa_D_pos_prop]/[pa_qpow_le_one_prop]/[pa_aA_nonneg_prop]/
    [pa_aA_le_one_prop]/[pa_aF_step_prop], etc.) plus [PiKernelSlack]
    ([q_pow]/[q_fact]/[sin_partial]/[cos_partial]/[sin_term]/
-   [qeq_le_prop]/[lw0_Qabs_pos_eq]/[leibsep_qlt_1_prop]/
+   [qeq_leT']/[lw0_Qabs_pos_eq]/[leibsep_qlt_1T]/
    [lw0_pitB_pair_conv_qabs_wd]).
    Statements.  Stdlib [Qle]/[Qlt]/[Qeq] (purely constructive); the
    main statement is carried by a [sig] (at [Set]); [lia]/[field]/
@@ -3401,8 +3401,8 @@ Qed.
 Lemma pa_qle_add_pos_prop : forall (a X : Q), Qle 0 X -> Qle a (a + X).
 Proof.
   intros a X HX.
-  apply leibsep_qle_of_minus_prop.
-  apply (pa_le_qeq_r_prop 0%Q X ((a + X) - a)%Q); [exact HX | ring].
+  apply QleT'_to_Qle. apply leibsep_qle_of_minusT.
+  apply Qle_to_QleT'. apply (pa_le_qeq_r_prop 0%Q X ((a + X) - a)%Q); [exact HX | ring].
 Qed.
 
 Lemma pa_qlt_qeq_lr_prop : forall x y u v : Q, Qlt x y -> x == u -> y == v -> Qlt u v.
@@ -3436,7 +3436,7 @@ Proof.
     exact (Qlt_le_weak 0 x Hx).
   - assert (Hnx : Qle 0 (- x)%Q).
     { apply (pa_le_qeq_r_prop 0%Q (0 - x)%Q (- x)%Q).
-      - apply leibsep_qle_minus_prop. exact Hx.
+      - apply QleT'_to_Qle. apply leibsep_qle_minusT. apply Qle_to_QleT'. exact Hx.
       - ring. }
     assert (Hax : (Qabs x == - x)%Q).
     { assert (H1 : (Qabs (- x) == - x)%Q)
@@ -4545,7 +4545,7 @@ Proof.
             [exact HpowA
             | apply (pa_le_qeq_r_prop 0%Q (/ q_fact (2 * k + 1)) (1 / q_fact (2 * k + 1)));
                [apply Qlt_le_weak; apply Qinv_lt_0_compat; apply q_fact_pos | unfold Qdiv; symmetry; apply Qmult_1_l]].
-        + apply qeq_le_prop. ring.
+        + apply QleT'_to_Qle. apply qeq_leT'. ring.
       - apply (pa_le_qeq_r_prop
                  (Qabs (aA m (pa_grid N j)) * ((1 # 1) / q_fact (2 * k + 1)))
                  (1%Q * ((1 # 1) / q_fact (2 * k + 1)))
@@ -4893,7 +4893,7 @@ Print Assumptions piL_arctan_fixed_sc_prop.
 *)
 
 
-(* Set twin of pa_le_qeq_r_prop (Path A v2.4) *)
+(* Set twin of pa_le_qeq_r_prop *)
 Lemma pa_le_qeq_rT : forall x y z : Q, QleT' x y -> QeqT (y) (z) -> QleT' x z.
 Proof.
   intros.
@@ -4910,7 +4910,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_zsucc_qmake (Path A v2.4) *)
+(* Set twin of pa_zsucc_qmake *)
 Lemma pa_zsucc_qmakeT : forall n : nat, QeqT ((Z.of_nat (Datatypes.S n) # 1)%Q) (((Z.of_nat n # 1) + 1)%Q).
 Proof.
   intros.
@@ -4927,7 +4927,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Qmult_le_l_prop (Path A v2.4) *)
+(* Set twin of pa_Qmult_le_l_prop *)
 Lemma pa_Qmult_le_lT : forall a b c : Q, QleT' a b -> QleT' 0 c -> QleT' (c * a) (c * b).
 Proof.
   intros.
@@ -4944,7 +4944,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Qminus_le_prop (Path A v2.4) *)
+(* Set twin of pa_Qminus_le_prop *)
 Lemma pa_Qminus_leT : forall a b c : Q, QleT' b c -> QleT' (a - c) (a - b).
 Proof.
   intros.
@@ -4961,7 +4961,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_0 (Path A v2.4) *)
+(* Set twin of pa_qpow_0 *)
 Lemma pa_qpow_0T : forall x : Q, QeqT (q_pow x 0) (1).
 Proof.
   intros.
@@ -4978,7 +4978,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_add (Path A v2.4) *)
+(* Set twin of pa_qpow_add *)
 Lemma pa_qpow_addT : forall (x : Q) (n m : nat), QeqT (q_pow x (n + m)) (q_pow x n * q_pow x m).
 Proof.
   intros.
@@ -4995,7 +4995,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_add2 (Path A v2.4) *)
+(* Set twin of pa_qpow_add2 *)
 Lemma pa_qpow_add2T : forall (x : Q) (n : nat), QeqT (q_pow x (n + 2)) (q_pow x n * x * x).
 Proof.
   intros.
@@ -5012,7 +5012,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_pow_diff (Path A v2.4) *)
+(* Set twin of pa_pow_diff *)
 Lemma pa_pow_diffT : forall (n : nat) (x y : Q), QeqT (q_pow y n - q_pow x n) ((y - x) * gsum n x y).
 Proof.
   intros.
@@ -5029,7 +5029,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gsum_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_gsum_nonneg_prop *)
 Lemma pa_gsum_nonnegT : forall (n : nat) (x y : Q), QleT' 0 x -> QleT' 0 y -> QleT' 0 (gsum n x y).
 Proof.
   intros.
@@ -5046,7 +5046,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gsum_lower_prop (Path A v2.4) *)
+(* Set twin of pa_gsum_lower_prop *)
 Lemma pa_gsum_lowerT : forall (p : nat) (x y : Q), QleT' 0 x -> QleT' 0 y -> QleT' x y -> QleT' ((Z.of_nat (Datatypes.S p) # 1) * q_pow x p) (gsum (Datatypes.S p) x y).
 Proof.
   intros.
@@ -5063,7 +5063,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lp_a_val (Path A v2.4) *)
+(* Set twin of pa_lp_a_val *)
 Lemma pa_lp_a_valT : forall k : nat, QeqT (lp_a k) ((/ (Z.of_nat (2 * k + 1) # 1))%Q).
 Proof.
   intros.
@@ -5080,7 +5080,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lpa_pos_prop (Path A v2.4) *)
+(* Set twin of pa_lpa_pos_prop *)
 Lemma pa_lpa_posT : forall k : nat, QltT 0 (lp_a k).
 Proof.
   intros.
@@ -5097,7 +5097,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_one (Path A v2.4) *)
+(* Set twin of pa_aA_term_one *)
 Lemma pa_aA_term_oneT : forall j : nat, QeqT (aA_term j 1) (lp_pair j).
 Proof.
   intros.
@@ -5114,7 +5114,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of aA_one_lp_odd (Path A v2.4) *)
+(* Set twin of aA_one_lp_odd *)
 Lemma aA_one_lp_oddT : forall m : nat, QeqT (aA m 1) (lp_odd m).
 Proof.
   intros.
@@ -5131,7 +5131,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lp_pair_S (Path A v2.4) *)
+(* Set twin of pa_lp_pair_S *)
 Lemma pa_lp_pair_ST : forall m : nat, QeqT (lp_pair (Datatypes.S m)) (lp_a (2 * m + 2) - lp_a (2 * m + 3)).
 Proof.
   intros.
@@ -5148,7 +5148,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lp_odd_inv_prop (Path A v2.4) *)
+(* Set twin of pa_lp_odd_inv_prop *)
 Lemma pa_lp_odd_invT : forall m : nat, QleT' (lp_odd m) (lp_a 0 - lp_a (2 * m + 1)).
 Proof.
   intros.
@@ -5165,7 +5165,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lp_a_0_one (Path A v2.4) *)
+(* Set twin of pa_lp_a_0_one *)
 Lemma pa_lp_a_0_oneT : QeqT (lp_a 0) (1).
 Proof.
   intros.
@@ -5182,7 +5182,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lp_odd_le_1_prop (Path A v2.4) *)
+(* Set twin of pa_lp_odd_le_1_prop *)
 Lemma pa_lp_odd_le_1T : forall m : nat, QleT' (lp_odd m) 1.
 Proof.
   intros.
@@ -5199,7 +5199,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_split (Path A v2.4) *)
+(* Set twin of pa_aA_term_split *)
 Lemma pa_aA_term_splitT : forall (j : nat) (x : Q), QeqT (aA_term j x) (q_pow x (4 * j + 1) * ((Z.of_nat (4 * j + 3) # 1) - (Z.of_nat (4 * j + 1) # 1) * (x * x)) * (/ (Z.of_nat (4 * j + 1) # 1)) * (/ (Z.of_nat (4 * j + 3) # 1))).
 Proof.
   intros.
@@ -5216,7 +5216,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_aA_term_nonneg_prop *)
 Lemma pa_aA_term_nonnegT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aA_term j x).
 Proof.
   intros.
@@ -5233,7 +5233,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_aA_nonneg_prop *)
 Lemma pa_aA_nonnegT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aA m x).
 Proof.
   intros.
@@ -5250,7 +5250,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gG_term_x2 (Path A v2.4) *)
+(* Set twin of pa_gG_term_x2 *)
 Lemma pa_gG_term_x2T : forall (j : nat) (x : Q), QeqT ((1 + x * x) * aG_term j x) (q_pow x (4 * j) - q_pow x (4 * j + 4)).
 Proof.
   intros.
@@ -5267,7 +5267,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of gG_one_x2 (Path A v2.4) *)
+(* Set twin of gG_one_x2 *)
 Lemma gG_one_x2T : forall (m : nat) (x : Q), QeqT ((1 + x * x) * aG m x) (1 - q_pow x (4 * m + 4)).
 Proof.
   intros.
@@ -5284,7 +5284,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_1 (Path A v2.4) *)
+(* Set twin of pa_qpow_1 *)
 Lemma pa_qpow_1T : forall x : Q, QeqT (q_pow x 1) (x).
 Proof.
   intros.
@@ -5301,7 +5301,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_le_lp_pair_prop (Path A v2.4) *)
+(* Set twin of pa_aA_term_le_lp_pair_prop *)
 Lemma pa_aA_term_le_lp_pairT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aA_term j x) (lp_pair j).
 Proof.
   intros.
@@ -5318,7 +5318,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_two_pow_ge_prop (Path A v2.4) *)
+(* Set twin of pa_two_pow_ge_prop *)
 Lemma pa_two_pow_geT : forall n : nat, NatLe (Datatypes.S n) (2 ^ n).
 Proof.
   intros.
@@ -5335,7 +5335,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_le_one_prop (Path A v2.4) *)
+(* Set twin of pa_qpow_le_one_prop *)
 Lemma pa_qpow_le_oneT : forall (q : nat) (y : Q), QleT' 0 y -> QleT' y 1 -> QleT' (q_pow y q) 1.
 Proof.
   intros.
@@ -5352,7 +5352,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_D_pos_prop (Path A v2.4) *)
+(* Set twin of pa_D_pos_prop *)
 Lemma pa_D_posT : forall (q : nat) (y h : Q), QleT' 0 y -> QleT' 0 h -> QleT' 0 (q_pow (y + h) (Datatypes.S q) - q_pow y (Datatypes.S q) - (Z.of_nat (Datatypes.S q) # 1) * q_pow y q * h).
 Proof.
   intros.
@@ -5369,7 +5369,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_lpa_le_1_prop (Path A v2.4) *)
+(* Set twin of pa_lpa_le_1_prop *)
 Lemma pa_lpa_le_1T : forall k : nat, QleT' (lp_a k) 1.
 Proof.
   intros.
@@ -5386,7 +5386,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_E_le_prop (Path A v2.4) *)
+(* Set twin of pa_E_le_prop *)
 Lemma pa_E_leT : forall q : nat, QleT' (pa_E q) ((Z.of_nat (2 ^ (Datatypes.S q))%nat # 1)%Q).
 Proof.
   intros.
@@ -5403,7 +5403,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_E_pos_prop (Path A v2.4) *)
+(* Set twin of pa_E_pos_prop *)
 Lemma pa_E_posT : forall q : nat, QleT' 0 (pa_E q).
 Proof.
   intros.
@@ -5420,7 +5420,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_E_step (Path A v2.4) *)
+(* Set twin of pa_E_step *)
 Lemma pa_E_stepT : forall q : nat, QeqT (pa_E (Datatypes.S q)) (2%Q * pa_E q + (Z.of_nat (Datatypes.S q) # 1)%Q).
 Proof.
   intros.
@@ -5437,7 +5437,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_D_le_prop (Path A v2.4) *)
+(* Set twin of pa_D_le_prop *)
 Lemma pa_D_leT : forall (q : nat) (y h : Q), QleT' 0 y -> QleT' y 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (q_pow (y + h) (Datatypes.S q) - q_pow y (Datatypes.S q) - (Z.of_nat (Datatypes.S q) # 1) * q_pow y q * h) (pa_E q * (h * h)).
 Proof.
   intros.
@@ -5454,7 +5454,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_step_D (Path A v2.4) *)
+(* Set twin of pa_aA_term_step_D *)
 Lemma pa_aA_term_step_DT : forall (j : nat) (x h : Q), QeqT (aA_term j (x + h) - aA_term j x - aG_term j x * h) (lp_a (2 * j) * pa_D1 j x h - lp_a (2 * j + 1) * pa_D3 j x h).
 Proof.
   intros.
@@ -5471,7 +5471,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_step_le_prop (Path A v2.4) *)
+(* Set twin of pa_aA_term_step_le_prop *)
 Lemma pa_aA_term_step_leT : forall (j : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (aA_term j (x + h) - aA_term j x - aG_term j x * h) ((Z.of_nat (2 ^ (4 * j + 3))%nat # 1) * (h * h)).
 Proof.
   intros.
@@ -5488,7 +5488,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_step_ge_prop (Path A v2.4) *)
+(* Set twin of pa_aA_term_step_ge_prop *)
 Lemma pa_aA_term_step_geT : forall (j : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' ((- (Z.of_nat (2 ^ (4 * j + 3))%nat # 1)) * (h * h)) (aA_term j (x + h) - aA_term j x - aG_term j x * h).
 Proof.
   intros.
@@ -5505,7 +5505,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_step_le_prop (Path A v2.4) *)
+(* Set twin of pa_aA_step_le_prop *)
 Lemma pa_aA_step_leT : forall (m : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' (aA m (x + h) - aA m x - aG m x * h) ((Z.of_nat (2 ^ (4 * m + 4))%nat # 1) * (h * h)).
 Proof.
   intros.
@@ -5522,7 +5522,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_step_ge_prop (Path A v2.4) *)
+(* Set twin of pa_aA_step_ge_prop *)
 Lemma pa_aA_step_geT : forall (m : nat) (x h : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' h 1 -> QleT' ((- (Z.of_nat (2 ^ (4 * m + 4))%nat # 1)) * (h * h)) (aA m (x + h) - aA m x - aG m x * h).
 Proof.
   intros.
@@ -5539,7 +5539,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sq_abs_eq (Path A v2.4) *)
+(* Set twin of pa_sq_abs_eq *)
 Lemma pa_sq_abs_eqT : forall t : Q, QeqT (Qabs t * Qabs t) (t * t).
 Proof.
   intros.
@@ -5556,7 +5556,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sq_pos_prop (Path A v2.4) *)
+(* Set twin of pa_sq_pos_prop *)
 Lemma pa_sq_posT : forall t : Q, QleT' 0 (t * t).
 Proof.
   intros.
@@ -5573,7 +5573,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_div_le_prop (Path A v2.4) *)
+(* Set twin of pa_div_le_prop *)
 Lemma pa_div_leT : forall X Y Z W : Q, QleT' (X * W) (Y * Z) -> QltT 0 Z -> QltT 0 W -> QleT' (X * (/ Z)) (Y * (/ W)).
 Proof.
   intros.
@@ -5590,7 +5590,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_inv_le_compat_prop (Path A v2.4) *)
+(* Set twin of pa_inv_le_compat_prop *)
 Lemma pa_inv_le_compatT : forall a b : Q, QltT 0 a -> QleT' a b -> QleT' (/ b) (/ a).
 Proof.
   intros.
@@ -5607,7 +5607,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_D_abs_le_prop (Path A v2.4) *)
+(* Set twin of pa_D_abs_le_prop *)
 Lemma pa_D_abs_leT : forall (q : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (pa_Df q y e)) (pa_E q * (e * e)).
 Proof.
   intros.
@@ -5624,7 +5624,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sterm_step (Path A v2.4) *)
+(* Set twin of pa_sterm_step *)
 Lemma pa_sterm_stepT : forall (j : nat) (y e : Q), QeqT (sin_term j (y + e) - sin_term j y - cos_term j y * e) (q_pow (-1) j * (pa_Df (2 * j) y e * (/ q_fact (Datatypes.S (2 * j))))).
 Proof.
   intros.
@@ -5641,7 +5641,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sT_pos_prop (Path A v2.4) *)
+(* Set twin of pa_sT_pos_prop *)
 Lemma pa_sT_posT : forall j : nat, QleT' 0 (pa_sT j).
 Proof.
   intros.
@@ -5658,7 +5658,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sterm_step_le_prop (Path A v2.4) *)
+(* Set twin of pa_sterm_step_le_prop *)
 Lemma pa_sterm_step_leT : forall (j : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_term j (y + e) - sin_term j y - cos_term j y * e)) (pa_sT j * (e * e)).
 Proof.
   intros.
@@ -5675,7 +5675,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_srhow_pos_prop (Path A v2.4) *)
+(* Set twin of pa_srhow_pos_prop *)
 Lemma pa_srhow_posT : forall k : nat, QleT' 0 (pa_srhow k).
 Proof.
   intros.
@@ -5692,7 +5692,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sT_ratio_prop (Path A v2.4) *)
+(* Set twin of pa_sT_ratio_prop *)
 Lemma pa_sT_ratioT : forall j : nat, NatLe (1) (j) -> QleT' (pa_sT (Datatypes.S j)) ((1 # 4) * pa_sT j).
 Proof.
   intros.
@@ -5709,7 +5709,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_srhow_tail4_prop (Path A v2.4) *)
+(* Set twin of pa_srhow_tail4_prop *)
 Lemma pa_srhow_tail4T : forall k : nat, QleT' (pa_srhow k + (4 # 3) * pa_sT (Datatypes.S k)) 4.
 Proof.
   intros.
@@ -5726,7 +5726,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_srhow_le_prop (Path A v2.4) *)
+(* Set twin of pa_srhow_le_prop *)
 Lemma pa_srhow_leT : forall k : nat, QleT' (pa_srhow k) 4.
 Proof.
   intros.
@@ -5743,7 +5743,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_ssum_le_prop (Path A v2.4) *)
+(* Set twin of pa_ssum_le_prop *)
 Lemma pa_ssum_leT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_partial k (y + e) - sin_partial k y - cos_partial k y * e)) (pa_srhow k * (e * e)).
 Proof.
   intros.
@@ -5760,7 +5760,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_step_prop (Path A v2.4) *)
+(* Set twin of pa_sin_step_prop *)
 Lemma pa_sin_stepT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (sin_partial k (y + e) - sin_partial k y - cos_partial k y * e)) ((4 # 1) * (e * e)).
 Proof.
   intros.
@@ -5777,7 +5777,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cterm_step (Path A v2.4) *)
+(* Set twin of pa_cterm_step *)
 Lemma pa_cterm_stepT : forall (k : nat) (y e : Q), QeqT (cos_term (Datatypes.S k) (y + e) - cos_term (Datatypes.S k) y + sin_term k y * e) (q_pow (-1) (Datatypes.S k) * (pa_Df (Datatypes.S (2 * k)) y e * (/ q_fact (Datatypes.S (Datatypes.S (2 * k)))))).
 Proof.
   intros.
@@ -5794,7 +5794,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sT2_pos_prop (Path A v2.4) *)
+(* Set twin of pa_sT2_pos_prop *)
 Lemma pa_sT2_posT : forall k : nat, QleT' 0 (pa_sT2 k).
 Proof.
   intros.
@@ -5811,7 +5811,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cterm_step_le_prop (Path A v2.4) *)
+(* Set twin of pa_cterm_step_le_prop *)
 Lemma pa_cterm_step_leT : forall (k : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_term (Datatypes.S k) (y + e) - cos_term (Datatypes.S k) y + sin_term k y * e)) (pa_sT2 k * (e * e)).
 Proof.
   intros.
@@ -5828,7 +5828,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sT2_ratio_prop (Path A v2.4) *)
+(* Set twin of pa_sT2_ratio_prop *)
 Lemma pa_sT2_ratioT : forall k : nat, NatLe (1) (k) -> QleT' (pa_sT2 (Datatypes.S k)) ((1 # 4) * pa_sT2 k).
 Proof.
   intros.
@@ -5845,7 +5845,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_crhow_pos_prop (Path A v2.4) *)
+(* Set twin of pa_crhow_pos_prop *)
 Lemma pa_crhow_posT : forall k : nat, QleT' 0 (pa_crhow k).
 Proof.
   intros.
@@ -5862,7 +5862,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_crhow_tail4_prop (Path A v2.4) *)
+(* Set twin of pa_crhow_tail4_prop *)
 Lemma pa_crhow_tail4T : forall k : nat, QleT' (pa_crhow k + (4 # 3) * pa_sT2 (Datatypes.S k)) 4.
 Proof.
   intros.
@@ -5879,7 +5879,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_crhow_le_prop (Path A v2.4) *)
+(* Set twin of pa_crhow_le_prop *)
 Lemma pa_crhow_leT : forall k : nat, QleT' (pa_crhow k) 4.
 Proof.
   intros.
@@ -5896,7 +5896,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_csum_le_S_prop (Path A v2.4) *)
+(* Set twin of pa_csum_le_S_prop *)
 Lemma pa_csum_le_ST : forall (p : nat) (y e : Q), QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_partial (Datatypes.S p) (y + e) - cos_partial (Datatypes.S p) y + sin_partial (Nat.pred (Datatypes.S p)) y * e)) (pa_crhow p * (e * e)).
 Proof.
   intros.
@@ -5913,7 +5913,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_step_prop (Path A v2.4) *)
+(* Set twin of pa_cos_step_prop *)
 Lemma pa_cos_stepT : forall (k : nat) (y e : Q), NatLe (1) (k) -> QleT' (Qabs y) 1 -> QleT' (Qabs e) 1 -> QleT' (Qabs (cos_partial k (y + e) - cos_partial k y + sin_partial (Nat.pred k) y * e)) ((4 # 1) * (e * e)).
 Proof.
   intros.
@@ -5930,7 +5930,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_term_wd (Path A v2.4) *)
+(* Set twin of pa_sin_term_wd *)
 Lemma pa_sin_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_term j x) (sin_term j y).
 Proof.
   intros.
@@ -5947,7 +5947,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_term_wd (Path A v2.4) *)
+(* Set twin of pa_cos_term_wd *)
 Lemma pa_cos_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (cos_term j x) (cos_term j y).
 Proof.
   intros.
@@ -5964,7 +5964,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_wd (Path A v2.4) *)
+(* Set twin of pa_sin_wd *)
 Lemma pa_sin_wdT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_partial k x) (sin_partial k y).
 Proof.
   intros.
@@ -5981,7 +5981,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_wd (Path A v2.4) *)
+(* Set twin of pa_cos_wd *)
 Lemma pa_cos_wdT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (cos_partial k x) (cos_partial k y).
 Proof.
   intros.
@@ -5998,7 +5998,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_exp_mono_prop (Path A v2.4) *)
+(* Set twin of pa_qpow_exp_mono_prop *)
 Lemma pa_qpow_exp_monoT : forall (x : Q) (n m : nat), QleT' 0 x -> QleT' x 1 -> NatLe (n) (m) -> QleT' (q_pow x m) (q_pow x n).
 Proof.
   intros.
@@ -6015,7 +6015,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_two_side_abs_prop (Path A v2.4) *)
+(* Set twin of pa_two_side_abs_prop *)
 Lemma pa_two_side_absT : forall d t : Q, QleT' d t -> QleT' (- t) d -> QleT' (Qabs d) t.
 Proof.
   intros.
@@ -6032,7 +6032,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_abs_sq_le_prop (Path A v2.4) *)
+(* Set twin of pa_abs_sq_le_prop *)
 Lemma pa_abs_sq_leT : forall t B : Q, QleT' (Qabs t) B -> QleT' (t * t) (B * B).
 Proof.
   intros.
@@ -6049,7 +6049,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_two_pow_mono_prop (Path A v2.4) *)
+(* Set twin of pa_two_pow_mono_prop *)
 Lemma pa_two_pow_monoT : forall a b : nat, NatLe (a) (b) -> NatLe (2 ^ a) (2 ^ b).
 Proof.
   intros.
@@ -6066,7 +6066,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gp4_pos_prop (Path A v2.4) *)
+(* Set twin of pa_gp4_pos_prop *)
 Lemma pa_gp4_posT : forall k : nat, QltT 0 (pa_gp4 k).
 Proof.
   intros.
@@ -6083,7 +6083,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qfact_ge_gp4_prop (Path A v2.4) *)
+(* Set twin of pa_qfact_ge_gp4_prop *)
 Lemma pa_qfact_ge_gp4T : forall j : nat, QleT' (pa_gp4 j) (q_fact (Datatypes.S (2 * j))).
 Proof.
   intros.
@@ -6100,7 +6100,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qfact_ge_qpow4_prop (Path A v2.4) *)
+(* Set twin of pa_qfact_ge_qpow4_prop *)
 Lemma pa_qfact_ge_qpow4T : forall j : nat, QleT' (q_pow (4 # 1)%Q j) (q_fact (Datatypes.S (2 * j))).
 Proof.
   intros.
@@ -6117,7 +6117,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gp4_qpow4_prod (Path A v2.4) *)
+(* Set twin of pa_gp4_qpow4_prod *)
 Lemma pa_gp4_qpow4_prodT : forall j : nat, QeqT (pa_gp4 j * q_pow (4 # 1)%Q j) (1%Q).
 Proof.
   intros.
@@ -6134,7 +6134,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piu1596_gp4_inv_S (Path A v2.4) *)
+(* Set twin of piu1596_gp4_inv_S *)
 Lemma piu1596_gp4_inv_ST : forall p : nat, QeqT ((/ pa_gp4 (Datatypes.S p))) (((4 # 1) * (/ pa_gp4 p))).
 Proof.
   intros.
@@ -6151,7 +6151,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piu1596_qfact2j_step_prop (Path A v2.4) *)
+(* Set twin of piu1596_qfact2j_step_prop *)
 Lemma piu1596_qfact2j_stepT : forall p : nat, NatLe (1) (p) -> QleT' ((1 # 2) * (/ pa_gp4 p)) (q_fact (2 * p)) -> QleT' ((1 # 2) * (/ pa_gp4 (Datatypes.S p))) (q_fact (2 * Datatypes.S p)).
 Proof.
   intros.
@@ -6168,7 +6168,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piu1596_qfact2j_ge_half_prop (Path A v2.4) *)
+(* Set twin of piu1596_qfact2j_ge_half_prop *)
 Lemma piu1596_qfact2j_ge_halfT : forall j : nat, QleT' ((1 # 2) * (/ pa_gp4 j)) (q_fact (2 * j)).
 Proof.
   intros.
@@ -6185,7 +6185,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piu1596_cos_hinv_prop (Path A v2.4) *)
+(* Set twin of piu1596_cos_hinv_prop *)
 Lemma piu1596_cos_hinvT : forall j : nat, QleT' (/ q_fact (2 * j)) ((2 # 1) * pa_gp4 j).
 Proof.
   intros.
@@ -6202,7 +6202,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_term_abs_le_prop (Path A v2.4) *)
+(* Set twin of pa_sin_term_abs_le_prop *)
 Lemma pa_sin_term_abs_leT : forall (j : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_term j y)) (pa_gp4 j).
 Proof.
   intros.
@@ -6219,7 +6219,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_term_abs_le_prop (Path A v2.4) *)
+(* Set twin of pa_cos_term_abs_le_prop *)
 Lemma pa_cos_term_abs_leT : forall (j : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_term j y)) ((2 # 1) * pa_gp4 j).
 Proof.
   intros.
@@ -6236,7 +6236,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_partial_le_sum_prop (Path A v2.4) *)
+(* Set twin of pa_sin_partial_le_sum_prop *)
 Lemma pa_sin_partial_le_sumT : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_partial k y)) (pa_gp4sum k).
 Proof.
   intros.
@@ -6253,7 +6253,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_partial_le_sum_prop (Path A v2.4) *)
+(* Set twin of pa_cos_partial_le_sum_prop *)
 Lemma pa_cos_partial_le_sumT : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_partial k y)) ((2 # 1) * pa_gp4sum k).
 Proof.
   intros.
@@ -6270,7 +6270,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gp4sum_trip (Path A v2.4) *)
+(* Set twin of pa_gp4sum_trip *)
 Lemma pa_gp4sum_tripT : forall k : nat, QeqT (pa_gp4sum k + pa_gp4 k * (1 # 3)) ((4 # 3)%Q).
 Proof.
   intros.
@@ -6287,7 +6287,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gp4sum_le43_prop (Path A v2.4) *)
+(* Set twin of pa_gp4sum_le43_prop *)
 Lemma pa_gp4sum_le43T : forall k : nat, QleT' (pa_gp4sum k) (4 # 3).
 Proof.
   intros.
@@ -6304,7 +6304,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gp4sum_le3_prop (Path A v2.4) *)
+(* Set twin of pa_gp4sum_le3_prop *)
 Lemma pa_gp4sum_le3T : forall k : nat, QleT' (pa_gp4sum k) 3.
 Proof.
   intros.
@@ -6321,7 +6321,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_partial_le3_prop (Path A v2.4) *)
+(* Set twin of pa_sin_partial_le3_prop *)
 Lemma pa_sin_partial_le3T : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (sin_partial k y)) 3.
 Proof.
   intros.
@@ -6338,7 +6338,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_cos_partial_le3_prop (Path A v2.4) *)
+(* Set twin of pa_cos_partial_le3_prop *)
 Lemma pa_cos_partial_le3T : forall (k : nat) (y : Q), QleT' (Qabs y) 1 -> QleT' (Qabs (cos_partial k y)) 3.
 Proof.
   intros.
@@ -6355,7 +6355,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_le_one_prop (Path A v2.4) *)
+(* Set twin of pa_aA_le_one_prop *)
 Lemma pa_aA_le_oneT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aA m x) 1.
 Proof.
   intros.
@@ -6372,7 +6372,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aG_term_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_aG_term_nonneg_prop *)
 Lemma pa_aG_term_nonnegT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aG_term j x).
 Proof.
   intros.
@@ -6389,7 +6389,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aG_term_le_one_prop (Path A v2.4) *)
+(* Set twin of pa_aG_term_le_one_prop *)
 Lemma pa_aG_term_le_oneT : forall (j : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aG_term j x) 1.
 Proof.
   intros.
@@ -6406,7 +6406,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aG_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_aG_nonneg_prop *)
 Lemma pa_aG_nonnegT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' 0 (aG m x).
 Proof.
   intros.
@@ -6423,7 +6423,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aG_le_prop (Path A v2.4) *)
+(* Set twin of pa_aG_le_prop *)
 Lemma pa_aG_leT : forall (m : nat) (x : Q), QleT' 0 x -> QleT' x 1 -> QleT' (aG m x) ((Z.of_nat (Datatypes.S m)) # 1).
 Proof.
   intros.
@@ -6440,7 +6440,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_rho5_q (Path A v2.4) *)
+(* Set twin of pa_rho5_q *)
 Lemma pa_rho5_qT : forall m : nat, QeqT (((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1)) (((2 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1))%Q).
 Proof.
   intros.
@@ -6457,7 +6457,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qmake_mult_distr (Path A v2.4) *)
+(* Set twin of pa_qmake_mult_distr *)
 Lemma pa_qmake_mult_distrT : forall a b : Z, QeqT ((a * b) # 1) ((a # 1) * (b # 1)).
 Proof.
   intros.
@@ -6474,7 +6474,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_kappa_q (Path A v2.4) *)
+(* Set twin of pa_kappa_q *)
 Lemma pa_kappa_qT : forall m : nat, QeqT (((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1)) (((4 # 1) * (((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1) * ((Z.of_nat (2 ^ (4 * m + 5))%nat) # 1)))%Q).
 Proof.
   intros.
@@ -6491,7 +6491,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_pow_chain_le_prop (Path A v2.4) *)
+(* Set twin of pa_pow_chain_le_prop *)
 Lemma pa_pow_chain_leT : forall m : nat, QleT' ((3 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) + (3 # 1) * ((Z.of_nat (2 ^ (4 * m + 4))%nat) # 1) + (3 # 1) * ((Z.of_nat (Datatypes.S m) # 1)) + (2 # 1) * ((Z.of_nat (2 ^ (8 * m + 12))%nat) # 1)) (((Z.of_nat (2 ^ (8 * m + 14))%nat) # 1)).
 Proof.
   intros.
@@ -6508,7 +6508,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_pow_mono_le_prop (Path A v2.4) *)
+(* Set twin of pa_pow_mono_le_prop *)
 Lemma pa_pow_mono_leT : forall m : nat, QleT' ((Z.of_nat (2 ^ (8 * m + 14))%nat) # 1) ((Z.of_nat (2 ^ (8 * m + 16))%nat) # 1).
 Proof.
   intros.
@@ -6525,7 +6525,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aF_step_prop (Path A v2.4) *)
+(* Set twin of pa_aF_step_prop *)
 Lemma pa_aF_stepT : forall (k m : nat) (x h : Q), NatLe (1) (k) -> QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) ((h * h * (1 + x * x)) * ((Z.of_nat (2 ^ (8 * m + 16))%nat) # 1)).
 Proof.
   intros.
@@ -6542,7 +6542,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_nat_pow2_pos_prop (Path A v2.4) *)
+(* Set twin of pa_nat_pow2_pos_prop *)
 Lemma pa_nat_pow2_posT : forall n : nat, NatLe (Datatypes.S (0)) (2 ^ n).
 Proof.
   intros.
@@ -6559,7 +6559,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qle_add_pos_prop (Path A v2.4) *)
+(* Set twin of pa_qle_add_pos_prop *)
 Lemma pa_qle_add_posT : forall (a X : Q), QleT' 0 X -> QleT' a (a + X).
 Proof.
   intros.
@@ -6576,7 +6576,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qlt_qeq_lr_prop (Path A v2.4) *)
+(* Set twin of pa_qlt_qeq_lr_prop *)
 Lemma pa_qlt_qeq_lrT : forall x y u v : Q, QltT x y -> QeqT (x) (u) -> QeqT (y) (v) -> QltT u v.
 Proof.
   intros.
@@ -6593,7 +6593,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_half_inv (Path A v2.4) *)
+(* Set twin of pa_qpow_half_inv *)
 Lemma pa_qpow_half_invT : forall t : nat, QeqT (q_pow (1 # 2)%Q t) ((1 # 1) / (Z.of_nat (2 ^ t) # 1)).
 Proof.
   intros.
@@ -6610,7 +6610,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_abs_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_abs_nonneg_prop *)
 Lemma pa_abs_nonnegT : forall x : Q, QleT' 0 (Qabs x).
 Proof.
   intros.
@@ -6627,7 +6627,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_abs_scale_unit (Path A v2.4) *)
+(* Set twin of pa_abs_scale_unit *)
 Lemma pa_abs_scale_unitT : forall (k : nat) (z : Q), QeqT (Qabs (q_pow (-1) k * z)) (Qabs z).
 Proof.
   intros.
@@ -6644,7 +6644,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_abs_mul_pos_prop (Path A v2.4) *)
+(* Set twin of pa_abs_mul_pos_prop *)
 Lemma pa_abs_mul_posT : forall (c w : Q), QleT' 0 c -> QeqT (Qabs (c * w)) (c * Qabs w).
 Proof.
   intros.
@@ -6661,7 +6661,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qfact_mono_prop (Path A v2.4) *)
+(* Set twin of pa_qfact_mono_prop *)
 Lemma pa_qfact_monoT : forall n m : nat, NatLe (n) (m) -> QleT' (q_fact n) (q_fact m).
 Proof.
   intros.
@@ -6678,7 +6678,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qfact_ge_pow2Q_prop (Path A v2.4) *)
+(* Set twin of pa_qfact_ge_pow2Q_prop *)
 Lemma pa_qfact_ge_pow2QT : forall n : nat, QleT' (q_pow (2 # 1)%Q n) (q_fact (Datatypes.S n)).
 Proof.
   intros.
@@ -6695,7 +6695,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow2_coherence (Path A v2.4) *)
+(* Set twin of pa_qpow2_coherence *)
 Lemma pa_qpow2_coherenceT : forall n : nat, QeqT (q_pow (2 # 1)%Q n) ((Z.of_nat (2 ^ n))%nat # 1).
 Proof.
   intros.
@@ -6712,7 +6712,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qpow_half_coherence (Path A v2.4) *)
+(* Set twin of pa_qpow_half_coherence *)
 Lemma pa_qpow_half_coherenceT : forall t : nat, QeqT (q_pow (1 # 2)%Q t) ((1 # 1) * ((1 # 1) / ((Z.of_nat (2 ^ t))%nat # 1))).
 Proof.
   intros.
@@ -6729,7 +6729,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_inv_mono_prop (Path A v2.4) *)
+(* Set twin of pa_inv_mono_prop *)
 Lemma pa_inv_monoT : forall a b : Q, QltT 0 a -> QleT' a b -> QleT' ((1 # 1) / b) ((1 # 1) / a).
 Proof.
   intros.
@@ -6746,7 +6746,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_h_pos_prop (Path A v2.4) *)
+(* Set twin of pa_h_pos_prop *)
 Lemma pa_h_posT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QltT 0 ((1 # 1) / (Z.of_nat N # 1))%Q.
 Proof.
   intros.
@@ -6763,7 +6763,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_hN_prop (Path A v2.4) *)
+(* Set twin of pa_hN_prop *)
 Lemma pa_hNT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QeqT ((Z.of_nat N # 1) * ((1 # 1) / (Z.of_nat N # 1))) (1).
 Proof.
   intros.
@@ -6780,7 +6780,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_qA_pos_zero_prop (Path A v2.4) *)
+(* Set twin of pa_qA_pos_zero_prop *)
 Lemma pa_qA_pos_zeroT : forall n : nat, NatLe (1) (n) -> QeqT (q_pow 0 n) (0).
 Proof.
   intros.
@@ -6797,7 +6797,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_zero (Path A v2.4) *)
+(* Set twin of pa_aA_zero *)
 Lemma pa_aA_zeroT : forall m : nat, QeqT (aA m 0) (0).
 Proof.
   intros.
@@ -6814,7 +6814,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_partial_zero (Path A v2.4) *)
+(* Set twin of pa_sin_partial_zero *)
 Lemma pa_sin_partial_zeroT : forall k : nat, QeqT (sin_partial k 0) (0).
 Proof.
   intros.
@@ -6831,7 +6831,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_mult_aA_zero (Path A v2.4) *)
+(* Set twin of pa_mult_aA_zero *)
 Lemma pa_mult_aA_zeroT : forall (m : nat) (z : Q), QeqT (aA m 0 * z) (0).
 Proof.
   intros.
@@ -6848,7 +6848,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_partial_aA_zero (Path A v2.4) *)
+(* Set twin of pa_sin_partial_aA_zero *)
 Lemma pa_sin_partial_aA_zeroT : forall (k m : nat), QeqT (sin_partial k (aA m 0)) (0).
 Proof.
   intros.
@@ -6865,7 +6865,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aF_zero (Path A v2.4) *)
+(* Set twin of pa_aF_zero *)
 Lemma pa_aF_zeroT : forall (k m : nat), QeqT (aF k m 0) (0).
 Proof.
   intros.
@@ -6882,7 +6882,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_grid_zero (Path A v2.4) *)
+(* Set twin of pa_grid_zero *)
 Lemma pa_grid_zeroT : forall N : nat, QeqT (pa_grid N 0) (0).
 Proof.
   intros.
@@ -6899,7 +6899,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_grid_S_prop (Path A v2.4) *)
+(* Set twin of pa_grid_S_prop *)
 Lemma pa_grid_ST : forall (N p : nat), NatLe (Datatypes.S (0)) (N) -> QeqT (pa_grid N (Datatypes.S p)) (pa_grid N p + ((1 # 1) / (Z.of_nat N # 1))%Q).
 Proof.
   intros.
@@ -6916,7 +6916,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_grid_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_grid_nonneg_prop *)
 Lemma pa_grid_nonnegT : forall (N i : nat), NatLe (Datatypes.S (0)) (N) -> QleT' 0 (pa_grid N i).
 Proof.
   intros.
@@ -6933,7 +6933,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_grid_le_1_prop (Path A v2.4) *)
+(* Set twin of pa_grid_le_1_prop *)
 Lemma pa_grid_le_1T : forall (N i : nat), NatLe (Datatypes.S (0)) (N) -> NatLe (i) (N) -> QleT' (pa_grid N i) 1.
 Proof.
   intros.
@@ -6950,7 +6950,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_grid_one_prop (Path A v2.4) *)
+(* Set twin of pa_grid_one_prop *)
 Lemma pa_grid_oneT : forall N : nat, NatLe (Datatypes.S (0)) (N) -> QeqT (pa_grid N N) (1).
 Proof.
   intros.
@@ -6967,14 +6967,14 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_wsumG_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_wsumG_nonneg_prop *)
 Lemma pa_wsumG_nonnegT : forall (N i : nat) (g : nat -> Q), NatLe (Datatypes.S (0)) (N) -> (forall j, NatLe (Datatypes.S (j)) (i) -> QleT' 0 (g j)) -> QleT' 0 (pa_wsumG N g i).
 Proof.
   intros.
   exact (Qle_to_QleT' _ _ (pa_wsumG_nonneg_prop N i g (NatLe_drop _ _ H) (fun j Hj => QleT'_to_Qle 0 (g j) (H0 j (NatLe_lift _ _ Hj))))).
 Qed.
 
-(* Set twin of pa_wsumG_scal_add (Path A v2.4) *)
+(* Set twin of pa_wsumG_scal_add *)
 Lemma pa_wsumG_scal_addT : forall (N i : nat) (a : Q) (f g : nat -> Q), QeqT (pa_wsumG N (fun j => a * f j + g j) i) (a * pa_wsumG N f i + pa_wsumG N g i).
 Proof.
   intros.
@@ -6991,14 +6991,14 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_wsumG_telescope_prop (Path A v2.4) *)
+(* Set twin of pa_wsumG_telescope_prop *)
 Lemma pa_wsumG_telescopeT : forall (N i : nat) (g Phi : nat -> Q), (forall j, NatLe (Datatypes.S (j)) (i) -> QleT' (((1 # 1) / (Z.of_nat N # 1))%Q * g j) (Phi (Datatypes.S j) - Phi j)) -> QleT' (pa_wsumG N g i) (Phi i - Phi 0%nat).
 Proof.
   intros.
   exact (Qle_to_QleT' _ _ (pa_wsumG_telescope_prop N i g Phi (fun j Hj => QleT'_to_Qle _ _ (H j (NatLe_lift _ _ Hj))))).
 Qed.
 
-(* Set twin of pa_r_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_r_nonneg_prop *)
 Lemma pa_r_nonnegT : forall (k m : nat) (x : Q), QleT' 0 x -> QleT' 0 (pa_r k m x).
 Proof.
   intros.
@@ -7015,7 +7015,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_accF_nonneg_prop (Path A v2.4) *)
+(* Set twin of pa_accF_nonneg_prop *)
 Lemma pa_accF_nonnegT : forall (k m N i : nat), NatLe (Datatypes.S (0)) (N) -> QleT' 0 (pa_accF k m N i).
 Proof.
   intros.
@@ -7032,7 +7032,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_accF_S_prop (Path A v2.4) *)
+(* Set twin of pa_accF_S_prop *)
 Lemma pa_accF_ST : forall (k m N p : nat), NatLe (Datatypes.S (0)) (N) -> QeqT (pa_accF k m N (Datatypes.S p)) (pa_accF k m N p + ((1 # 1) / (Z.of_nat N # 1))%Q * (pa_r k m (pa_grid N p) + ((1 # 1) / (Z.of_nat N # 1))%Q * pa_gCst m)).
 Proof.
   intros.
@@ -7049,7 +7049,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Dens_abs_le_prop (Path A v2.4) *)
+(* Set twin of pa_Dens_abs_le_prop *)
 Lemma pa_Dens_abs_leT : forall (k m : nat) (x : Q), NatLe (1) (k) -> QleT' 0 x -> QleT' x 1 -> QleT' (Qabs (pa_Dens k m x)) (pa_r k m x).
 Proof.
   intros.
@@ -7066,7 +7066,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_q_pow_G0 (Path A v2.4) *)
+(* Set twin of pa_q_pow_G0 *)
 Lemma pa_q_pow_G0T : forall (N : nat) (n : nat), QeqT (q_pow (pa_grid N 0) n) (q_pow 0 n).
 Proof.
   intros.
@@ -7083,7 +7083,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Qopp_comp (Path A v2.4) *)
+(* Set twin of pa_Qopp_comp *)
 Lemma pa_Qopp_compT : forall x y : Q, QeqT (x) (y) -> QeqT (Qopp x) (Qopp y).
 Proof.
   intros.
@@ -7100,7 +7100,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Qminus_comp (Path A v2.4) *)
+(* Set twin of pa_Qminus_comp *)
 Lemma pa_Qminus_compT : forall a b c d : Q, QeqT (a) (c) -> QeqT (b) (d) -> QeqT (a - b) (c - d).
 Proof.
   intros.
@@ -7117,7 +7117,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_G0 (Path A v2.4) *)
+(* Set twin of pa_aA_term_G0 *)
 Lemma pa_aA_term_G0T : forall (j N : nat), QeqT (aA_term j (pa_grid N 0)) (aA_term j 0).
 Proof.
   intros.
@@ -7134,7 +7134,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_G0 (Path A v2.4) *)
+(* Set twin of pa_aA_G0 *)
 Lemma pa_aA_G0T : forall (m N : nat), QeqT (aA m (pa_grid N 0)) (aA m 0).
 Proof.
   intros.
@@ -7151,7 +7151,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_q_pow_ext (Path A v2.4) *)
+(* Set twin of pa_q_pow_ext *)
 Lemma pa_q_pow_extT : forall (n : nat) (x y : Q), QeqT (x) (y) -> QeqT (q_pow x n) (q_pow y n).
 Proof.
   intros.
@@ -7168,7 +7168,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_Qdiv_r_ext (Path A v2.4) *)
+(* Set twin of pa_Qdiv_r_ext *)
 Lemma pa_Qdiv_r_extT : forall (x y q : Q), QeqT (x) (y) -> QeqT (x / q) (y / q).
 Proof.
   intros.
@@ -7185,7 +7185,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_term_ext (Path A v2.4) *)
+(* Set twin of pa_sin_term_ext *)
 Lemma pa_sin_term_extT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_term k x) (sin_term k y).
 Proof.
   intros.
@@ -7202,7 +7202,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_sin_partial_ext (Path A v2.4) *)
+(* Set twin of pa_sin_partial_ext *)
 Lemma pa_sin_partial_extT : forall (k : nat) (x y : Q), QeqT (x) (y) -> QeqT (sin_partial k x) (sin_partial k y).
 Proof.
   intros.
@@ -7219,7 +7219,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aF_G0_ext (Path A v2.4) *)
+(* Set twin of pa_aF_G0_ext *)
 Lemma pa_aF_G0_extT : forall (k m N : nat), QeqT (aF k m (pa_grid N 0)) (aF k m 0).
 Proof.
   intros.
@@ -7236,7 +7236,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_term_wd (Path A v2.4) *)
+(* Set twin of pa_aA_term_wd *)
 Lemma pa_aA_term_wdT : forall (j : nat) (x y : Q), QeqT (x) (y) -> QeqT (aA_term j x) (aA_term j y).
 Proof.
   intros.
@@ -7253,7 +7253,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aA_wd (Path A v2.4) *)
+(* Set twin of pa_aA_wd *)
 Lemma pa_aA_wdT : forall (m : nat) (x y : Q), QeqT (x) (y) -> QeqT (aA m x) (aA m y).
 Proof.
   intros.
@@ -7270,7 +7270,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_aF_wd (Path A v2.4) *)
+(* Set twin of pa_aF_wd *)
 Lemma pa_aF_wdT : forall (k m : nat) (x y : Q), QeqT (x) (y) -> QeqT (aF k m x) (aF k m y).
 Proof.
   intros.
@@ -7287,21 +7287,21 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pa_gronwall_inv_prop (Path A v2.4) *)
+(* Set twin of pa_gronwall_inv_prop *)
 Lemma pa_gronwall_invT : forall (k m N i : nat), NatLe (1) (k) -> NatLe (Datatypes.S (0)) (N) -> NatLe (i) (N) -> (forall x h : Q, QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) (h * h * (1 + x * x) * pa_gCst m)) -> QleT' (Qabs (aF k m (pa_grid N i))) ((1 + q_pow (pa_grid N i) 2) * pa_accF k m N i).
 Proof.
   intros.
   exact (Qle_to_QleT' _ _ (pa_gronwall_inv_prop k m N i (NatLe_drop _ _ H) (NatLe_drop _ _ H0) (NatLe_drop _ _ H1) (fun x h Hx0 Hx1 Hh0 Hh01 => QleT'_to_Qle _ _ (H2 x h (Qle_to_QleT' _ _ Hx0) (Qle_to_QleT' _ _ Hx1) (Qle_to_QleT' _ _ Hh0) (Qle_to_QleT' _ _ Hh01))))).
 Qed.
 
-(* Set twin of pa_F_one_bound_prop (Path A v2.4) *)
+(* Set twin of pa_F_one_bound_prop *)
 Lemma pa_F_one_boundT : forall (k m N : nat), NatLe (1) (k) -> NatLe (Datatypes.S (0)) (N) -> (forall x h : Q, QleT' 0 x -> QleT' x 1 -> QleT' 0 h -> QleT' (x + h) 1 -> QleT' (Qabs ((1 + x * x) * aF k m (x + h) - (1 + x * x + h * x) * aF k m x + h * pa_Dens k m x)) (h * h * (1 + x * x) * pa_gCst m)) -> QleT' (Qabs (aF k m 1)) ((12 # 1)%Q * ((1 # 1) / (Z.of_nat (4 * m + 5) # 1)) + (9 # 4)%Q * ((1 # 1) / q_fact (2 * k + 1)) + (2 # 1)%Q * ((1 # 1) / (Z.of_nat N # 1)) * pa_gCst m).
 Proof.
   intros.
   exact (Qle_to_QleT' _ _ (pa_F_one_bound_prop k m N (NatLe_drop _ _ H) (NatLe_drop _ _ H0) (fun x h Hx0 Hx1 Hh0 Hh01 => QleT'_to_Qle _ _ (H1 x h (Qle_to_QleT' _ _ Hx0) (Qle_to_QleT' _ _ Hx1) (Qle_to_QleT' _ _ Hh0) (Qle_to_QleT' _ _ Hh01))))).
 Qed.
 
-(* Set twin of pa_Cst_h_le (Path A v2.4) *)
+(* Set twin of pa_Cst_h_le *)
 Lemma pa_Cst_h_leT : forall m : nat, QeqT ((2 # 1)%Q * ((1 # 1) / (Z.of_nat (8 * 2 ^ (8 * m + 20) * (4 * m + 5)) # 1)) * pa_gCst m) ((1 # 1) / (Z.of_nat (64 * (4 * m + 5)) # 1)).
 Proof.
   intros.

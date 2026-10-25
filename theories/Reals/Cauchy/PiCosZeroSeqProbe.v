@@ -12,7 +12,7 @@
     directly).
 
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs];
-    [QCauchyZeroCos] ([log_eps]/[log_eps_pos_prop]);
+    [QCauchyZeroCos] ([log_eps]/[log_eps_posT]);
     [PiCosApproxRoot] ([approx_root_cos_prop]).
 
     References.  [S10_KVQuantTrig.v] (the [Q]-level form of

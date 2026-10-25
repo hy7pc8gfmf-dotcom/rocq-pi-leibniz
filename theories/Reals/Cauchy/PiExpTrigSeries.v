@@ -262,7 +262,7 @@ Qed.
 *)
 
 
-(* Set twin of Qle_0_1_prop (Path A v2.4) *)
+(* Set twin of Qle_0_1_prop *)
 Lemma Qle_0_1T : QleT' 0 1.
 Proof.
   intros.
@@ -279,7 +279,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of Q2_nonneg_prop (Path A v2.4) *)
+(* Set twin of Q2_nonneg_prop *)
 Lemma Q2_nonnegT : QleT' 0 (1 + 1)%Q.
 Proof.
   intros.
@@ -296,7 +296,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of q_pow_fact_nonneg_prop (Path A v2.4) *)
+(* Set twin of q_pow_fact_nonneg_prop *)
 Lemma q_pow_fact_nonnegT : forall A m, QleT' 0 A -> QleT' 0 (q_pow A m / q_fact m).
 Proof.
   intros.
@@ -313,7 +313,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of q_pow_fact2_nonneg_prop (Path A v2.4) *)
+(* Set twin of q_pow_fact2_nonneg_prop *)
 Lemma q_pow_fact2_nonnegT : forall A m, QleT' 0 A -> QleT' 0 ((q_pow A m / q_fact m) * (1 + 1)%Q).
 Proof.
   intros.
@@ -330,7 +330,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_series_step_mono_prop (Path A v2.4) *)
+(* Set twin of exp_series_step_mono_prop *)
 Lemma exp_series_step_monoT : forall (B : Q) (n : nat), QleT' 0 B -> QleT' (exp_series n B) (exp_series (Datatypes.S n) B).
 Proof.
   intros.
@@ -347,7 +347,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_series_mono_prop (Path A v2.4) *)
+(* Set twin of exp_series_mono_prop *)
 Lemma exp_series_monoT : forall (B : Q) (n m : nat), QleT' 0 B -> NatLe (n) (m) -> QleT' (exp_series n B) (exp_series m B).
 Proof.
   intros.
@@ -364,7 +364,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_sin_deriv_series_nonneg_prop (Path A v2.4) *)
+(* Set twin of sc_sin_deriv_series_nonneg_prop *)
 Lemma sc_sin_deriv_series_nonnegT : forall n B, QleT' 0 B -> QleT' 0 (sc_sin_deriv_series n B).
 Proof.
   intros.
@@ -381,7 +381,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_sin_deriv_series_le_exp_prop (Path A v2.4) *)
+(* Set twin of sc_sin_deriv_series_le_exp_prop *)
 Lemma sc_sin_deriv_series_le_expT : forall n B, QleT' 0 B -> QleT' (sc_sin_deriv_series n B) (exp_series (Datatypes.S (2 * n)) B).
 Proof.
   intros.
@@ -398,7 +398,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_cos_partial_lipschitz_succ_prop (Path A v2.4) *)
+(* Set twin of sc_cos_partial_lipschitz_succ_prop *)
 Lemma sc_cos_partial_lipschitz_succT : forall (x y B : Q) (n : nat), QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B -> QleT' (Qabs (cos_partial (Datatypes.S n) x - cos_partial (Datatypes.S n) y)) (Qmult (Qabs (x - y)) (sc_sin_deriv_series n B)).
 Proof.
   intros.

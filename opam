@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "rocq-pi-leibniz"
-version: "1.0.3"
+version: "1.0.4"
 synopsis:
   "Constructive pi for the Rocq constructive Cauchy reals — premise-free separation from every rational with extractable witnesses"
 description: """
@@ -8,7 +8,7 @@ A constructive pi for the constructive Cauchy reals of the Rocq standard
 library ([ConstructiveCauchyReals]), realized by the alternating Leibniz
 series, with the strong irrationality separation theorem
 
-  Theorem pi_leibniz_strong_irrational :
+  Theorem pi_leibniz_strong_irrational_prop :
     forall a b : Q, b <> 0 -> CReal_appart pi_leibniz (inject_Q (a / b)).
 
 together with its premise-free companion

@@ -44,7 +44,7 @@ Require Import PiHalfwinSeed.
 (* Topology note: in this tree the identity premise bundles and the
    synthesis segment are carried by the merged PiKernelSlack segment;
    the slot definitions piLd3_seed_* and the V1/V2 vanishing forms
-   (piL_sin_xL_vanish_prop/piL_cos_xL_neg1_vanish_prop) are supplied by the
+   (piL_sin_xL_vanishT/piL_cos_xL_neg1_vanishT) are supplied by the
    Requires above. *)
 
 (* ==== Section 1. The three supplies, stated verbatim ==== *)
@@ -86,14 +86,6 @@ Definition piLsup_vertex_anchor : Set :=
       And (QltT (Qabs (cos_partial k (2 * lp_odd m))) dt)
           (QltT (Qabs (sin_partial k (2 * lp_odd m) - (1 # 1)%Q)) dt)).
 
-(* A resolution of the anchor face implies the sigma-1 supply face (glue: take K := N). *)
-Theorem piLsup_halfwin_of_anchor_prop :
-  piLsup_vertex_anchor -> piLsup_halfwin.
-Proof.
-  intros Hanchor dt Hdt.
-  destruct (Hanchor dt Hdt) as [N HN].
-  exists N. intros k m Hk Hm. exact (HN k m Hm).
-Qed.
 
 (* ==== Section 3. Direct use of the sigma-2 and sigma-3 supplies ==== *)
 

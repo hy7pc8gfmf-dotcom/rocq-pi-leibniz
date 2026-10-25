@@ -11,7 +11,7 @@
 (** * PiPascalResidueT: Set-carried twins for the anti-diagonal band
       representation of the truncation remainder
 
-    Mission.  Path A v2.4 Set-carried twins for all named statements
+    Mission.  Set-carried twins for all named statements
     in [PiPascalResidue] -- the dual-rail companion providing
     QeqT-based decidable carriers for each statement face, enabling
     extraction with zero [Obj.magic].  Every twin proof body in this

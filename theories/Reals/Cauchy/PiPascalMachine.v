@@ -522,7 +522,7 @@ Proof. vm_compute. reflexivity. Qed.
 *)
 
 
-(* Set twin of piLsb_sumR_snoc (Path A v2.4) *)
+(* Set twin of piLsb_sumR_snoc *)
 Lemma piLsb_sumR_snocT : forall (f : nat -> Q) (n : nat), QeqT (piLsb_sumR f (Datatypes.S n)) (piLsb_sumR f n + f n).
 Proof.
   intros.
@@ -539,7 +539,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_sumR_plus (Path A v2.4) *)
+(* Set twin of piLsb_sumR_plus *)
 Lemma piLsb_sumR_plusT : forall (f g : nat -> Q) (n : nat), QeqT (piLsb_sumR (fun i => f i + g i) n) (piLsb_sumR f n + piLsb_sumR g n).
 Proof.
   intros.
@@ -556,7 +556,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_sumR_opp (Path A v2.4) *)
+(* Set twin of piLsb_sumR_opp *)
 Lemma piLsb_sumR_oppT : forall (f : nat -> Q) (n : nat), QeqT (piLsb_sumR (fun i => - f i) n) (- piLsb_sumR f n).
 Proof.
   intros.
@@ -573,14 +573,14 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_sumR_ext (Path A v2.4) *)
+(* Set twin of piLsb_sumR_ext *)
 Lemma piLsb_sumR_extT : forall (f g : nat -> Q) (n : nat), (forall i : nat, NatLe (Datatypes.S (i)) (n) -> QeqT (f i) (g i)) -> QeqT (piLsb_sumR f n) (piLsb_sumR g n).
 Proof.
   intros.
   exact (qeq_imp_qeqT _ _ (piLsb_sumR_ext f g n (fun i Hi => qeqT_imp_qeq _ _ (H i (NatLe_lift _ _ Hi))))).
 Qed.
 
-(* Set twin of piLsb_sumR_head (Path A v2.4) *)
+(* Set twin of piLsb_sumR_head *)
 Lemma piLsb_sumR_headT : forall (f : nat -> Q) (n : nat), QeqT (piLsb_sumR f (Datatypes.S n)) (f 0%nat + piLsb_sumR (fun i => f (Datatypes.S i)) n).
 Proof.
   intros.
@@ -597,7 +597,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_eq_cancel_r (Path A v2.4) *)
+(* Set twin of piLsb_eq_cancel_r *)
 Lemma piLsb_eq_cancel_rT : forall a b c : Q, QeqT ((a + c)%Q) ((b + c)%Q) -> QeqT (a) (b).
 Proof.
   intros.
@@ -614,7 +614,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_eq_cancel2 (Path A v2.4) *)
+(* Set twin of piLsb_eq_cancel2 *)
 Lemma piLsb_eq_cancel2T : forall a b c d : Q, QeqT (c) (d) -> QeqT ((a + c)%Q) ((b + d)%Q) -> QeqT (a) (b).
 Proof.
   intros.
@@ -631,7 +631,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_eq_cancel_dbl (Path A v2.4) *)
+(* Set twin of piLsb_eq_cancel_dbl *)
 Lemma piLsb_eq_cancel_dblT : forall a b : Q, QeqT ((a + a)%Q) ((b + b)%Q) -> QeqT (a) (b).
 Proof.
   intros.
@@ -648,7 +648,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_q_succ_lit (Path A v2.4) *)
+(* Set twin of piLsb_q_succ_lit *)
 Lemma piLsb_q_succ_litT : forall m : nat, QeqT ((Z.of_nat (Datatypes.S m) # 1)%Q) ((Z.of_nat m # 1)%Q + 1%Q).
 Proof.
   intros.
@@ -665,7 +665,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_bpa_diag (Path A v2.4) *)
+(* Set twin of piLsb_bpa_diag *)
 Lemma piLsb_bpa_diagT : forall n : nat, QeqT (bpa_binom n n) (1%Q).
 Proof.
   intros.
@@ -682,7 +682,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_bpa_bridge (Path A v2.4) *)
+(* Set twin of piLsb_bpa_bridge *)
 Lemma piLsb_bpa_bridgeT : forall n k : nat, NatLe (k) (n) -> QeqT (bpa_binom n k * q_fact k * q_fact (n - k)%nat) (q_fact n).
 Proof.
   intros.
@@ -699,7 +699,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_lw0_alt_even (Path A v2.4) *)
+(* Set twin of piLsb_lw0_alt_even *)
 Lemma piLsb_lw0_alt_evenT : forall i : nat, QeqT (lw0_alt (2 * i)%nat) (1%Q).
 Proof.
   intros.
@@ -716,7 +716,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_lw0_alt_odd (Path A v2.4) *)
+(* Set twin of piLsb_lw0_alt_odd *)
 Lemma piLsb_lw0_alt_oddT : forall i : nat, QeqT (lw0_alt (Datatypes.S (2 * i)%nat)) ((-1)%Q).
 Proof.
   intros.
@@ -733,7 +733,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_sumR_even_odd (Path A v2.4) *)
+(* Set twin of piLsb_sumR_even_odd *)
 Lemma piLsb_sumR_even_oddT : forall (f : nat -> Q) (n : nat), QeqT (piLsb_sumR f (2 * Datatypes.S n)%nat) (piLsb_sumR (fun i => f (2 * i)%nat) (Datatypes.S n) + piLsb_sumR (fun i => f (Datatypes.S (2 * i)%nat)) (Datatypes.S n)).
 Proof.
   intros.
@@ -750,7 +750,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_sumR_even_odd_S (Path A v2.4) *)
+(* Set twin of piLsb_sumR_even_odd_S *)
 Lemma piLsb_sumR_even_odd_ST : forall (f : nat -> Q) (n : nat), QeqT (piLsb_sumR f (Datatypes.S (2 * n))%nat) (piLsb_sumR (fun i => f (2 * i)%nat) (Datatypes.S n) + piLsb_sumR (fun i => f (Datatypes.S (2 * i)%nat)) n).
 Proof.
   intros.
@@ -767,7 +767,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_row_alt_rec (Path A v2.4) *)
+(* Set twin of piLsb_row_alt_rec *)
 Lemma piLsb_row_alt_recT : forall n : nat, QeqT (piLsb_sumR (fun j => bpa_binom (Datatypes.S n) j * lw0_alt j) (Datatypes.S (Datatypes.S n))) (1%Q - (piLsb_sumR (fun j => bpa_binom n j * lw0_alt j) (Datatypes.S n) + piLsb_sumR (fun i => bpa_binom n (Datatypes.S i) * lw0_alt i) (Datatypes.S n))).
 Proof.
   intros.
@@ -784,7 +784,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_row_alt_prop (Path A v2.4) *)
+(* Set twin of piLsb_row_altT *)
 Lemma piLsb_row_altT : forall n : nat, NatLe (1) (n) -> QeqT (piLsb_sumR (fun j => bpa_binom n j * lw0_alt j) (Datatypes.S n)) (0%Q).
 Proof.
   intros.
@@ -801,7 +801,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_row_odd (Path A v2.4) *)
+(* Set twin of piLsb_row_odd *)
 Lemma piLsb_row_oddT : forall m : nat, QeqT (piLsb_sumR (fun i => bpa_binom (Datatypes.S (2 * m)) (Datatypes.S (2 * i))) (Datatypes.S m)) (q_pow 2%Q (2 * m)%nat).
 Proof.
   intros.
@@ -818,7 +818,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_witness_row_odd_3_val (Path A v2.4) *)
+(* Set twin of piLsb_witness_row_odd_3_val *)
 Lemma piLsb_witness_row_odd_3_valT : QeqT (piLsb_witness_row_odd_3) (64%Q).
 Proof.
   intros.
@@ -835,7 +835,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_witness_row_tot_5_val (Path A v2.4) *)
+(* Set twin of piLsb_witness_row_tot_5_val *)
 Lemma piLsb_witness_row_tot_5_valT : QeqT (piLsb_witness_row_tot_5) (32%Q).
 Proof.
   intros.
@@ -852,7 +852,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_witness_alt_4_val (Path A v2.4) *)
+(* Set twin of piLsb_witness_alt_4_val *)
 Lemma piLsb_witness_alt_4_valT : QeqT (piLsb_witness_alt_4) (0%Q).
 Proof.
   intros.

@@ -5,18 +5,64 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.4] - 2026-10-XX
+
+### Added
+
+- A Set-carried twin of the anti-diagonal band residue machine:
+  `theories/Reals/Cauchy/PiPascalResidueT.v` restates the named
+  statements of `PiPascalResidue` over `Set` carriers — each twin
+  carries the same mathematical content with the reflected decision
+  types (`QltT`/`QeqT`-based decidable predicates) in the place of the
+  `Prop`-level faces — so the band representation of the truncation
+  remainder is available in extractable form. The module is registered
+  in `_CoqProject` and re-exported from the root module.
+- Self-contained computational micro-proofs for the documented witness
+  values: the window-family sample points (`lw0m_e 0 = 5 # 2`,
+  `lw0m_e 1 = 5 # 4`, `lw0m_e 2 = 5 # 6`) and the margin component of
+  the escape-witness triple (`lw0m_e 3 = 5 # 8`) are asserted as
+  Set-carried Boolean identities (`Id (Qeq_bool _ _) true`) whose proof
+  bodies close by `vm_compute` alone — no solver tactic and no transport
+  through the bridges participates — each ending in `Defined` and
+  assumption-free.
 
 ### Changed
 
-- The root module no longer re-exports `PiWindowCore`
-  (`Require Export` lowered to `Require`). The bare name
-  `leiblw_id_eq_prop` — declared with different types in
-  `PiWindowCore` and `PiLeibnizMargin` — previously resolved for
-  downstream `Require Import pi_leibniz` users to whichever export
-  came last; consumers now get the package's own `PiLeibnizMargin`
-  face unambiguously. Code that needs the `PiWindowCore` face should
-  `Require Import` that module directly.
+- Statement names that carry a Set-carried twin are suffixed `_prop`
+  across the package (681 names, counted over definitions, lemmas,
+  theorems, and corollaries): a `Prop`-level statement and its
+  `Set`-carried twin express the same mathematical content, but the two
+  faces cannot share one name once both must be importable side by
+  side; the `Prop`-level originals carry the suffix and the bare names
+  remain reserved for the `Set`-carried faces, so downstream code
+  states which face it consumes.
+- The root module no longer re-exports `PiWindowCore` (`Require Export`
+  lowered to `Require`): the bare name `leiblw_id_eq_prop` was declared
+  with different types in `PiWindowCore` and `PiLeibnizMargin`, and
+  downstream `Require Import pi_leibniz` users previously resolved it
+  to whichever export came last; consumers now get the package's own
+  `PiLeibnizMargin` face unambiguously, and code that needs the
+  `PiWindowCore` face should `Require Import` that module directly.
+- Library comments are in English throughout and normalized to the
+  package comment policy (five-field module headers, no process
+  narrative); statement-level migration provenance lives in
+  [docs/statement-provenance.md](docs/statement-provenance.md)
+  (coordinates frozen as recorded), leaving name-level citations in the
+  library.
+- <!-- TODO(主会话)：槽位——MIG71 孪生名迁移（79 名消费位）若在 tag 前落地，在此续笔实质条目（禁过程语）。 -->
+- <!-- TODO(主会话)：槽位——局部删除（DELETE-AFTER-MIG71 79 名＋DEAD-FACE 26 名）若在 tag 前落地，在此续笔（可入 Changed/Removed）。 -->
+- <!-- TODO(主会话)：槽位——注释第四波若在 tag 前落地，在此续笔或并入上一条。 -->
+
+### Fixed
+
+- `PiPascalResidueT` referenced statements beyond its declared
+  dependencies; the missing module dependencies (`PiKernelSlack`,
+  `PiPascalMachine`) are now imported and declared in the module
+  header.
+- `scripts/pi_ci_chk.sh` targeted statement names that the renaming had
+  changed; the assumption smoke check now names
+  `pi_leibniz_strong_irrational_prop`, in step with the renamed
+  statements.
 
 ## [1.0.3] - 2026-10-25
 

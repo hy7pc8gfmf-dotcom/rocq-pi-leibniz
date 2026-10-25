@@ -27,7 +27,7 @@
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
     [QArith.Qround], [ZArith.ZArith], [Arith.PeanoNat], [Lia];
     [PiKernelSlack] ([q_pow]/[q_fact], [sin_term]/[cos_term],
-    [QleT'_to_Qle], [Qle_div_same_denom_prop], [q_neq_of_lt_prop]);
+    [QleT'_to_Qle], [Qle_div_same_denomT], [q_neq_of_ltT]);
     [PiPascalMachine] (the [piLsb_sumR] row-sum machine with its
     [ext]/[snoc]/[head] lemmas, [piLsb_row_odd], [piLsb_bpa_bridge]);
     [PiRowIdentity] ([piLrowB_qfact_neq0], [piLrowB_qeq_cancel_l]);
@@ -35,8 +35,8 @@
     [piLc_bandrow]/[piLc_bandsum]/[piLc_dres_band]);
     [PiKernelSlack_D1_identity] ([piL_sin_dres]);
     [PiKernelSlack_D2_remainder] (term-level absolute-value bounds);
-    [PiKernelSlack_D3_prereq] (the witness lemma [d3p_quarter_pow_lt_prop],
-    [d3p_inject_ceiling_ge_prop]).
+    [PiKernelSlack_D3_prereq] (the witness lemma [d3p_quarter_pow_ltT],
+    [d3p_inject_ceiling_geT]).
 
     References.  Row-by-row controlling terms and the geometric tail
     bound for the offset band of an alternating series (the

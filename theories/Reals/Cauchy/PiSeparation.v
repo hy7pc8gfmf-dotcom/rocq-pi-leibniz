@@ -63,9 +63,9 @@
     may change in future releases. *)
 
 (* ---------------------------------------------------------------- *)
-(* Require face (root-level bare names during the vendored period;    *)
-(* after the engine file lands upstream, switch to a single           *)
-(* [From Stdlib] line)                                                *)
+(* Require face: stdlib modules load through explicit [From Stdlib]   *)
+(* import prefixes, and in-package modules load through bare          *)
+(* [Require Import] lines.                                            *)
 (* ---------------------------------------------------------------- *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.

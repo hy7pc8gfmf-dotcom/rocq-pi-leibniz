@@ -672,6 +672,19 @@ Proof.
 Qed.
 
 (* Even side, odd step: [j >= m] implies [S_2j+1 - S_2m >= gap(2m)]. *)
+(* Set twin of leiblw_interlace_T. *)
+Lemma leiblw_interlace_T : forall m : nat,
+  QleT' (leiblw_S (2 * m + 2)) (leiblw_S (2 * m + 1))%Q.
+Proof. intros m. apply Qle_to_QleT'. apply leiblw_interlace_prop. Qed.
+
+(* Set twin of leiblw_mono_even_T. *)
+Lemma leiblw_mono_even_T : forall j m : nat, NatLe m j ->
+  QleT' (leiblw_S (2 * m)) (leiblw_S (2 * j))%Q.
+Proof.
+  intros j m H. apply Qle_to_QleT'. apply leiblw_mono_even_prop.
+  apply NatLe_drop. exact H.
+Qed.
+
 Lemma leiblw_lower_even_o_prop : forall j m : nat, (m <= j)%nat ->
   Qle (leiblw_gap (2 * m)) (leiblw_S (2 * j + 1) - leiblw_S (2 * m))%Q.
 Proof.
@@ -681,11 +694,11 @@ Proof.
       by (rewrite Nat.mul_add_distr_l, Nat.mul_1_r; reflexivity).
     replace (2 * j + 2) with (2 * (j + 1))
       by (rewrite Nat.mul_add_distr_l, Nat.mul_1_r; reflexivity).
-    apply leiblw_mono_even_prop.
+    apply QleT'_to_Qle. apply leiblw_mono_even_T.
     rewrite (Nat.add_1_r m), (Nat.add_1_r j).
-    exact (proj1 (Nat.succ_le_mono m j) Hj). }
+    apply NatLe_lift. exact (proj1 (Nat.succ_le_mono m j) Hj). }
   assert (Hi : Qle (leiblw_S (2 * j + 2)) (leiblw_S (2 * j + 1)))
-    by apply leiblw_interlace_prop.
+    by (apply QleT'_to_Qle; apply leiblw_interlace_T).
   unfold Qminus.
   apply (Qle_trans _ ((leiblw_S (2 * j + 2) + (- leiblw_S (2 * m)))%Q)).
   - apply Qplus_le_compat; [exact Hme | apply Qle_refl].
@@ -1540,7 +1553,7 @@ Proof.
 Qed.
 
 
-(* ================= Section 18. Set-carried twins of the statements whose faces carry Prop fragments (Path A v2.4) ================= *)
+(* ================= Section 18. Set-carried twins of the statements whose faces carry Prop fragments ================= *)
 
 (* Each lemma below is the Set-carried twin of the same-named statement
    earlier in this file.  In every twin, each [Q]-order premise or
@@ -1550,15 +1563,15 @@ Qed.
    bridges of Section 5, so the two faces of a statement remain
    semantically coupled; the original statements are untouched. *)
 
-(* Set twin of leiblw_even_2m_prop (Path A v2.4). *)
+(* Set twin of leiblw_even_2m_prop. *)
 Lemma leiblw_even_2m_T : forall m : nat, Id (leiblw_even (2 * m)) true.
 Proof. intros m. apply leiblw_id_eq_prop. apply leiblw_even_2m_prop. Qed.
 
-(* Set twin of leiblw_even_2m1_prop (Path A v2.4). *)
+(* Set twin of leiblw_even_2m1_prop. *)
 Lemma leiblw_even_2m1_T : forall m : nat, Id (leiblw_even (2 * m + 1)) false.
 Proof. intros m. rewrite leiblw_even_2m1_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_par_decomp_prop (Path A v2.4). *)
+(* Set twin of leiblw_par_decomp_T. *)
 Lemma leiblw_par_decomp_T : forall k : nat,
   sum (sigT (fun j : nat => @Id nat k (2 * j)))
       (sigT (fun j : nat => @Id nat k (2 * j + 1))).
@@ -1568,34 +1581,34 @@ Proof.
   - right. exists j. rewrite <- Hj. apply id_refl.
 Qed.
 
-(* Set twin of leiblw_pos_succ_prop (Path A v2.4). *)
+(* Set twin of leiblw_pos_succ_prop. *)
 Lemma leiblw_pos_succ_T : forall k : nat,
   @Id Z (Z.pos (Pos.of_succ_nat k)) (Z.of_nat (S k)).
 Proof. intros k. exact (@id_refl Z (Z.pos (Pos.of_succ_nat k))). Qed.
 
-(* Set twin of leiblw_pos_succ1_prop (Path A v2.4). *)
+(* Set twin of leiblw_pos_succ1_prop. *)
 Lemma leiblw_pos_succ1_T : forall k : nat,
   @Id Z (Z.pos (Pos.of_succ_nat k)) (Z.of_nat k + 1)%Z.
 Proof. intros k. rewrite leiblw_pos_succ_prop, Nat2Z.inj_succ. apply id_refl. Qed.
 
-(* Set twin of leiblw_zpos_mul_prop (Path A v2.4). *)
+(* Set twin of leiblw_zpos_mul_prop. *)
 Lemma leiblw_zpos_mul_T : forall j k : nat,
   @Id Z (Z.pos (Pos.mul (Pos.of_succ_nat j) (Pos.of_succ_nat k)))
        (Z.of_nat (S j) * Z.of_nat (S k))%Z.
 Proof. intros j k. rewrite leiblw_zpos_mul_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_zf_S_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_S_prop. *)
 Lemma leiblw_zf_S_T : forall m : nat,
   @Id Z (leiblw_zf (S m)) (Z.pos (Pos.of_succ_nat m) * leiblw_zf m)%Z.
 Proof. intros m. rewrite leiblw_zf_S_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_zf_2n1_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_2n1_prop. *)
 Lemma leiblw_zf_2n1_T : forall n : nat,
   @Id Z (leiblw_zf (2 * n + 1))
        (Z.pos (Pos.of_succ_nat (2 * n)) * leiblw_zf (2 * n))%Z.
 Proof. intros n. rewrite leiblw_zf_2n1_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_zf_2n3_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_2n3_prop. *)
 Lemma leiblw_zf_2n3_T : forall n : nat,
   @Id Z (leiblw_zf (2 * n + 3))
        (Z.pos (Pos.of_succ_nat (S (S (2 * n)))) *
@@ -1603,15 +1616,15 @@ Lemma leiblw_zf_2n3_T : forall n : nat,
          (Z.pos (Pos.of_succ_nat (2 * n)) * leiblw_zf (2 * n))))%Z.
 Proof. intros n. rewrite leiblw_zf_2n3_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_div2_even_prop (Path A v2.4). *)
+(* Set twin of leiblw_div2_even_prop. *)
 Lemma leiblw_div2_even_T : forall m : nat, @Id nat (Nat.div2 (2 * m)) m.
 Proof. intros m. rewrite leiblw_div2_even_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_div2_odd_prop (Path A v2.4). *)
+(* Set twin of leiblw_div2_odd_prop. *)
 Lemma leiblw_div2_odd_T : forall m : nat, @Id nat (Nat.div2 (2 * m + 1)) m.
 Proof. intros m. rewrite leiblw_div2_odd_prop. apply id_refl. Qed.
 
-(* Set twin of leiblw_t_pos_case_prop (Path A v2.4). *)
+(* Set twin of leiblw_t_pos_case_prop. *)
 Lemma leiblw_t_pos_case_T : forall k : nat,
   Id (leiblw_even k) true ->
   Id (Qeq_bool (leiblw_t k) (4 # Pos.of_succ_nat (2 * k))%Q) true.
@@ -1621,7 +1634,7 @@ Proof.
   apply leiblw_t_pos_case_prop. apply leiblw_id_inv_prop. exact H.
 Qed.
 
-(* Set twin of leiblw_t_neg_case_prop (Path A v2.4). *)
+(* Set twin of leiblw_t_neg_case_prop. *)
 Lemma leiblw_t_neg_case_T : forall k : nat,
   Id (leiblw_even k) false ->
   Id (Qeq_bool (leiblw_t k) ((-4) # Pos.of_succ_nat (2 * k))%Q) true.
@@ -1631,48 +1644,43 @@ Proof.
   apply leiblw_t_neg_case_prop. destruct H. reflexivity.
 Qed.
 
-(* Set twin of leiblw_t_even_pos_prop (Path A v2.4). *)
+(* Set twin of leiblw_t_even_pos_T. *)
 Lemma leiblw_t_even_pos_T : forall m : nat, QltT 0%Q (leiblw_t (2 * m))%Q.
 Proof. intros m. apply Qlt_to_QltT. apply leiblw_t_even_pos_prop. Qed.
 
-(* Set twin of leiblw_t_odd_neg_prop (Path A v2.4). *)
+(* Set twin of leiblw_t_odd_neg_T. *)
 Lemma leiblw_t_odd_neg_T : forall m : nat, QltT (leiblw_t (2 * m + 1))%Q 0%Q.
 Proof. intros m. apply Qlt_to_QltT. apply leiblw_t_odd_neg_prop. Qed.
 
-(* Set twin of leiblw_qopp_lt_prop (Path A v2.4). *)
+(* Set twin of leiblw_qopp_lt_prop. *)
 Lemma leiblw_qopp_lt_T : forall x : Q, QltT 0%Q x -> QltT (- x)%Q 0%Q.
 Proof.
   intros x H. apply Qlt_to_QltT. apply leiblw_qopp_lt_prop.
   apply QltT_to_Qlt. exact H.
 Qed.
 
-(* Set twin of leiblw_step_even_pos_prop (Path A v2.4). *)
+(* Set twin of leiblw_step_even_pos_T. *)
 Lemma leiblw_step_even_pos_T : forall m : nat,
   QltT 0%Q (leiblw_S (2 * m + 2) - leiblw_S (2 * m))%Q.
 Proof. intros m. apply Qlt_to_QltT. apply leiblw_step_even_pos_prop. Qed.
 
-(* Set twin of leiblw_step_odd_neg_prop (Path A v2.4). *)
+(* Set twin of leiblw_step_odd_neg_prop. *)
 Lemma leiblw_step_odd_neg_T : forall m : nat,
   QltT (leiblw_S (2 * m + 3) - leiblw_S (2 * m + 1))%Q 0%Q.
 Proof. intros m. apply Qlt_to_QltT. apply leiblw_step_odd_neg_prop. Qed.
 
-(* Set twin of leiblw_interlace_prop (Path A v2.4). *)
-Lemma leiblw_interlace_T : forall m : nat,
-  QleT' (leiblw_S (2 * m + 2)) (leiblw_S (2 * m + 1))%Q.
-Proof. intros m. apply Qle_to_QleT'. apply leiblw_interlace_prop. Qed.
-
-(* Set twin of leiblw_gap_pos_prop (Path A v2.4). *)
+(* Set twin of leiblw_gap_pos_prop. *)
 Lemma leiblw_gap_pos_T : forall n : nat, QltT 0%Q (leiblw_gap n).
 Proof. intros n. apply Qlt_to_QltT. apply leiblw_gap_pos_prop. Qed.
 
-(* Set twin of leiblw_qle_add_r_prop (Path A v2.4). *)
+(* Set twin of leiblw_qle_add_r_prop. *)
 Lemma leiblw_qle_add_r_T : forall A U : Q, QleT' U 0%Q -> QleT' (A + U)%Q A.
 Proof.
   intros A U H. apply Qle_to_QleT'. apply leiblw_qle_add_r_prop.
   apply QleT'_to_Qle. exact H.
 Qed.
 
-(* Set twin of leiblw_qle_add2_r_prop (Path A v2.4). *)
+(* Set twin of leiblw_qle_add2_r_prop. *)
 Lemma leiblw_qle_add2_r_T : forall A U V : Q,
   QleT' (U + V)%Q 0%Q -> QleT' (A + U + V)%Q A.
 Proof.
@@ -1680,14 +1688,14 @@ Proof.
   apply QleT'_to_Qle. exact H.
 Qed.
 
-(* Set twin of leiblw_qle_add_l_prop (Path A v2.4). *)
+(* Set twin of leiblw_qle_add_l_prop. *)
 Lemma leiblw_qle_add_l_T : forall A W : Q, QleT' 0%Q W -> QleT' A (A + W)%Q.
 Proof.
   intros A W H. apply Qle_to_QleT'. apply leiblw_qle_add_l_prop.
   apply QleT'_to_Qle. exact H.
 Qed.
 
-(* Set twin of leiblw_qabs_id_prop (Path A v2.4). *)
+(* Set twin of leiblw_qabs_id_T. *)
 Lemma leiblw_qabs_id_T : forall q : Q,
   QleT' 0%Q q -> Id (Qeq_bool (Qabs q) q) true.
 Proof.
@@ -1696,7 +1704,7 @@ Proof.
   apply leiblw_qabs_id_prop. apply QleT'_to_Qle. exact H.
 Qed.
 
-(* Set twin of leiblw_qabs_neg_prop (Path A v2.4). *)
+(* Set twin of leiblw_qabs_neg_prop. *)
 Lemma leiblw_qabs_neg_T : forall q : Q,
   QleT' q 0%Q -> Id (Qeq_bool (Qabs q) (- q)%Q) true.
 Proof.
@@ -1705,20 +1713,20 @@ Proof.
   apply leiblw_qabs_neg_prop. apply QleT'_to_Qle. exact H.
 Qed.
 
-(* Set twin of leiblw_natwin_mono_prop (Path A v2.4). *)
+(* Set twin of leiblw_natwin_mono_prop. *)
 Lemma leiblw_natwin_mono_T : forall b n : nat,
   QleT' (leiblw_natwin b n) (leiblw_natwin b (S n)).
 Proof. intros b n. apply Qle_to_QleT'. apply leiblw_natwin_mono_prop. Qed.
 
-(* Set twin of leiblw_S_le4_prop (Path A v2.4). *)
+(* Set twin of leiblw_S_le4_T. *)
 Lemma leiblw_S_le4_T : forall n : nat, QleT' (leiblw_S n) (4 # 1)%Q.
 Proof. intros n. apply Qle_to_QleT'. apply leiblw_S_le4_prop. Qed.
 
-(* Set twin of leiblw_S_ge0_prop (Path A v2.4). *)
+(* Set twin of leiblw_S_ge0_T. *)
 Lemma leiblw_S_ge0_T : forall n : nat, QleT' 0%Q (leiblw_S n).
 Proof. intros n. apply Qle_to_QleT'. apply leiblw_S_ge0_prop. Qed.
 
-(* Set twin of leiblw_qabs_bound_prop (Path A v2.4). *)
+(* Set twin of leiblw_qabs_bound_prop. *)
 Lemma leiblw_qabs_bound_T : forall x c : Q,
   QleT' x c -> QleT' (- x)%Q c -> QleT' (Qabs x) c.
 Proof.
@@ -1727,18 +1735,18 @@ Proof.
   - apply QleT'_to_Qle. exact H2.
 Qed.
 
-(* Set twin of leiblw_nivwin_bounded_prop (Path A v2.4). *)
+(* Set twin of leiblw_nivwin_bounded_prop. *)
 Lemma leiblw_nivwin_bounded_T : forall n : nat, QleT' (leiblw_nivwin n) 1%Q.
 Proof. intros n. apply Qle_to_QleT'. apply leiblw_nivwin_bounded_prop. Qed.
 
-(* Set twin of leiblw_znat_pos_prop (Path A v2.4). *)
+(* Set twin of leiblw_znat_pos_prop. *)
 Lemma leiblw_znat_pos_T : forall n : nat, NatLe 1 n -> ZltT 0%Z (Z.of_nat n).
 Proof.
   intros n H. apply ZltT_lift. apply leiblw_znat_pos_prop.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qmake_eq_prop (Path A v2.4). *)
+(* Set twin of leiblw_qmake_eq_prop. *)
 Lemma leiblw_qmake_eq_T : forall (a b : Z) (p q : positive),
   ((Id (Qeq_bool (a # p)%Q (b # q)%Q) true -> @Id Z (a * Z.pos q)%Z (b * Z.pos p)%Z) *
    (@Id Z (a * Z.pos q)%Z (b * Z.pos p)%Z ->
@@ -1756,7 +1764,7 @@ Proof.
     apply leiblw_id_eq_prop. exact E.
 Qed.
 
-(* Set twin of leiblw_qmake_lt_prop (Path A v2.4). *)
+(* Set twin of leiblw_qmake_lt_T. *)
 Lemma leiblw_qmake_lt_T : forall (a b : Z) (p q : positive),
   ((QltT (a # p)%Q (b # q)%Q -> ZltT (a * Z.pos q)%Z (b * Z.pos p)%Z) *
    (ZltT (a * Z.pos q)%Z (b * Z.pos p)%Z -> QltT (a # p)%Q (b # q)%Q))%type.
@@ -1770,7 +1778,7 @@ Proof.
     apply ZltT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qmake_le_prop (Path A v2.4). *)
+(* Set twin of leiblw_qmake_le_T. *)
 Lemma leiblw_qmake_le_T : forall (a b : Z) (p q : positive),
   ((QleT' (a # p)%Q (b # q)%Q -> ZleT (a * Z.pos q)%Z (b * Z.pos p)%Z) *
    (ZleT (a * Z.pos q)%Z (b * Z.pos p)%Z -> QleT' (a # p)%Q (b # q)%Q))%type.
@@ -1784,7 +1792,7 @@ Proof.
     apply ZleT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qplus_lt0_prop (Path A v2.4). *)
+(* Set twin of leiblw_qplus_lt0_prop. *)
 Lemma leiblw_qplus_lt0_T : forall (a b : Z) (p q : positive),
   ZltT 0%Z (a * Z.pos q + b * Z.pos p)%Z ->
   QltT 0%Q ((a # p) + (b # q))%Q.
@@ -1793,7 +1801,7 @@ Proof.
   apply ZltT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qplus_lt0b_prop (Path A v2.4). *)
+(* Set twin of leiblw_qplus_lt0b_prop. *)
 Lemma leiblw_qplus_lt0b_T : forall (a b : Z) (p q : positive),
   ZltT (a * Z.pos q + b * Z.pos p)%Z 0%Z ->
   QltT ((a # p) + (b # q))%Q 0%Q.
@@ -1802,7 +1810,7 @@ Proof.
   apply ZltT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qplus_le0_prop (Path A v2.4). *)
+(* Set twin of leiblw_qplus_le0_prop. *)
 Lemma leiblw_qplus_le0_T : forall (a b : Z) (p q : positive),
   ZleT (a * Z.pos q + b * Z.pos p)%Z 0%Z ->
   QleT' ((a # p) + (b # q))%Q 0%Q.
@@ -1811,7 +1819,7 @@ Proof.
   apply ZleT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qplus_le0b_prop (Path A v2.4). *)
+(* Set twin of leiblw_qplus_le0b_prop. *)
 Lemma leiblw_qplus_le0b_T : forall (a b : Z) (p q : positive),
   ZleT 0%Z (a * Z.pos q + b * Z.pos p)%Z ->
   QleT' 0%Q ((a # p) + (b # q))%Q.
@@ -1820,7 +1828,7 @@ Proof.
   apply ZleT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_qplus_eq_prop (Path A v2.4). *)
+(* Set twin of leiblw_qplus_eq_prop. *)
 Lemma leiblw_qplus_eq_T : forall (a b : Z) (p q : positive) (c : Z) (r : positive),
   @Id Z ((a * Z.pos q + b * Z.pos p) * Z.pos r)%Z (c * Z.pos (Pos.mul p q))%Z ->
   Id (Qeq_bool ((a # p) + (b # q))%Q (c # r)%Q) true.
@@ -1832,7 +1840,7 @@ Proof.
   apply leiblw_qplus_eq_prop. exact E.
 Qed.
 
-(* Set twin of leiblw_qneg_plus_eq_prop (Path A v2.4). *)
+(* Set twin of leiblw_qneg_plus_eq_prop. *)
 Lemma leiblw_qneg_plus_eq_T : forall (a b : Z) (p q : positive) (c : Z) (r : positive),
   @Id Z (((- a) * Z.pos q + (- b) * Z.pos p) * Z.pos r)%Z
         (c * Z.pos (Pos.mul p q))%Z ->
@@ -1845,15 +1853,7 @@ Proof.
   apply leiblw_qneg_plus_eq_prop. exact E.
 Qed.
 
-(* Set twin of leiblw_mono_even_prop (Path A v2.4). *)
-Lemma leiblw_mono_even_T : forall j m : nat, NatLe m j ->
-  QleT' (leiblw_S (2 * m)) (leiblw_S (2 * j))%Q.
-Proof.
-  intros j m H. apply Qle_to_QleT'. apply leiblw_mono_even_prop.
-  apply NatLe_drop. exact H.
-Qed.
-
-(* Set twin of leiblw_mono_odd_prop (Path A v2.4). *)
+(* Set twin of leiblw_mono_odd_T. *)
 Lemma leiblw_mono_odd_T : forall j m : nat, NatLe m j ->
   QleT' (leiblw_S (2 * j + 1)) (leiblw_S (2 * m + 1))%Q.
 Proof.
@@ -1861,7 +1861,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_lower_even_e_prop (Path A v2.4). *)
+(* Set twin of leiblw_lower_even_e_prop. *)
 Lemma leiblw_lower_even_e_T : forall j m : nat, NatLe (m + 1) j ->
   QleT' (leiblw_gap (2 * m)) (leiblw_S (2 * j) - leiblw_S (2 * m))%Q.
 Proof.
@@ -1869,7 +1869,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_lower_even_o_prop (Path A v2.4). *)
+(* Set twin of leiblw_lower_even_o_prop. *)
 Lemma leiblw_lower_even_o_T : forall j m : nat, NatLe m j ->
   QleT' (leiblw_gap (2 * m)) (leiblw_S (2 * j + 1) - leiblw_S (2 * m))%Q.
 Proof.
@@ -1877,7 +1877,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_lower_odd_e_prop (Path A v2.4). *)
+(* Set twin of leiblw_lower_odd_e_prop. *)
 Lemma leiblw_lower_odd_e_T : forall j m : nat, NatLe (m + 1) j ->
   QleT' (leiblw_gap (2 * m + 1))
         (leiblw_S (2 * m + 1) - leiblw_S (2 * j))%Q.
@@ -1886,7 +1886,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_lower_odd_o_prop (Path A v2.4). *)
+(* Set twin of leiblw_lower_odd_o_prop. *)
 Lemma leiblw_lower_odd_o_T : forall j m : nat, NatLe (m + 1) j ->
   QleT' (leiblw_gap (2 * m + 1))
         (leiblw_S (2 * m + 1) - leiblw_S (2 * j + 1))%Q.
@@ -1895,7 +1895,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_dist_prop (Path A v2.4). *)
+(* Set twin of leiblw_dist_prop. *)
 Lemma leiblw_dist_T : forall n k : nat, NatLe (S n) k ->
   QleT' (leiblw_gap n) (Qabs (leiblw_S k - leiblw_S n)).
 Proof.
@@ -1903,7 +1903,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_dist_set_prop (Path A v2.4). *)
+(* Set twin of leiblw_dist_set_prop. *)
 Lemma leiblw_dist_set_T : forall n : nat,
   sigT (fun N : nat => forall k : nat, NatLe N k ->
     QleT' (leiblw_gap n) (Qabs (leiblw_S k - leiblw_S n))).
@@ -1912,7 +1912,7 @@ Proof.
   apply Qle_to_QleT'. apply leiblw_dist_prop. apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_natwin_ge_prop (Path A v2.4). *)
+(* Set twin of leiblw_natwin_ge_prop. *)
 Lemma leiblw_natwin_ge_T : forall b n : nat, NatLe 1 b ->
   QleT' (4 # 1)%Q (leiblw_natwin b n).
 Proof.
@@ -1920,13 +1920,13 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_zf_ge1_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_ge1_prop. *)
 Lemma leiblw_zf_ge1_T : forall n : nat, ZleT 1%Z (leiblw_zf n).
 Proof.
   intros n. apply ZleT_lift. apply leiblw_zf_ge1_prop.
 Qed.
 
-(* Set twin of leiblw_zf_ge_id_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_ge_id_prop. *)
 Lemma leiblw_zf_ge_id_T : forall n : nat, NatLe 1 n ->
   ZleT (Z.of_nat n) (leiblw_zf n).
 Proof.
@@ -1934,7 +1934,7 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_zf_lower_prop (Path A v2.4). *)
+(* Set twin of leiblw_zf_lower_prop. *)
 Lemma leiblw_zf_lower_T : forall n : nat, NatLe 1 n ->
   ZleT (Z.of_nat (2 * n - 1) * Z.of_nat (2 * n))%Z (leiblw_zf (2 * n)).
 Proof.
@@ -1942,14 +1942,14 @@ Proof.
   apply NatLe_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_zle_mul1_prop (Path A v2.4). *)
+(* Set twin of leiblw_zle_mul1_prop. *)
 Lemma leiblw_zle_mul1_T : forall z : Z, ZleT 0%Z z -> ZleT z (1 * z)%Z.
 Proof.
   intros z H. apply ZleT_lift. apply leiblw_zle_mul1_prop.
   apply ZleT_drop. exact H.
 Qed.
 
-(* Set twin of leiblw_natwin_unbounded_prop (Path A v2.4). *)
+(* Set twin of leiblw_natwin_unbounded_prop. *)
 Lemma leiblw_natwin_unbounded_T : forall b B : nat, NatLe 1 b ->
   sigT (fun n : nat => QltT ((Z.of_nat B # 1)%Q) (leiblw_natwin b n)).
 Proof.

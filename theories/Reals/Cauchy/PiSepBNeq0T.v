@@ -58,7 +58,7 @@ Require Import PiKernelSlack.
 
 (* ============ Section 1. The Set-carried nonzero premise ============ *)
 
-(* Set-carried re-facing of the premise [b <> 0] (Path A v2.4): the
+(* Set-carried re-facing of the premise [b <> 0]: the
    Q-apartness of [b] from zero as a sum of two strict-order
    witnesses, mirroring the sum shape of [CReal_appartT]. *)
 Definition Qneq0T (b : Q) : Set :=

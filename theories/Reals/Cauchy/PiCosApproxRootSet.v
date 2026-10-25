@@ -412,7 +412,7 @@ Print Assumptions cos_zero_abs_le_two_set_prop.
 *)
 
 
-(* Set twin of cos_zero_lower_set_prop (Path A v2.4) *)
+(* Set twin of cos_zero_lower_set_prop *)
 Lemma cos_zero_lower_setT : forall n : nat, QltT (3#2)%Q (cos_zero_seq_set n).
 Proof.
   intros.
@@ -429,7 +429,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of cos_zero_upper_set_prop (Path A v2.4) *)
+(* Set twin of cos_zero_upper_set_prop *)
 Lemma cos_zero_upper_setT : forall n : nat, QltT (cos_zero_seq_set n) (5#3)%Q.
 Proof.
   intros.
@@ -446,7 +446,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of cos_zero_nonneg_set_prop (Path A v2.4) *)
+(* Set twin of cos_zero_nonneg_set_prop *)
 Lemma cos_zero_nonneg_setT : forall n : nat, QleT' 0 (cos_zero_seq_set n).
 Proof.
   intros.
@@ -463,7 +463,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of cos_zero_le_two_set_prop (Path A v2.4) *)
+(* Set twin of cos_zero_le_two_set_prop *)
 Lemma cos_zero_le_two_setT : forall n : nat, QleT' (cos_zero_seq_set n) 2.
 Proof.
   intros.
@@ -480,7 +480,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of cos_zero_abs_le_two_set_prop (Path A v2.4) *)
+(* Set twin of cos_zero_abs_le_two_set_prop *)
 Lemma cos_zero_abs_le_two_setT : forall n : nat, QleT' (Qabs (cos_zero_seq_set n)) 2.
 Proof.
   intros.

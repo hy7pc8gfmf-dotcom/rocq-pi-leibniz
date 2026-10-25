@@ -176,10 +176,10 @@ Definition qltw_samp_QleT'_1_1 : QleT' 1 1 := @id_refl bool true.
 
 Definition qltw_samp_Qeq_bool_2_2 : Id (Qeq_bool 2 2) true := @id_refl bool true.
 
-(* Path A v2.4 canonical carrier block (unified by WING-M7). *)
+(* Canonical Set-carrier block. *)
 (* Carrier supply section: [And]/[NatLe]/[ZleT]/[ZltT]/[IffT] with their
    double-sided reflection bridges, moved here so every consumer module
-   obtains them from this single source (Path A v2.4, Set-carried).
+   obtains them from this single source.
    The two stdlib imports below feed the bridge proofs only (no new
    in-package dependency). *)
 Definition And (A B : Set) : Set := A * B.

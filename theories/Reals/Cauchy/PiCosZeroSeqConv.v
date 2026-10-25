@@ -22,7 +22,7 @@
     localization is supplied by [PiCosApproxRoot.approx_root_cos_prop]; the
     [log_eps] lemma family is supplied by [QCauchyZeroCos]; the
     term-wise difference bound is supplied by
-    [PiVertexPolyDiff.sc_cos_partial_diff_le_prop].
+    [PiVertexPolyDiff.sc_cos_partial_diff_leT].
 
     Dependencies.  Stdlib [QArith] ([QArith]/[Qabs]/[Qfield]);
     [PiKernelSlack] ([q_pow]/[cos_partial] and the bridge lemmas);
@@ -30,9 +30,9 @@
     [PiCosApproxRoot]; [PiCosZeroSeqProbe].
 
     References.  [S10_KVQuantTrig.v :8123/:8131/:8139/:8146/:8413]
-    ([cos_zero_lower_prop]/[cos_zero_upper_prop]/[cos_zero_nonneg_prop]/
-    [cos_zero_le_two_prop]/[cos_zero_abs_le_two_prop]), [:8156/:8184/:8243]
-    ([cos_root_pt_bound_prop]/[cos_inv_pt_prop]/[cos_inv_dist_prop]), and [:8296]
+    ([cos_zero_lowerT]/[cos_zero_upperT]/[cos_zero_nonnegT]/
+    [cos_zero_le_twoT]/[cos_zero_abs_le_twoT]), [:8156/:8184/:8243]
+    ([cos_root_pt_bound_prop]/[cos_inv_pt_prop]/[cos_inv_distT]), and [:8296]
     ([cos_seq_cauchy_prop]): the [Q]-level restatements.
 
     Constructivity.  Statements carried at the [Set] level ([sig]
@@ -87,28 +87,96 @@ Qed.
 
 (* Nonnegativity: [0 <= z_n] (transitivity through [0 < 3/2] and the
    lower bound). *)
+(* Set twin of cos_zero_lowerT *)
+Lemma cos_zero_lowerT : forall n : nat, QltT (3#2)%Q (cos_zero_seq n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_lower_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
 Lemma cos_zero_nonneg_prop : forall n : nat, Qle 0 (cos_zero_seq n).
 Proof.
   intros n.
   apply (Qlt_le_weak 0 (cos_zero_seq n)).
   apply (Qlt_trans 0 (3#2)%Q).
   - change (Qlt 0 (3#2)%Q). unfold Qlt. simpl. lia.
-  - apply cos_zero_lower_prop.
+  - apply QltT_to_Qlt. apply cos_zero_lowerT.
 Qed.
 
 (* Second upper bound: [z_n <= 2] (transitivity through the upper
    bound [5/3 < 2]). *)
+(* Set twin of cos_zero_upperT *)
+Lemma cos_zero_upperT : forall n : nat, QltT (cos_zero_seq n) (5#3)%Q.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_upper_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
 Lemma cos_zero_le_two_prop : forall n : nat, Qle (cos_zero_seq n) 2.
 Proof.
   intros n.
   apply (Qlt_le_weak (cos_zero_seq n) 2).
   apply (Qlt_trans (cos_zero_seq n) (5#3)%Q).
-  - apply cos_zero_upper_prop.
+  - apply QltT_to_Qlt. apply cos_zero_upperT.
   - change (Qlt (5#3)%Q 2). unfold Qlt. simpl. lia.
 Qed.
 
 (* Absolute-value bound: [|z_n| <= 2] (composed from
    [Qabs_Qle_condition] and the previous two statements). *)
+(* Set twin of cos_zero_nonnegT *)
+Lemma cos_zero_nonnegT : forall n : nat, QleT' 0 (cos_zero_seq n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_nonneg_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of cos_zero_le_twoT *)
+Lemma cos_zero_le_twoT : forall n : nat, QleT' (cos_zero_seq n) 2.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (cos_zero_le_two_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
 Lemma cos_zero_abs_le_two_prop : forall n : nat, Qle (Qabs (cos_zero_seq n)) 2.
 Proof.
   intros n.
@@ -116,8 +184,8 @@ Proof.
   split.
   - apply (Qle_trans _ 0 _).
     + change (Qle (- 2) 0). unfold Qle. simpl. lia.
-    + apply cos_zero_nonneg_prop.
-  - apply cos_zero_le_two_prop.
+    + apply QleT'_to_Qle. apply cos_zero_nonnegT.
+  - apply QleT'_to_Qle. apply cos_zero_le_twoT.
 Qed.
 
 (* ============================================================ *)
@@ -146,7 +214,7 @@ Qed.
 
 (* Inverse bound (pointwise form): [k >= 2], [0 <= u <= v <= 2],
    [|cos_k(u)| < du], [|cos_k(v)| < dv] imply
-   [(v^2 - u^2)/6 < du + dv].  Main chain: [sc_cos_partial_diff_le_prop]
+   [(v^2 - u^2)/6 < du + dv].  Main chain: [sc_cos_partial_diff_leT]
    gives [cos_k(v) <= cos_k(u) - (v^2-u^2)/6], while
    [cos_k(u) - cos_k(v) <= |cos_k(u)| + |cos_k(v)| < du + dv]. *)
 Lemma cos_inv_pt_prop : forall (u v : Q) (k : nat) (du dv : Q),
@@ -174,10 +242,10 @@ Proof.
   assert (Htri : Qle (Qabs (cos_partial k u - cos_partial k v))
                      (Qabs (cos_partial k u) + Qabs (cos_partial k v))).
   { apply (Qle_trans _ (Qabs (cos_partial k u + - cos_partial k v)) _).
-    - apply qeq_le_prop. apply Qabs_wd. ring.
+    - apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_wd. ring.
     - apply (Qle_trans _ (Qabs (cos_partial k u) + Qabs (- cos_partial k v)) _).
       + apply Qabs_triangle.
-      + apply qeq_le_prop.
+      + apply QleT'_to_Qle. apply qeq_leT'.
         assert (Hn1 : - cos_partial k v == 0 - cos_partial k v) by ring.
         rewrite (Qabs_wd _ _ Hn1).
         rewrite (Qabs_Qminus 0%Q (cos_partial k v)).
@@ -232,7 +300,7 @@ Proof.
     - split; [change (Qle 0 3); unfold Qle; simpl; lia | ].
       assert (H3 : Qle 3 (v + u)).
       { apply (Qle_trans _ ((3#2)%Q + (3#2)%Q) _).
-        - apply qeq_le_prop. unfold Qdiv. field.
+        - apply QleT'_to_Qle. apply qeq_leT'. unfold Qdiv. field.
         - apply (Qplus_le_compat (3#2)%Q v (3#2)%Q u).
           + apply (Qle_trans _ u _); [exact Hu3 | exact Huv].
           + exact Hu3. }
@@ -240,14 +308,14 @@ Proof.
 (* Chain: [v-u <= (v^2-u^2)/3 < 2*(du+dv)]. *)
   apply (Qle_lt_trans (v - u) ((v * v - u * u) * (1 / 3)) (2 * (du + dv))).
   - apply (Qle_trans _ (((v - u) * 3) * (1 / 3)) _).
-    + apply qeq_le_prop.
+    + apply QleT'_to_Qle. apply qeq_leT'.
       assert (Hr3 : ((v - u) * 3) * (1 / 3) == v - u)
         by (unfold Qdiv; field; unfold Qeq; simpl; lia).
       apply Qeq_sym. exact Hr3.
     + apply (Qmult_le_compat_r ((v - u) * 3) (v * v - u * u) (1 / 3)).
       * apply (Qle_trans _ ((v - u) * (v + u)) _).
         -- exact Hvu3.
-        -- apply qeq_le_prop. exact Hprod.
+        -- apply QleT'_to_Qle. apply qeq_leT'. exact Hprod.
       * apply (Qlt_le_weak 0 (1 / 3)).
         change (Qlt 0 (1 / 3)). unfold Qdiv. compute. reflexivity.
   - assert (Hm : (v * v - u * u) * (1 / 3) == ((v * v - u * u) * (1 / 6)) * 2)
@@ -256,11 +324,11 @@ Proof.
     apply (Qlt_le_trans ((v * v - u * u) * (1 / 3)) ((du + dv) * 2) (2 * (du + dv))).
     + apply (Qle_lt_trans ((v * v - u * u) * (1 / 3))
                           (((v * v - u * u) * (1 / 6)) * 2) ((du + dv) * 2)).
-      * apply qeq_le_prop. exact Hm.
+      * apply QleT'_to_Qle. apply qeq_leT'. exact Hm.
       * apply (Qmult_lt_compat_r ((v * v - u * u) * (1 / 6)) (du + dv) 2).
         -- change (Qlt 0 2). compute. reflexivity.
         -- exact Hq.
-    + apply qeq_le_prop. exact Hm2.
+    + apply QleT'_to_Qle. apply qeq_leT'. exact Hm2.
 Qed.
 
 (* ============================================================ *)
@@ -301,20 +369,20 @@ Proof.
     { apply (Qlt_le_trans (log_eps n + log_eps m) (eps / 8 + eps / 8) (eps / 4)).
       - apply (Qplus_lt_compat (log_eps n) (eps / 8) (log_eps m) (eps / 8));
           [exact Heps_n_lt | exact Heps_m_lt].
-      - apply qeq_le_prop. unfold Qdiv. field. }
+      - apply QleT'_to_Qle. apply qeq_leT'. unfold Qdiv. field. }
     apply (Qle_lt_trans ((log_eps n + log_eps m) * 2) ((eps / 4) * 2) eps).
     - apply (Qmult_le_compat_r (log_eps n + log_eps m) (eps / 4) 2).
       + apply Qlt_le_weak. exact Hsum.
       + apply Qlt_le_weak. change (Qlt 0 2). compute. reflexivity.
     - assert (He : (eps / 4) * 2 == eps / 2) by (unfold Qdiv; field).
       apply (Qle_lt_trans ((eps / 4) * 2) (eps / 2) eps).
-      + apply qeq_le_prop. exact He.
+      + apply QleT'_to_Qle. apply qeq_leT'. exact He.
       + apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
         apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
         * apply (Qlt_shift_div_l 0 eps 2).
           -- change (Qlt 0 2). compute. reflexivity.
           -- simpl. exact Heps.
-        * apply qeq_le_prop. unfold Qminus. field. }
+        * apply QleT'_to_Qle. apply qeq_leT'. unfold Qminus. field. }
   destruct (Qlt_le_dec (cos_zero_seq n) (cos_zero_seq m)) as [Hnm_lt | Hmn].
   - (* [z_n < z_m]: take [u := z_n], [v := z_m]. *)
     destruct (cos_root_pt_bound_prop n) as [Nn HNn].
@@ -331,14 +399,14 @@ Proof.
     { apply (cos_inv_dist_prop (cos_zero_seq n) (cos_zero_seq m)
                           (log_eps n) (log_eps m) k0).
       - unfold k0. apply Nat.le_max_l.
-      - apply Qlt_le_weak. apply cos_zero_lower_prop.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_lowerT.
       - apply Qlt_le_weak. exact Hnm_lt.
-      - apply Qlt_le_weak. apply cos_zero_upper_prop.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_upperT.
       - apply (HNn k0). exact Hk0n.
       - apply (HMm k0). exact Hk0m. }
     apply (Qle_lt_trans (Qabs (cos_zero_seq m - cos_zero_seq n))
                         (cos_zero_seq m - cos_zero_seq n) eps).
-    + apply qeq_le_prop. apply Qabs_pos.
+    + apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_pos.
       apply (proj1 (Qle_minus_iff (cos_zero_seq n) (cos_zero_seq m))).
       apply Qlt_le_weak. exact Hnm_lt.
     + apply (Qle_lt_trans (cos_zero_seq m - cos_zero_seq n)
@@ -360,15 +428,15 @@ Proof.
     { apply (cos_inv_dist_prop (cos_zero_seq m) (cos_zero_seq n)
                           (log_eps m) (log_eps n) k0).
       - unfold k0. apply Nat.le_max_l.
-      - apply Qlt_le_weak. apply cos_zero_lower_prop.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_lowerT.
       - exact Hmn.
-      - apply Qlt_le_weak. apply cos_zero_upper_prop.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_upperT.
       - apply (HMm k0). exact Hk0m.
       - apply (HNn k0). exact Hk0n. }
     apply (Qle_lt_trans (Qabs (cos_zero_seq m - cos_zero_seq n))
                         (cos_zero_seq n - cos_zero_seq m) eps).
     + rewrite (Qabs_Qminus (cos_zero_seq m) (cos_zero_seq n)).
-      apply qeq_le_prop. apply Qabs_pos.
+      apply QleT'_to_Qle. apply qeq_leT'. apply Qabs_pos.
       apply (proj1 (Qle_minus_iff (cos_zero_seq m) (cos_zero_seq n))).
       exact Hmn.
     + apply (Qle_lt_trans (cos_zero_seq n - cos_zero_seq m)
@@ -419,75 +487,7 @@ Print Assumptions cos_seq_cauchy_prop.
 *)
 
 
-(* Set twin of cos_zero_lower_prop *)
-Lemma cos_zero_lowerT : forall n : nat, QltT (3#2)%Q (cos_zero_seq n).
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (cos_zero_lower_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of cos_zero_upper_prop *)
-Lemma cos_zero_upperT : forall n : nat, QltT (cos_zero_seq n) (5#3)%Q.
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (cos_zero_upper_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of cos_zero_nonneg_prop *)
-Lemma cos_zero_nonnegT : forall n : nat, QleT' 0 (cos_zero_seq n).
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (cos_zero_nonneg_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of cos_zero_le_two_prop *)
-Lemma cos_zero_le_twoT : forall n : nat, QleT' (cos_zero_seq n) 2.
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (cos_zero_le_two_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of cos_zero_abs_le_two_prop *)
+(* Set twin of cos_zero_abs_le_twoT *)
 Lemma cos_zero_abs_le_twoT : forall n : nat, QleT' (Qabs (cos_zero_seq n)) 2.
 Proof.
   intros.
@@ -521,7 +521,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of cos_inv_dist_prop *)
+(* Set twin of cos_inv_distT *)
 Lemma cos_inv_distT : forall (u v du dv : Q) (k : nat), NatLe (2) (k) -> QleT' (3#2)%Q u -> QleT' u v -> QleT' v (5#3)%Q -> QltT (Qabs (cos_partial k u)) du -> QltT (Qabs (cos_partial k v)) dv -> QltT (v - u) (2 * (du + dv)).
 Proof.
   intros.

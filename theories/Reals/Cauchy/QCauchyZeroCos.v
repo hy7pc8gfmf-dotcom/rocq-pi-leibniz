@@ -26,11 +26,11 @@
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
     [QArith.Qfield], [ZArith.ZArith], [Arith.PeanoNat], [Setoid],
     [Morphisms], [Lia]; [PiKernelSlack]
-    ([q_pow]/[qeq_le_prop]/[q_pow_nonneg_prop]).
+    ([q_pow]/[qeq_leT']/[q_pow_nonnegT]).
 
-    References.  [S07_RealSetoidExpLog.v], [q_pow_half_le_prop@4190],
-    [q_pow_half_lt_self_prop@4203], [log_eps@5082], [log_eps_pos_prop@5084],
-    [q_pow_half_mono_prop@5095], [log_eps_lt_delta_prop@5105] (the statement
+    References.  [S07_RealSetoidExpLog.v], [q_pow_half_leT@4190],
+    [q_pow_half_lt_selfT@4203], [log_eps@5082], [log_eps_posT@5084],
+    [q_pow_half_monoT@5095], [log_eps_lt_deltaT@5105] (the statement
     faces and the proofs are taken over verbatim).
 
     Constructivity.  All statements live on the stdlib [Qlt]/[Qle]
@@ -66,12 +66,12 @@ Lemma q_pow_half_le_prop : forall n : nat, Qle (q_pow (1 / 2) (Datatypes.S n)) (
 Proof.
   intros n.
   apply (Qle_trans _ ((1 / 2) * q_pow (1 / 2) n) _).
-  - apply qeq_le_prop. reflexivity.
+  - apply QleT'_to_Qle. apply qeq_leT'. reflexivity.
   - apply (Qle_trans _ (1 * q_pow (1 / 2) n) _).
     + apply (Qmult_le_compat_r (1 / 2) 1 (q_pow (1 / 2) n)).
       * change (Qle (1 / 2) 1). unfold Qle, Qdiv. simpl. lia.
       * apply (q_pow_nonneg_prop (1 / 2) n). change (Qle 0 (1 / 2)). unfold Qle, Qdiv. simpl. lia.
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (** Strict decrease: [(1/2)^(S n) < (1/2)^n]. *)
@@ -83,12 +83,12 @@ Proof.
   - apply (Qle_lt_trans ((1 / 2) * ((1 / 2) * q_pow (1 / 2) m))
                         (((1 / 2) * q_pow (1 / 2) m) * (1 / 2))
                         ((1 / 2) * q_pow (1 / 2) m)).
-    + apply qeq_le_prop. ring.
+    + apply QleT'_to_Qle. apply qeq_leT'. ring.
     + apply (Qlt_le_trans _ ((q_pow (1 / 2) m) * (1 / 2)) _).
       * apply (Qmult_lt_compat_r ((1 / 2) * q_pow (1 / 2) m) (q_pow (1 / 2) m) (1 / 2)).
         -- change (Qlt 0 (1 / 2)). unfold Qdiv. simpl. reflexivity.
         -- apply IH.
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
 Qed.
 
 (** [eps_n] is strictly positive. *)
@@ -103,17 +103,51 @@ Proof.
 Qed.
 
 (** [q_pow (1/2)] is antitone: [m <= n] implies [(1/2)^n <= (1/2)^m]. *)
+(* Set twin of q_pow_half_leT *)
+Lemma q_pow_half_leT : forall n : nat, QleT' (q_pow (1 / 2) (Datatypes.S n)) (q_pow (1 / 2) n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (q_pow_half_le_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
 Lemma q_pow_half_mono_prop : forall m n : nat, (m <= n)%nat -> Qle (q_pow (1 / 2) n) (q_pow (1 / 2) m).
 Proof.
   intros m n Hmn.
   induction Hmn as [ | n' Hrec IH ]; [apply Qle_refl | ].
   apply (Qle_trans _ (q_pow (1 / 2) n') _).
-  - apply q_pow_half_le_prop.
+  - apply QleT'_to_Qle. apply q_pow_half_leT.
   - exact IH.
 Qed.
 
 (** [eps_m < delta]: if [m >= S t] and [(1/2)^t < delta], then
     [eps_m < delta]. *)
+(* Set twin of q_pow_half_lt_selfT *)
+Lemma q_pow_half_lt_selfT : forall n : nat, QltT (q_pow (1 / 2) (Datatypes.S n)) (q_pow (1 / 2) n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (q_pow_half_lt_self_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
 Lemma log_eps_lt_delta_prop : forall (delta : Q) (t m : nat),
   Qlt (1 * q_pow (1 / 2) t) delta ->
   (Datatypes.S t <= m)%nat ->
@@ -126,9 +160,9 @@ Proof.
   - apply (q_pow_half_mono_prop (Datatypes.S t) (Datatypes.S m)); lia.
   - apply (Qlt_le_trans (q_pow (1 / 2) (Datatypes.S t)) (q_pow (1 / 2) t)
                         delta).
-    + apply q_pow_half_lt_self_prop.
+    + apply QltT_to_Qlt. apply q_pow_half_lt_selfT.
     + apply (Qle_trans (q_pow (1 / 2) t) (1 * q_pow (1 / 2) t) delta).
-      * apply qeq_le_prop. ring.
+      * apply QleT'_to_Qle. apply qeq_leT'. ring.
       * apply Qlt_le_weak. exact Ht.
 Qed.
 
@@ -175,41 +209,7 @@ Proof. vm_compute. reflexivity. Qed.
 *)
 
 
-(* Set twin of q_pow_half_le_prop (Path A v2.4) *)
-Lemma q_pow_half_leT : forall n : nat, QleT' (q_pow (1 / 2) (Datatypes.S n)) (q_pow (1 / 2) n).
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (q_pow_half_le_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of q_pow_half_lt_self_prop (Path A v2.4) *)
-Lemma q_pow_half_lt_selfT : forall n : nat, QltT (q_pow (1 / 2) (Datatypes.S n)) (q_pow (1 / 2) n).
-Proof.
-  intros.
-  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (q_pow_half_lt_self_prop n).
-  all: first [ apply QltT_to_Qlt; assumption
-            | apply QleT'_to_Qle; assumption
-            | apply qeqT_imp_qeq; assumption
-            | apply NatLe_drop; assumption
-            | (intros; apply QltT_to_Qlt; assumption)
-            | (intros; apply QleT'_to_Qle; assumption)
-            | (intros; apply qeqT_imp_qeq; assumption)
-            | (intros; apply NatLe_drop; assumption)
-            | assumption ].
-Qed.
-
-(* Set twin of log_eps_pos_prop (Path A v2.4) *)
+(* Set twin of log_eps_posT *)
 Lemma log_eps_posT : forall n : nat, QltT 0 (log_eps n).
 Proof.
   intros.
@@ -226,7 +226,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of q_pow_half_mono_prop (Path A v2.4) *)
+(* Set twin of q_pow_half_monoT *)
 Lemma q_pow_half_monoT : forall m n : nat, NatLe (m) (n) -> QleT' (q_pow (1 / 2) n) (q_pow (1 / 2) m).
 Proof.
   intros.
@@ -243,7 +243,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of log_eps_lt_delta_prop (Path A v2.4) *)
+(* Set twin of log_eps_lt_deltaT *)
 Lemma log_eps_lt_deltaT : forall (delta : Q) (t m : nat), QltT (1 * q_pow (1 / 2) t) delta -> NatLe (Datatypes.S t) (m) -> QltT (log_eps m) delta.
 Proof.
   intros.
@@ -260,7 +260,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of log_eps_4_val (Path A v2.4) *)
+(* Set twin of log_eps_4_val *)
 Lemma log_eps_4_valT : QeqT (log_eps 4) ((1 # 32)%Q).
 Proof.
   intros.
@@ -277,7 +277,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of log_eps_5_val (Path A v2.4) *)
+(* Set twin of log_eps_5_val *)
 Lemma log_eps_5_valT : QeqT (log_eps 5) ((1 # 64)%Q).
 Proof.
   intros.
@@ -294,7 +294,7 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of log_eps_7_val (Path A v2.4) *)
+(* Set twin of log_eps_7_val *)
 Lemma log_eps_7_valT : QeqT (log_eps 7) ((1 # 256)%Q).
 Proof.
   intros.

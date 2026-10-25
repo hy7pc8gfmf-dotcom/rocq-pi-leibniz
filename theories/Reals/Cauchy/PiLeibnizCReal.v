@@ -92,9 +92,6 @@ Qed.
 Lemma znat_le_mono_prop : forall n m : nat, (n <= m)%nat -> (Z.of_nat n <= Z.of_nat m)%Z.
 Proof. intros n m H. exact (proj1 (Nat2Z.inj_le n m) H). Qed.
 
-(** [Z.of_nat] is injective (equality in [Z] reflects back to [nat]). *)
-Lemma znat_eq_inj_prop : forall n m : nat, Z.of_nat n = (Z.of_nat m)%Z -> n = m.
-Proof. intros n m H. exact (proj1 (Nat2Z.inj_iff n m) H). Qed.
 
 (** [Z.pos (Pos.of_succ_nat k)] equals [Z.of_nat k + 1] (the anchor for closing denominators lifted
    to [Z]).  *)
@@ -185,16 +182,6 @@ Proof.
   rewrite Heq1, Heq2 in H2. exact H2.
 Qed.
 
-(** [0 <= b - a] implies [a - b <= 0]. *)
-Lemma qle_minus_flip0_prop : forall a b : Q, Qle 0 (b - a)%Q -> Qle (a - b) 0%Q.
-Proof.
-  intros a b H.
-  assert (Heq : ((a - b)%Q == - (b - a))) by ring.
-  rewrite Heq.
-  assert (H0 : (0 == - 0)%Q) by ring.
-  rewrite H0.
-  apply (Qopp_le_compat 0 (b - a) H).
-Qed.
 
 (* -- Two-sided closure through [Qabs] (direct chain on the stdlib [Qabs_pos]/[Qabs_neg]) -- *)
 
@@ -204,11 +191,6 @@ Proof.
   intros x c H0 H1. rewrite (Qabs_pos x H0). exact H1.
 Qed.
 
-(** [x <= 0] and [-x <= c] imply [Qabs x <= c]. *)
-Lemma piL_qabs_neg_le_prop : forall x c : Q, Qle x 0 -> Qle (- x) c -> Qle (Qabs x) c.
-Proof.
-  intros x c Hx Hc. rewrite (Qabs_neg x Hx). exact Hc.
-Qed.
 
 (** [Qabs (x - y)] equals [Qabs (y - x)]. *)
 Lemma piL_qabs_sym : forall x y : Q, Qabs ((x - y)%Q) == Qabs ((y - x)%Q).
@@ -221,10 +203,6 @@ Qed.
 (* ================= Section 3. Index arithmetic (the [nat] order fuel of the interleaved tail
    bounds) =================  *)
 
-(** From strict [nat] order to the successor: [a < b] gives [S a <= b] (the shared piece of the
-   strict-version contradiction cores).  *)
-Lemma piL_nat_lt_succ_le_prop : forall a b : nat, (a < b)%nat -> (S a <= b)%nat.
-Proof. intros a b H. exact H. Qed.
 
 (** Index lemma, first form: [2a <= 2b] implies [a <= b] (cancelling the positive doubling in [Z]). 
       *)
@@ -477,7 +455,7 @@ Proof.
   intros a.
   replace (2 * a + 1)%nat with (S (2 * a)) by (rewrite Nat.add_1_r; reflexivity).
   rewrite (piL_step_diff (2 * a)). symmetry.
-  apply leiblw_qabs_id_prop. apply (Qlt_le_weak 0%Q). apply leiblw_t_even_pos_prop.
+  apply leiblw_qabs_id_prop. apply (Qlt_le_weak 0%Q). apply QltT_to_Qlt. apply leiblw_t_even_pos_T.
 Qed.
 
 Lemma piL_tail_odd_abs : forall a : nat,
@@ -498,12 +476,12 @@ Proof.
   intros a b Hab.
   apply (piL_sandwich_abs_prop (leiblw_S (2 * a)) (leiblw_S (2 * b))
                           (leiblw_S (2 * a + 1)) (Qabs (leiblw_t (2 * a)))).
-  - apply leiblw_mono_even_prop. exact Hab.
+  - apply QleT'_to_Qle. apply leiblw_mono_even_T. apply NatLe_lift. exact Hab.
   - apply (Qle_trans _ (leiblw_S (2 * b + 2))).
-    + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q). apply leiblw_step_even_pos_prop.
+    + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q). apply QltT_to_Qlt. apply leiblw_step_even_pos_T.
     + apply (Qle_trans _ (leiblw_S (2 * b + 1))).
-      * apply leiblw_interlace_prop.
-      * apply leiblw_mono_odd_prop. exact Hab.
+      * apply QleT'_to_Qle. apply leiblw_interlace_T.
+      * apply QleT'_to_Qle. apply leiblw_mono_odd_T. apply NatLe_lift. exact Hab.
   - apply piL_tail_even_abs.
 Qed.
 
@@ -514,11 +492,11 @@ Proof.
   apply (piL_sandwich_abs_prop (leiblw_S (2 * a)) (leiblw_S (2 * b + 1))
                           (leiblw_S (2 * a + 1)) (Qabs (leiblw_t (2 * a)))).
   - apply (Qle_trans _ (leiblw_S (2 * b))).
-    + apply leiblw_mono_even_prop. exact Hab.
+    + apply QleT'_to_Qle. apply leiblw_mono_even_T. apply NatLe_lift. exact Hab.
     + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q).
       replace (2 * b + 1)%nat with (S (2 * b)) by (rewrite Nat.add_1_r; reflexivity).
-      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos_prop.
-  - apply leiblw_mono_odd_prop. exact Hab.
+      rewrite (piL_step_diff (2 * b)). apply QltT_to_Qlt. apply leiblw_t_even_pos_T.
+  - apply QleT'_to_Qle. apply leiblw_mono_odd_T. apply NatLe_lift. exact Hab.
   - apply piL_tail_even_abs.
 Qed.
 
@@ -532,11 +510,11 @@ Proof.
   - apply (Qle_trans _ (leiblw_S (2 * b + 1))).
     + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q).
       replace (2 * b + 1)%nat with (S (2 * b)) by (rewrite Nat.add_1_r; reflexivity).
-      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos_prop.
-    + apply leiblw_mono_odd_prop. exact (Nat.lt_le_incl _ _ Hab).
+      rewrite (piL_step_diff (2 * b)). apply QltT_to_Qlt. apply leiblw_t_even_pos_T.
+    + apply QleT'_to_Qle. apply leiblw_mono_odd_T. apply NatLe_lift. exact (Nat.lt_le_incl _ _ Hab).
   - replace (2 * a + 2)%nat with (2 * S a)%nat
       by (rewrite (Nat.mul_succ_r 2 a); reflexivity).
-    apply leiblw_mono_even_prop. exact Hab.
+    apply QleT'_to_Qle. apply leiblw_mono_even_T. apply NatLe_lift. exact Hab.
   - apply piL_tail_odd_abs.
 Qed.
 
@@ -547,14 +525,14 @@ Proof.
   rewrite (piL_qabs_sym (leiblw_S (2 * b + 1)) (leiblw_S (2 * a + 1))).
   apply (piL_sandwich_abs_neg_prop (leiblw_S (2 * a + 1)) (leiblw_S (2 * b + 1))
                               (leiblw_S (2 * a + 2)) (Qabs (leiblw_t (2 * a + 1)))).
-  - apply leiblw_mono_odd_prop. exact Hab.
+  - apply QleT'_to_Qle. apply leiblw_mono_odd_T. apply NatLe_lift. exact Hab.
   - apply (Qle_trans _ (leiblw_S (2 * S b))).
     + replace (2 * a + 2)%nat with (2 * S a)%nat
         by (rewrite (Nat.mul_succ_r 2 a); reflexivity).
-      apply leiblw_mono_even_prop. apply (proj1 (Nat.succ_le_mono a b)). exact Hab.
+      apply QleT'_to_Qle. apply leiblw_mono_even_T. apply NatLe_lift. apply (proj1 (Nat.succ_le_mono a b)). exact Hab.
     + replace (2 * S b)%nat with (2 * b + 2)%nat
         by (rewrite (Nat.mul_succ_r 2 b); reflexivity).
-      apply leiblw_interlace_prop.
+      apply QleT'_to_Qle. apply leiblw_interlace_T.
   - apply piL_tail_odd_abs.
 Qed.
 
@@ -749,23 +727,6 @@ Proof.
       exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos_prop _ (pi_leibniz_depth_pos_prop q))) H1).
 Qed.
 
-(** The delivered-form convergence theorem: the window bound of the negative tail is the modulus
-   itself.  *)
-Lemma pi_leibniz_negtail_cauchy_prop : forall n m : nat, (n <= m)%nat ->
-  Qlt (Qabs (pi_leibniz_seq (Z.opp (Z.of_nat m))
-            - pi_leibniz_seq (Z.opp (Z.of_nat n))))
-      (2 ^ Z.opp (Z.of_nat n))%Q.
-Proof.
-  intros n m Hnm.
-  rewrite (pi_leibniz_seq_negtail m), (pi_leibniz_seq_negtail n).
-  rewrite (leiblw_xL_eq_S (2 ^ m)), (leiblw_xL_eq_S (2 ^ n)).
-  rewrite (piL_qabs_sym (leiblw_S (2 * 2 ^ m + 2)) (leiblw_S (2 * 2 ^ n + 2))).
-  apply (Qle_lt_trans _ (Qabs (leiblw_t (2 * 2 ^ n + 2)))).
-  - apply piL_seq_pair_bound_prop. apply Nat.pow_le_mono_r.
-    + apply Nat.neq_succ_0.
-    + exact Hnm.
-  - apply piL_tail2_qclose_prop.
-Qed.
 
 (* -- The [bound] field: the value range satisfies [0 <= S <= 4 < 2^3] -- *)
 Definition pi_leibniz_scale : Z := 3%Z.
@@ -795,9 +756,6 @@ Definition pi_leibniz : CReal := {|
    times the [leiblw_nivwin] window.  *)
 Definition lw0m_e (n : nat) : Q := 5 * leiblw_nivwin n.
 
-(** The [leiblw_nivwin] window is always positive. *)
-Lemma nivwin_pos_prop : forall n : nat, Qlt 0%Q (leiblw_nivwin n)%Q.
-Proof. intros n. unfold leiblw_nivwin. unfold Qlt. cbn. reflexivity. Qed.
 
 (** The [leiblw_nivwin] window is antitone: [a <= b] implies [leiblw_nivwin b <= leiblw_nivwin a]. 
       *)

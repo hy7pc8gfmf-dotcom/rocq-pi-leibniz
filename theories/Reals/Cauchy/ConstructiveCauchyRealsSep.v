@@ -1,5 +1,4 @@
 (* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
-(************************************************************************)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs.
