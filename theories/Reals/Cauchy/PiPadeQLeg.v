@@ -9,10 +9,10 @@
       strict order along a [Qeq] equality in both directions, strict
       monotonicity of addition by a positive or non-negative summand,
       and monotonicity of natural-number ratios at the [Z] level.
-      Main statements: [pql_pos_den_pos], [pql_qlt0_eq_r],
-      [pql_qlt_eq_r], [pql_qlt_eq_l], [pql_qlt_add_r],
-      [pql_qle_lt_add], [pql_qlt_le_add], [pql_nat_ratio_mono2] and
-      [pql_nat_ratio_mono].
+      Main statements: [pql_pos_den_pos_prop], [pql_qlt0_eq_r_prop],
+      [pql_qlt_eq_r_prop], [pql_qlt_eq_l_prop], [pql_qlt_add_r_prop],
+      [pql_qle_lt_add_prop], [pql_qlt_le_add_prop], [pql_nat_ratio_mono2_prop] and
+      [pql_nat_ratio_mono_prop].
 
     Dependencies.  Stdlib [QArith.QArith], [Arith.Arith],
       [ZArith.ZArith] ([Z_le_gt_dec] lives in the [ZArith] namespace
@@ -63,7 +63,7 @@ Local Open Scope Z_scope.
 (** The denominator of a rational is a [positive], so its embedding
     into [Z] is strictly positive.  This is pinned as a named lemma
     so that the later proofs need no implicit numeral transfer. *)
-Lemma pql_pos_den_pos : forall d : positive, (0 < Z.pos d)%Z.
+Lemma pql_pos_den_pos_prop : forall d : positive, (0 < Z.pos d)%Z.
 Proof. exact Pos2Z.is_pos. Qed.
 
 (* ========== Section 2. Transfer of the strict order along [Qeq] ========== *)
@@ -73,15 +73,15 @@ Proof. exact Pos2Z.is_pos. Qed.
     face: from [na * db = nb * da] with [1 <= na] conclude [0 < nb].
     The proof is by contradiction, comparing the products of both
     sides with the positive denominator [da]. *)
-Lemma pql_qlt0_eq_r : forall a b : Q, a == b -> Qlt 0 a -> Qlt 0 b.
+Lemma pql_qlt0_eq_r_prop : forall a b : Q, a == b -> Qlt 0 a -> Qlt 0 b.
 Proof.
   intros a b Hab Ha.
   destruct a as [na da]. destruct b as [nb db].
   unfold Qeq in Hab. unfold Qlt in Ha |- *.
   cbn [Qnum Qden] in Hab, Ha |- *.
-  pose proof (pql_pos_den_pos da) as Hda.
+  pose proof (pql_pos_den_pos_prop da) as Hda.
   assert (Hda0 : (0 <= Z.pos da)%Z) by lia.
-  pose proof (pql_pos_den_pos db) as Hdb.
+  pose proof (pql_pos_den_pos_prop db) as Hdb.
   (* The products by one and zero normalize linearly: [1 <= na],
      goal [0 < nb]. *)
   assert (Hna : (1 <= na)%Z) by lia.
@@ -101,16 +101,16 @@ Qed.
 (** Right transfer along the equality: multiplying the strict
     inequality and the representation equation by the positive
     denominators, then cancelling the common positive factor [da]. *)
-Lemma pql_qlt_eq_r : forall a b c : Q, a == b -> Qlt c a -> Qlt c b.
+Lemma pql_qlt_eq_r_prop : forall a b c : Q, a == b -> Qlt c a -> Qlt c b.
 Proof.
   intros a b c Hab Hlt.
   destruct a as [na da]. destruct b as [nb db]. destruct c as [nc dc].
   unfold Qeq in Hab. unfold Qlt in Hlt |- *.
   cbn [Qnum Qden] in Hab, Hlt |- *.
-  pose proof (pql_pos_den_pos da) as Hda.
+  pose proof (pql_pos_den_pos_prop da) as Hda.
   assert (Hda0 : (0 <= Z.pos da)%Z) by lia.
-  pose proof (pql_pos_den_pos db) as Hdb.
-  pose proof (pql_pos_den_pos dc) as Hdc.
+  pose proof (pql_pos_den_pos_prop db) as Hdb.
+  pose proof (pql_pos_den_pos_prop dc) as Hdc.
   (* The rearrangement identities. *)
   assert (E1 : (na * Z.pos dc * Z.pos db = (na * Z.pos db) * Z.pos dc)%Z)
     by ring.
@@ -136,19 +136,19 @@ Proof.
 Qed.
 
 (** Left transfer along the equality, symmetric companion of
-    [pql_qlt_eq_r]: the same reshaping to a common monotone
+    [pql_qlt_eq_r_prop]: the same reshaping to a common monotone
     multiplication frame, then cancelling the positive factor [da]
     with the iff form of [Z.mul_lt_mono_pos_r]. *)
-Lemma pql_qlt_eq_l : forall a b c : Q, a == b -> Qlt a c -> Qlt b c.
+Lemma pql_qlt_eq_l_prop : forall a b c : Q, a == b -> Qlt a c -> Qlt b c.
 Proof.
   intros a b c Hab Hlt.
   destruct a as [na da]. destruct b as [nb db]. destruct c as [nc dc].
   unfold Qeq in Hab. unfold Qlt in Hlt |- *.
   cbn [Qnum Qden] in Hab, Hlt |- *.
-  pose proof (pql_pos_den_pos da) as Hda.
+  pose proof (pql_pos_den_pos_prop da) as Hda.
   assert (Hda0 : (0 <= Z.pos da)%Z) by lia.
-  pose proof (pql_pos_den_pos db) as Hdb.
-  pose proof (pql_pos_den_pos dc) as Hdc.
+  pose proof (pql_pos_den_pos_prop db) as Hdb.
+  pose proof (pql_pos_den_pos_prop dc) as Hdc.
   assert (E1 : (na * Z.pos dc * Z.pos db = (na * Z.pos db) * Z.pos dc)%Z)
     by ring.
   assert (E2 : (nc * Z.pos da * Z.pos db = (nc * Z.pos db) * Z.pos da)%Z)
@@ -176,40 +176,40 @@ Qed.
 
 (** Adding a strictly positive summand strictly increases a rational:
     assembled from the iff form of [Qplus_lt_r], the identity
-    [a + 0 == a], and the left transfer limb [pql_qlt_eq_l]. *)
-Lemma pql_qlt_add_r : forall a b : Q, Qlt 0 b -> Qlt a (a + b)%Q.
+    [a + 0 == a], and the left transfer limb [pql_qlt_eq_l_prop]. *)
+Lemma pql_qlt_add_r_prop : forall a b : Q, Qlt 0 b -> Qlt a (a + b)%Q.
 Proof.
   intros a b Hb.
   assert (Ht : Qlt (a + 0)%Q (a + b)%Q)
     by (apply (proj2 (Qplus_lt_r 0 b a)); exact Hb).
   assert (Heq : (a + 0)%Q == a%Q) by ring.
-  exact (pql_qlt_eq_l (a + 0)%Q a (a + b)%Q Heq Ht).
+  exact (pql_qlt_eq_l_prop (a + 0)%Q a (a + b)%Q Heq Ht).
 Qed.
 
 (** A non-negative and a strictly positive summand give a strictly
     positive total: the previous limb shifted to the origin, closed
     by transitivity through [Qle_lt_trans]. *)
-Lemma pql_qle_lt_add : forall a b : Q, Qle 0 a -> Qlt 0 b -> Qlt 0 (a + b)%Q.
+Lemma pql_qle_lt_add_prop : forall a b : Q, Qle 0 a -> Qlt 0 b -> Qlt 0 (a + b)%Q.
 Proof.
   intros a b Ha Hb.
   assert (Ht : Qlt (a + 0)%Q (a + b)%Q)
     by (apply (proj2 (Qplus_lt_r 0 b a)); exact Hb).
   assert (Heq : (a + 0)%Q == a%Q) by ring.
   assert (Hlt2 : Qlt a (a + b)%Q)
-    by exact (pql_qlt_eq_l (a + 0)%Q a (a + b)%Q Heq Ht).
+    by exact (pql_qlt_eq_l_prop (a + 0)%Q a (a + b)%Q Heq Ht).
   exact (Qle_lt_trans 0%Q a (a + b)%Q Ha Hlt2).
 Qed.
 
-(** Symmetric companion of [pql_qle_lt_add] with the roles of the two
+(** Symmetric companion of [pql_qle_lt_add_prop] with the roles of the two
     summands exchanged, using [Qplus_lt_l] in place of [Qplus_lt_r]. *)
-Lemma pql_qlt_le_add : forall a b : Q, Qlt 0 a -> Qle 0 b -> Qlt 0 (a + b)%Q.
+Lemma pql_qlt_le_add_prop : forall a b : Q, Qlt 0 a -> Qle 0 b -> Qlt 0 (a + b)%Q.
 Proof.
   intros a b Ha Hb.
   assert (Ht : Qlt (0 + b)%Q (a + b)%Q)
     by (apply (proj2 (Qplus_lt_l 0 a b)); exact Ha).
   assert (Heq : (0 + b)%Q == b%Q) by ring.
   assert (Hlt2 : Qlt b (a + b)%Q)
-    by exact (pql_qlt_eq_l (0 + b)%Q b (a + b)%Q Heq Ht).
+    by exact (pql_qlt_eq_l_prop (0 + b)%Q b (a + b)%Q Heq Ht).
   exact (Qle_lt_trans 0%Q b (a + b)%Q Hb Hlt2).
 Qed.
 
@@ -219,7 +219,7 @@ Qed.
     bounded by the product of the successor of [2 * n - S k] and the
     successor of [k], along the chain [X <= 2 * X <= 2 * Y <=
     Y * S k]; the case [k = 0] reduces to [Y = 2 * X]. *)
-Lemma pql_nat_ratio_mono2 :
+Lemma pql_nat_ratio_mono2_prop :
   forall n k : nat, (k < n)%nat ->
     (2 * Z.of_nat (S (n - S k))
      <= Z.of_nat (S (2 * n - S k)) * Z.of_nat (S k))%Z.
@@ -242,9 +242,9 @@ Qed.
 (** The monotonicity of natural-number ratios: the successor of
     [n - S k] is bounded by the product of the successor of
     [2 * n - S k] and the successor of [k]; proved from
-    [pql_nat_ratio_mono2] through the intermediate bound by the
+    [pql_nat_ratio_mono2_prop] through the intermediate bound by the
     doubling. *)
-Lemma pql_nat_ratio_mono :
+Lemma pql_nat_ratio_mono_prop :
   forall n k : nat, (k < n)%nat ->
     (Z.of_nat (S (n - S k)) <= Z.of_nat (S (2 * n - S k)) * Z.of_nat (S k))%Z.
 Proof.
@@ -253,15 +253,15 @@ Proof.
                 <= 2 * Z.of_nat (S (n - S k)))%Z) by lia.
   apply Z.le_trans with (2 * Z.of_nat (S (n - S k)))%Z.
   - exact H1.
-  - apply pql_nat_ratio_mono2. exact Hk.
+  - apply pql_nat_ratio_mono2_prop. exact Hk.
 Qed.
 
-Print Assumptions pql_pos_den_pos.
-Print Assumptions pql_qlt0_eq_r.
-Print Assumptions pql_qlt_eq_r.
-Print Assumptions pql_qlt_eq_l.
-Print Assumptions pql_qlt_add_r.
-Print Assumptions pql_qle_lt_add.
-Print Assumptions pql_qlt_le_add.
-Print Assumptions pql_nat_ratio_mono2.
-Print Assumptions pql_nat_ratio_mono.
+Print Assumptions pql_pos_den_pos_prop.
+Print Assumptions pql_qlt0_eq_r_prop.
+Print Assumptions pql_qlt_eq_r_prop.
+Print Assumptions pql_qlt_eq_l_prop.
+Print Assumptions pql_qlt_add_r_prop.
+Print Assumptions pql_qle_lt_add_prop.
+Print Assumptions pql_qlt_le_add_prop.
+Print Assumptions pql_nat_ratio_mono2_prop.
+Print Assumptions pql_nat_ratio_mono_prop.

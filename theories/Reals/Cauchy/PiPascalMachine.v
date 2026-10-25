@@ -142,8 +142,8 @@ Lemma piLsb_bpa_diag : forall n : nat, bpa_binom n n == 1%Q.
 Proof.
   induction n as [| n IH].
   - reflexivity.
-  - rewrite bpa_binom_pascal, IH.
-    rewrite (bpa_binom_out n (Datatypes.S n) (Nat.lt_succ_diag_r n)).
+  - rewrite bpa_binom_pascal_prop, IH.
+    rewrite (bpa_binom_out_prop n (Datatypes.S n) (Nat.lt_succ_diag_r n)).
     ring.
 Qed.
 
@@ -154,22 +154,22 @@ Proof.
   - assert (Hk0 : k = 0%nat) by (inversion Hk; reflexivity).
     rewrite Hk0. cbn [bpa_binom q_fact Nat.sub]. ring.
   - destruct k as [| k'].
-    + rewrite bpa_binom_0, Nat.sub_0_r, q_fact_succ. cbn [q_fact]. ring.
+    + rewrite bpa_binom_0_prop, Nat.sub_0_r, q_fact_succ. cbn [q_fact]. ring.
     + assert (Hk' : (k' <= n)%nat) by (apply (proj2 (Nat.succ_le_mono k' n)); exact Hk).
       (* Common normalization: [S n - S k'] folds to [n - k'], and
          both [q_fact] sides unfold by definition *)
       rewrite (Nat.sub_succ_r (S n) k'), (Nat.sub_succ_l k' n Hk').
       cbn [Nat.pred].
       rewrite (q_fact_succ k'), (q_fact_succ n).
-      rewrite bpa_binom_pascal.
+      rewrite bpa_binom_pascal_prop.
       destruct (proj1 (Nat.lt_eq_cases k' n) Hk') as [Hlt | Hkn].
       * (* Case [k' < n]: two induction instances *)
         assert (HSk : (Datatypes.S k' <= n)%nat) by exact Hlt.
         assert (IH1 := IH k' Hk').
         assert (IH2 := IH (Datatypes.S k') HSk).
-        rewrite (lw0_sub_succ_eq n k' HSk), (q_fact_succ (n - S k')) in IH1.
+        rewrite (lw0_sub_succ_eq_prop n k' HSk), (q_fact_succ (n - S k')) in IH1.
         rewrite (q_fact_succ k') in IH2.
-        rewrite (lw0_sub_succ_eq n k' HSk), (q_fact_succ (n - S k')).
+        rewrite (lw0_sub_succ_eq_prop n k' HSk), (q_fact_succ (n - S k')).
         assert (Hdist :
           (bpa_binom n k' + bpa_binom n (Datatypes.S k'))
             * ((Z.of_nat (Datatypes.S k') # 1) * q_fact k')
@@ -187,7 +187,7 @@ Proof.
              + (Z.of_nat (Datatypes.S (n - S k')) # 1)%Q)
           == (Z.of_nat (Datatypes.S n) # 1)%Q).
           { assert (Hnateq : (k' + S (n - S k'))%nat = n).
-          { rewrite <- (lw0_sub_succ_eq n k' HSk).
+          { rewrite <- (lw0_sub_succ_eq_prop n k' HSk).
             rewrite Nat.add_comm.
             apply Nat.sub_add. exact Hk'. }
           assert (Hz1 : (Z.of_nat (Datatypes.S k')
@@ -208,7 +208,7 @@ Proof.
       * (* Case [k' = n]: the diagonal term *)
         rewrite Hkn.
         rewrite piLsb_bpa_diag,
-                (bpa_binom_out n (Datatypes.S n) (Nat.lt_succ_diag_r n)).
+                (bpa_binom_out_prop n (Datatypes.S n) (Nat.lt_succ_diag_r n)).
         rewrite Nat.sub_diag. cbn [q_fact]. ring.
 Qed.
 
@@ -228,19 +228,19 @@ Proof.
     assert (Hs0 : piLsb_sumR (fun i => bpa_binom n (Datatypes.S i)) n
                   == q_pow 2%Q n - 1%Q).
     { cbn [piLsb_sumR] in IHs.
-      rewrite (bpa_binom_out n (Datatypes.S n) (Nat.lt_succ_diag_r n)) in IHs.
+      rewrite (bpa_binom_out_prop n (Datatypes.S n) (Nat.lt_succ_diag_r n)) in IHs.
       rewrite <- IHs. ring. }
     assert (Htot : piLsb_sumR (bpa_binom (Datatypes.S n))
                      (Datatypes.S (Datatypes.S n)) == q_pow 2%Q (Datatypes.S n)).
     { rewrite (piLsb_sumR_snoc (bpa_binom (Datatypes.S n)) (Datatypes.S n)).
       rewrite piLsb_bpa_diag.
       rewrite piLsb_sumR_head.
-      rewrite (bpa_binom_0 (Datatypes.S n)).
+      rewrite (bpa_binom_0_prop (Datatypes.S n)).
       assert (Hpascal :
         piLsb_sumR (fun i => bpa_binom (Datatypes.S n) (Datatypes.S i)) n
         == piLsb_sumR (fun i => bpa_binom n i + bpa_binom n (Datatypes.S i)) n).
       { apply piLsb_sumR_ext. intros i _.
-        rewrite bpa_binom_pascal. apply Qeq_refl. }
+        rewrite bpa_binom_pascal_prop. apply Qeq_refl. }
       rewrite Hpascal, piLsb_sumR_plus, q_pow_succ, Hs0, <- Hdgn. ring. }
     split.
     + exact Htot.
@@ -251,12 +251,12 @@ Proof.
         == piLsb_sumR (bpa_binom (Datatypes.S n)) (Datatypes.S (Datatypes.S n))).
       { symmetry.
         apply (piLsb_sumR_head (bpa_binom (Datatypes.S n)) (Datatypes.S n)). }
-      rewrite (bpa_binom_0 (Datatypes.S n)), Htot in Hhead.
+      rewrite (bpa_binom_0_prop (Datatypes.S n)), Htot in Hhead.
       rewrite (piLsb_sumR_snoc
                  (fun i => bpa_binom (Datatypes.S n) (Datatypes.S i))
                  (Datatypes.S n)).
       cbv beta.
-      rewrite (bpa_binom_out (Datatypes.S n) (Datatypes.S (Datatypes.S n))
+      rewrite (bpa_binom_out_prop (Datatypes.S n) (Datatypes.S (Datatypes.S n))
                  (Nat.lt_succ_diag_r _)).
       rewrite <- Hhead. ring.
 Qed.
@@ -341,7 +341,7 @@ Proof.
   rewrite (piLsb_sumR_head
              (fun j => bpa_binom (Datatypes.S n) j * lw0_alt j) (Datatypes.S n)).
   cbv beta.
-  rewrite (bpa_binom_0 (Datatypes.S n)). cbn [lw0_alt].
+  rewrite (bpa_binom_0_prop (Datatypes.S n)). cbn [lw0_alt].
   assert (Hext :
     piLsb_sumR (fun i => bpa_binom (Datatypes.S n) (Datatypes.S i)
                           * lw0_alt (Datatypes.S i)) (Datatypes.S n)
@@ -350,7 +350,7 @@ Proof.
                   (Datatypes.S n)).
   { apply piLsb_sumR_ext. intros i _.
     change (lw0_alt (Datatypes.S i)) with (Qopp (lw0_alt i))%Q.
-    rewrite bpa_binom_pascal. ring. }
+    rewrite bpa_binom_pascal_prop. ring. }
   rewrite Hext, piLsb_sumR_opp, piLsb_sumR_plus. ring.
 Qed.
 
@@ -365,7 +365,7 @@ Proof.
   - split; cbn [piLsb_sumR bpa_binom lw0_alt]; ring.
   - destruct IH as [IH1 IH2].
     assert (Hout : bpa_binom (Datatypes.S n) (Datatypes.S (Datatypes.S n)) == 0%Q)
-      by apply (bpa_binom_out (Datatypes.S n) (Datatypes.S (Datatypes.S n))
+      by apply (bpa_binom_out_prop (Datatypes.S n) (Datatypes.S (Datatypes.S n))
                   (Nat.lt_succ_diag_r _)).
     assert (HBsn :
       piLsb_sumR (fun i => bpa_binom (Datatypes.S n) (Datatypes.S i) * lw0_alt i)
@@ -382,7 +382,7 @@ Proof.
                                 + bpa_binom n (Datatypes.S i) * lw0_alt i)
                       (Datatypes.S n)).
       { apply piLsb_sumR_ext. intros i _.
-        rewrite bpa_binom_pascal. ring. }
+        rewrite bpa_binom_pascal_prop. ring. }
       rewrite HextB, piLsb_sumR_plus, IH1. ring. }
     assert (HABsn :
       piLsb_sumR (fun j => bpa_binom (Datatypes.S n) j * lw0_alt j)
@@ -396,7 +396,7 @@ Proof.
       rewrite Hrec, HABsn. ring.
 Qed.
 
-Lemma piLsb_row_alt : forall n : nat, (1 <= n)%nat ->
+Lemma piLsb_row_alt_prop : forall n : nat, (1 <= n)%nat ->
   piLsb_sumR (fun j => bpa_binom n j * lw0_alt j) (Datatypes.S n) == 0%Q.
 Proof.
   intros n Hn. destruct n as [| n'].
@@ -418,7 +418,7 @@ Proof.
   replace (Datatypes.S (Datatypes.S (2 * m)))%nat
     with (2 * Datatypes.S m)%nat in Htot by lia.
   rewrite (piLsb_sumR_even_odd (bpa_binom (Datatypes.S (2 * m))) m) in Htot.
-  pose proof (piLsb_row_alt (Datatypes.S (2 * m)) H1le) as Halt.
+  pose proof (piLsb_row_alt_prop (Datatypes.S (2 * m)) H1le) as Halt.
   replace (Datatypes.S (Datatypes.S (2 * m)))%nat
     with (2 * Datatypes.S m)%nat in Halt by lia.
   rewrite (piLsb_sumR_even_odd
@@ -784,12 +784,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of piLsb_row_alt (Path A v2.4) *)
+(* Set twin of piLsb_row_alt_prop (Path A v2.4) *)
 Lemma piLsb_row_altT : forall n : nat, NatLe (1) (n) -> QeqT (piLsb_sumR (fun j => bpa_binom n j * lw0_alt j) (Datatypes.S n)) (0%Q).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (piLsb_row_alt n).
+  eapply (piLsb_row_alt_prop n).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption

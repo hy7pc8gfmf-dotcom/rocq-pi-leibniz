@@ -11,11 +11,11 @@
     [P_k = cos_partial] ([PiKernelSlack]).  The proof composes tail
     bounds directly: the tail bound
     [|P_k(x) - P_M(x)| <= (3/2) * t_{M+1}] for [0 <= x <= 2] and
-    [2 <= M <= k] ([PiCosTailScan.vt_cos_partial_tail_bound]); the
-    step-wise decay [t_{M+i} <= (1/3)^i * t_M] ([vt_abs_term_decay]);
+    [2 <= M <= k] ([PiCosTailScan.vt_cos_partial_tail_bound_prop]); the
+    step-wise decay [t_{M+i} <= (1/3)^i * t_M] ([vt_abs_term_decay_prop]);
     the base monotonicity [(1/3)^n <= (1/2)^n]
-    ([PiCosApproxRoot.vt_q_pow_base_mono]); and the half-power
-    Archimedean property [D * (1/2)^n < dt] ([vt_pow_half_arch]).
+    ([PiCosApproxRoot.vt_q_pow_base_mono_prop]); and the half-power
+    Archimedean property [D * (1/2)^n < dt] ([vt_pow_half_arch_prop]).
     Note: [z_m] is a rational localization point, not an exact zero of
     cosine, so the direct fixed-point statement [|P_k(z_m)| -> 0] is
     false; the order-Cauchy property stated here is its provable
@@ -27,7 +27,7 @@
     [PiVertexPolyDiff]; [PiCosApproxRoot]; [PiCosZeroSeqProbe];
     [PiCosZeroSeqConv].
 
-    References.  [S10_KVQuantTrig.v :8296] ([cos_seq_cauchy]) is the
+    References.  [S10_KVQuantTrig.v :8296] ([cos_seq_cauchy_prop]) is the
     adjacent statement: the Cauchy property of the zero-localization
     sequence [(z_n)_n] itself.  This file proves the Cauchy property
     of the partial-sum sequence [(P_k(z_m))_k] at the fixed point
@@ -66,19 +66,19 @@ Require Import PiCosZeroSeqConv.
    [|P_k(z_m) - P_K(z_m)| <= (3/2) * t_{K+1}], while
    [t_{K+1} = t_{3+n} <= (1/3)^n * t_3 <= (1/2)^n * t_3], so the tail
    amount [(3/2) * t_{K+1} <= D * (1/2)^n < dt]. *)
-Lemma cos_partial_seq_cauchy : forall (m : nat) (dt : Q), Qlt 0 dt ->
+Lemma cos_partial_seq_cauchy_prop : forall (m : nat) (dt : Q), Qlt 0 dt ->
   { K : nat | forall k : nat, (K <= k)%nat ->
       Qlt (Qabs (cos_partial k (cos_zero_seq m) - cos_partial K (cos_zero_seq m))) dt }.
 Proof.
   intros m dt Hdt.
-  assert (Hz0 : Qle 0 (cos_zero_seq m)) by apply cos_zero_nonneg.
-  assert (Hz2 : Qle (cos_zero_seq m) 2) by apply cos_zero_le_two.
+  assert (Hz0 : Qle 0 (cos_zero_seq m)) by apply cos_zero_nonneg_prop.
+  assert (Hz2 : Qle (cos_zero_seq m) 2) by apply cos_zero_le_two_prop.
   assert (H032 : Qle 0 (3#2)%Q) by (unfold Qle; simpl; lia).
   assert (H0T3 : Qle 0 (cos_abs_term (cos_zero_seq m) 3))
-    by (apply (vt_abs_term_nonneg _ _ Hz0)).
+    by (apply (vt_abs_term_nonneg_prop _ _ Hz0)).
   assert (HD : Qle 0 ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3))
     by (apply Qmult_le_0_compat; assumption).
-  destruct (vt_pow_half_arch ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) dt HD Hdt)
+  destruct (vt_pow_half_arch_prop ((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) dt HD Hdt)
     as [n Hn].
   exists ((n + 2)%nat).
   intros k Hk.
@@ -86,31 +86,31 @@ Proof.
   assert (Hdec : Qle (cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2)))
                      (q_pow (1#3) n * cos_abs_term (cos_zero_seq m) 3)).
   { replace (Datatypes.S (n + 2)) with (3 + n)%nat by lia.
-    apply (vt_abs_term_decay (cos_zero_seq m) 3 n);
+    apply (vt_abs_term_decay_prop (cos_zero_seq m) 3 n);
       [exact Hz0 | exact Hz2 | lia]. }
   assert (Hbr : Qle (q_pow (1#3) n) (q_pow (1#2) n))
-    by (apply (vt_q_pow_base_mono (1#3) (1#2) n); unfold Qle; simpl; lia).
+    by (apply (vt_q_pow_base_mono_prop (1#3) (1#2) n); unfold Qle; simpl; lia).
   assert (Hsbr : Qle ((3#2)%Q * q_pow (1#3) n) ((3#2)%Q * q_pow (1#2) n))
-    by (apply (sc_qmult_le_l (q_pow (1#3) n) (q_pow (1#2) n) (3#2)%Q Hbr H032)).
+    by (apply (sc_qmult_le_l_prop (q_pow (1#3) n) (q_pow (1#2) n) (3#2)%Q Hbr H032)).
   assert (Hmain : Qle ((3#2)%Q * cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2)))
                       (((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) * q_pow (1#2) n)).
   { apply (Qle_trans _ ((3#2)%Q * (q_pow (1#3) n * cos_abs_term (cos_zero_seq m) 3))).
-    - exact (sc_qmult_le_l (cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2)))
+    - exact (sc_qmult_le_l_prop (cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2)))
                            (q_pow (1#3) n * cos_abs_term (cos_zero_seq m) 3)
                            (3#2)%Q Hdec H032).
     - apply (Qle_trans _ (((3#2)%Q * q_pow (1#3) n) * cos_abs_term (cos_zero_seq m) 3)).
-      + apply qeq_le. ring.
+      + apply qeq_le_prop. ring.
       + apply (Qle_trans _ (((3#2)%Q * q_pow (1#2) n) * cos_abs_term (cos_zero_seq m) 3)).
         * exact (Qmult_le_compat_r _ _ _ Hsbr H0T3).
-        * apply qeq_le. ring. }
+        * apply qeq_le_prop. ring. }
   apply (Qle_lt_trans
            (Qabs (cos_partial k (cos_zero_seq m) - cos_partial (n + 2) (cos_zero_seq m)))
            ((3#2)%Q * cos_abs_term (cos_zero_seq m) (Datatypes.S (n + 2))) dt).
-  - exact (vt_cos_partial_tail_bound (cos_zero_seq m) (n + 2) k Hz0 Hz2 Hk2 Hk).
+  - exact (vt_cos_partial_tail_bound_prop (cos_zero_seq m) (n + 2) k Hz0 Hz2 Hk2 Hk).
   - apply (Qle_lt_trans _ (((3#2)%Q * cos_abs_term (cos_zero_seq m) 3) * q_pow (1#2) n) dt).
     + exact Hmain.
     + exact Hn.
 Qed.
 
 (* Assumption audit for the mission statement of this file. *)
-Print Assumptions cos_partial_seq_cauchy.
+Print Assumptions cos_partial_seq_cauchy_prop.

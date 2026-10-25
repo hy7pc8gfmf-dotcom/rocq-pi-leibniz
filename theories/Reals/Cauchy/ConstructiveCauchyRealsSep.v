@@ -23,7 +23,7 @@ From Stdlib Require Import ConstructiveCauchyReals.
     the sense of [CReal_appart] (a sum of strict-order witnesses, in
     [Set]), from the embedded rational [inject_Q q]: [x] carries a
     strictly positive rational distance from every rational constant.
-    Main statement: [creal_escape_window_apart].  Mechanism: the
+    Main statement: [creal_escape_window_apart_prop].  Mechanism: the
     stdlib [CRealLt x y] is itself the positive-distance witness form
     [{n : Z | 2 * 2^n < seq y n - seq x n}], and the Cauchy modulus
     of [x] controls its negative tail (values at any index [m <= k]
@@ -45,7 +45,7 @@ From Stdlib Require Import ConstructiveCauchyReals.
     [841855c]) of the Rocq standard-library proposal "Add a
     constructive pi for the constructive Cauchy reals with a strong
     irrationality separation theorem"; the criterion is stated at
-    name level by [creal_escape_window_apart] and consumed by
+    name level by [creal_escape_window_apart_prop] and consumed by
     [PiSeparation].
 
     Constructivity.  Statements are [Set]-valued throughout (sigma
@@ -66,33 +66,33 @@ From Stdlib Require Import ConstructiveCauchyReals.
 
 (* Positivity and monotonicity of the powers of two. *)
 
-Lemma creal_two_pos : (0 < 2)%Q.
+Lemma creal_two_pos_prop : (0 < 2)%Q.
 Proof. unfold Qlt, Qnum, Qden. lia. Qed.
 
-Lemma creal_two_ge1 : (1 <= 2)%Q.
+Lemma creal_two_ge1_prop : (1 <= 2)%Q.
 Proof. unfold Qle, Qnum, Qden. lia. Qed.
 
-Lemma creal_two_lt3 : (2 < 3)%Q.
+Lemma creal_two_lt3_prop : (2 < 3)%Q.
 Proof. unfold Qlt, Qnum, Qden. lia. Qed.
 
-Lemma creal_three_pos : (0 < 3)%Q.
+Lemma creal_three_pos_prop : (0 < 3)%Q.
 Proof. unfold Qlt, Qnum, Qden. lia. Qed.
 
-Lemma creal_three_ge0 : (0 <= 3)%Q.
+Lemma creal_three_ge0_prop : (0 <= 3)%Q.
 Proof. unfold Qle, Qnum, Qden. lia. Qed.
 
-Lemma creal_third_pos : (0 < 1 # 3)%Q.
+Lemma creal_third_pos_prop : (0 < 1 # 3)%Q.
 Proof. unfold Qlt, Qnum, Qden. lia. Qed.
 
-Lemma creal_pow2_pos : forall z : Z, (0 < 2 ^ z)%Q.
-Proof. intros z. apply Qpower_0_lt. exact creal_two_pos. Qed.
+Lemma creal_pow2_pos_prop : forall z : Z, (0 < 2 ^ z)%Q.
+Proof. intros z. apply Qpower_0_lt. exact creal_two_pos_prop. Qed.
 
-Lemma creal_pow2_le_mono : forall z z' : Z,
+Lemma creal_pow2_le_mono_prop : forall z z' : Z,
   (z <= z')%Z -> (2 ^ z <= 2 ^ z')%Q.
 Proof.
   intros z z' H. apply Qpower_le_compat_l.
   - exact H.
-  - exact creal_two_ge1.
+  - exact creal_two_ge1_prop.
 Qed.
 
 (* Escape-window structure and the separation engine.
@@ -111,10 +111,10 @@ Definition creal_escape_window (x : CReal) (e : nat -> Q) : Set :=
       (Qlt (2 * 2 ^ Z.opp (Z.of_nat n)) (e n)
        /\ Qlt (e n) (Qabs (q - seq x (Z.opp (Z.of_nat n)))))%Q }.
 
-Lemma seq_inject_Q : forall (q : Q) (n : Z), seq (inject_Q q) n = q.
+Lemma seq_inject_Q_prop : forall (q : Q) (n : Z), seq (inject_Q q) n = q.
 Proof. reflexivity. Qed.
 
-Theorem creal_escape_window_apart :
+Theorem creal_escape_window_apart_prop :
   forall (x : CReal) (e : nat -> Q),
     creal_escape_window x e ->
     forall q : Q, CReal_appart x (inject_Q q).
@@ -134,11 +134,11 @@ Proof.
     assert (HeqM : ((2 ^ n0z + 2 ^ n0z) + - 2 ^ n0z == 2 ^ n0z)%Q) by ring.
     rewrite HeqM in HH. exact HH. }
   assert (HmarginPos : (0 < E + - 2 ^ n0z)%Q)
-    by exact (Qlt_trans _ _ _ (creal_pow2_pos n0z) Hmarg).
+    by exact (Qlt_trans _ _ _ (creal_pow2_pos_prop n0z) Hmarg).
   (* Archimedean push: an index j with 2^j below one third of M.      *)
   assert (HTpos : (0 < (E + - 2 ^ n0z) * (1 # 3))%Q).
   { pose proof (Qmult_lt_compat_r 0 (E + - 2 ^ n0z) (1 # 3)
-                  creal_third_pos HmarginPos) as HH.
+                  creal_third_pos_prop HmarginPos) as HH.
     rewrite Qmult_0_l in HH. exact HH. }
   destruct (QarchimedeanLowExp2_Z ((E + - 2 ^ n0z) * (1 # 3)) HTpos)
     as [j Hj].
@@ -149,11 +149,11 @@ Proof.
   apply Qabs_diff_Qlt_condition in Hc. destruct Hc as [Hlow Hhigh].
   (* Hkey : 3 * 2^m < M, where m := Z.min n0z j.                      *)
   assert (Hkey : (3 * 2 ^ Z.min n0z j < E + - 2 ^ n0z)%Q).
-  { pose proof (creal_pow2_le_mono (Z.min n0z j) j Hm2) as Hpowj.
+  { pose proof (creal_pow2_le_mono_prop (Z.min n0z j) j Hm2) as Hpowj.
     pose proof (Qmult_le_compat_r (2 ^ Z.min n0z j) (2 ^ j) 3 Hpowj
-                  creal_three_ge0) as Hs1.
+                  creal_three_ge0_prop) as Hs1.
     pose proof (Qmult_lt_compat_r (2 ^ j) ((E + - 2 ^ n0z) * (1 # 3)) 3
-                  creal_three_pos Hj) as Hs2.
+                  creal_three_pos_prop Hj) as Hs2.
     assert (Hs3 : (((E + - 2 ^ n0z) * (1 # 3)) * 3 == (E + - 2 ^ n0z))%Q)
       by ring.
     rewrite Hs3 in Hs2.
@@ -163,7 +163,7 @@ Proof.
     exact (Qle_lt_trans _ _ _ Hs1 Hs2). }
   assert (H23 : (2 * 2 ^ Z.min n0z j < 3 * 2 ^ Z.min n0z j)%Q)
     by exact (Qmult_lt_compat_r 2 3 (2 ^ Z.min n0z j)
-                (creal_pow2_pos (Z.min n0z j)) creal_two_lt3).
+                (creal_pow2_pos_prop (Z.min n0z j)) creal_two_lt3_prop).
   destruct (Qlt_le_dec 0 (q - seq x n0z)) as [Hs | Hs].
   - (* q - seq x n0z > 0: x lies strictly below q. *)
     unfold CReal_appart. left.
@@ -194,7 +194,7 @@ Proof.
                       == q - seq x (Z.min n0z j))%Q) by ring.
       rewrite Heq2, Heq3 in Hadd.
       exact (Qlt_le_trans _ _ _ Hs4 Hadd). }
-    rewrite seq_inject_Q.
+    rewrite seq_inject_Q_prop.
     exact (Qlt_trans _ (E + - 2 ^ n0z) _
             (Qlt_trans _ (3 * 2 ^ Z.min n0z j) _ H23 Hkey) Hchain).
   - (* q - seq x n0z <= 0: the escape margin forces q < x. *)
@@ -224,7 +224,7 @@ Proof.
                       + (seq x (Z.min n0z j) + - seq x n0z)
                       == seq x (Z.min n0z j) - q)%Q) by ring.
       rewrite HeqF in Hsum. exact Hsum. }
-    rewrite seq_inject_Q.
+    rewrite seq_inject_Q_prop.
     exact (Qlt_trans _ (E + - 2 ^ n0z) _
             (Qlt_trans _ (3 * 2 ^ Z.min n0z j) _ H23 Hkey) Hfin).
 Qed.

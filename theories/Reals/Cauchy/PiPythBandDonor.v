@@ -1,53 +1,60 @@
-(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
-(** * PiPythBandDonor: a partial-sum stratification of the Pythagorean
-      identity [sin^2 + cos^2 = 1].
+(************************************************************************)
+(*         *      The Rocq Prover / The Rocq Development Team           *)
+(*  v      *         Copyright INRIA, CNRS and contributors             *)
+(* <O___,, * (see version control and CREDITS file for authors & dates) *)
+(*   \VV/  **************************************************************)
+(*    //   *    This file is distributed under the terms of the         *)
+(*         *     GNU Lesser General Public License Version 2.1          *)
+(*         *     (see LICENSE file for the text of the license)         *)
+(************************************************************************)
+(* ============================================================ *)
+(* PiPythBandDonor.v                                            *)
+(*                                                              *)
+(* Mission: a partial-sum stratification of the Pythagorean      *)
+(*       identity sin^2+cos^2=1 -- the diagonal-band representation *)
+(*       of the truncation residual piL_pyth_dres and a uniform   *)
+(*       smallness supply. The full diagonal coefficient equals   *)
+(*       even half-row minus odd half-row (the even/odd halves of *)
+(*       a Pascal row have equal sums), hence zero, so the        *)
+(*       truncation residual is exactly the sum over the window   *)
+(*       rows [k+1,2k+2]; the row majorant and the geometric tail *)
+(*       band give some j such that k >= j and |x| <= B imply     *)
+(*       |piL_pyth_dres k x| < dt.                                *)
+(* Dependencies: Stdlib QArith.QArith, QArith.Qabs, ZArith.ZArith, *)
+(*       Arith.PeanoNat, Lia; PiKernelSlack (q_pow/q_fact,        *)
+(*       sin_term/cos_term, and, from its merged identity segment, *)
+(*       piL_pyth_dres, piL_pythag_partial, piL_cos_term_0);      *)
+(*       PiPascalMachine (the piLsb_sumR row-sum machine);        *)
+(*       PiRowIdentity (piLrowB_row_scal); PiCosBandAssemble      *)
+(*       (the row families ccrow/ssrow, row majorants, half-row   *)
+(*       closed forms, the geometric tail band and the choice of  *)
+(*       the truncation length).                                  *)
+(* References: the sum side of the partial-sum band expansion of  *)
+(*       cos(2x)=cos^2-sin^2 (piLe_dcos_band_rows): on the        *)
+(*       difference side the full diagonal pairings form the      *)
+(*       double-angle terms; on the sum side they cancel to zero. *)
+(* Constructivity: statements on stdlib Qeq/Qle/Qlt with          *)
+(*       Set-carried sigT; zero axioms, nothing admitted, no         *)
+(*       classical logic; induction with explicit algebraic       *)
+(*       chains; zero Q-domain solver (Lia for nat bookkeeping    *)
+(*       only).                                                   *)
+(* Build: coqc -native-compiler no -q -Q . "" PiPythBandDonor.v   *)
+(*       (Rocq 9.1.0).                                            *)
+(* ============================================================ *)
 
-    Mission.  The diagonal-band representation of the truncation
-    residual [piL_pyth_dres] and a uniform smallness supply.  The full
-    diagonal coefficient equals even half-row minus odd half-row (the
-    even/odd halves of a Pascal row have equal sums), hence zero, so
-    the truncation residual is exactly the sum over the window rows
-    [k+1,2k+2]; the row majorant and the geometric tail band give some
-    [j] such that [k >= j] and [|x| <= B] imply
-    [|piL_pyth_dres k x| < dt].
-
-    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
-    [ZArith.ZArith], [Arith.PeanoNat], [Lia]; [PiKernelSlack]
-    ([q_pow]/[q_fact], [sin_term]/[cos_term], and, from its merged
-    identity segment, [piL_pyth_dres], [piL_pythag_partial],
-    [piL_cos_term_0]); [PiPascalMachine] (the [piLsb_sumR] row-sum
-    machine); [PiRowIdentity] ([piLrowB_row_scal]);
-    [PiCosBandAssemble] (the row families [ccrow]/[ssrow], row
-    majorants, half-row closed forms, the geometric tail band and the
-    choice of the truncation length).
-
-    References.  The sum side of the partial-sum band expansion of
-    [cos(2x) = cos^2 - sin^2] ([piLe_dcos_band_rows]): on the
-    difference side the full diagonal pairings form the double-angle
-    terms; on the sum side they cancel to zero.
-
-    Constructivity.  Statements on stdlib [Qeq]/[Qle]/[Qlt] with
-    [Set]-carried [sigT]; assumption-free (coqchk-certified), no
-    classical logic; induction with explicit algebraic chains; zero
-    [Q]-domain solver ([Lia] for [nat] bookkeeping only).
-
-    Build.  [coqc -native-compiler no -q -Q . "" PiPythBandDonor.v]
-    compiles cleanly (exit 0) under Rocq 9.1.0; the first eight bytes
-    of the artifact are [436f7121 00015ff4].
-
-    This file is part of the rocq-pi-leibniz package; its interface
-    may change in future releases. *)
-
+(* WARNING: this file is experimental and likely to change in future *)
+(* releases.                                                        *)
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 From Stdlib Require Import Lia.
 Require Import PiKernelSlack.
+Require Import PiCompareT.
 Require Import PiPascalMachine.
 Require Import PiRowIdentity.
 Require Import PiCosBandAssemble.
 
-(* ================= §1 Square-sum reshaping ================= *)
+(* ==== Section 1. Square-sum reshaping ==== *)
 
 (* The square-sum form of the Pythagorean residual: pyth_dres k x == S_k^2 + C_k^2 - 1. *)
 Lemma piLh_pyth_sq_form : forall (k : nat) (x : Q),
@@ -58,12 +65,12 @@ Proof.
   intros k x. rewrite (piL_pythag_partial k x). ring.
 Qed.
 
-(* ============ §2 Full-diagonal cancellation (even half-row - odd half-row = 0) ============ *)
+(* ==== Section 2. Full-diagonal cancellation (even minus odd half-row equals zero) ==== *)
 
 (* The full diagonal sum: sum_{i<S N} c_i c_{N-i} + sum_{i<N} s_i s_{N-1-i} == 0
    (N >= 1).  Each half-row equals 2^(2N)*(1/2) times the common factor
    (-1)^N / (-1)^(N-1); the two signs are opposite, so the sum is zero. *)
-Lemma piLh_rowP_cross : forall (N : nat) (x : Q), (1 <= N)%nat ->
+Lemma piLh_rowP_cross_prop : forall (N : nat) (x : Q), (1 <= N)%nat ->
   piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N)
   + piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N
   == 0%Q.
@@ -73,27 +80,27 @@ Proof.
   assert (Hcc : piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N)
                 == q_pow (-1)%Q N * q_pow x (2 * N)%nat / q_fact (2 * N)%nat
                    * (q_pow 2%Q (2 * N)%nat * (1 # 2)%Q)).
-  { rewrite <- (piLe_row_half_even_val N HN).
+  { rewrite <- (piLe_row_half_even_val_prop N HN).
     rewrite <- (piLrowB_row_scal (q_pow (-1)%Q N * q_pow x (2 * N)%nat / q_fact (2 * N)%nat)
                   (fun i => bpa_binom (2 * N)%nat (2 * i)%nat) (S N)).
     apply piLsb_sumR_ext. intros i Hi.
     transitivity ((q_pow (-1)%Q N * q_pow x (2 * N)%nat
                    * bpa_binom (2 * N)%nat (2 * i)%nat) / q_fact (2 * N)%nat).
-    - apply (piLe_qeq_mul_div_r _ _ _ HD0).
-      apply (piLe_rowpiece_cc N i x). lia.
+    - apply (piLe_qeq_mul_div_r_prop _ _ _ HD0).
+      apply (piLe_rowpiece_cc_prop N i x). lia.
     - unfold Qdiv. ring. }
   assert (Hss : piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N
                 == q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat / q_fact (2 * N)%nat
                    * (q_pow 2%Q (2 * N)%nat * (1 # 2)%Q)).
-  { rewrite <- (piLe_row_half_odd_val N HN).
+  { rewrite <- (piLe_row_half_odd_val_prop N HN).
     rewrite <- (piLrowB_row_scal (q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat
                                   / q_fact (2 * N)%nat)
                   (fun i => bpa_binom (2 * N)%nat (S (2 * i)%nat)) N).
     apply piLsb_sumR_ext. intros i Hi.
     transitivity ((q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat
                    * bpa_binom (2 * N)%nat (S (2 * i)%nat)) / q_fact (2 * N)%nat).
-    - apply (piLe_qeq_mul_div_r _ _ _ HD0).
-      apply (piLe_rowpiece_ss N i x). lia.
+    - apply (piLe_qeq_mul_div_r_prop _ _ _ HD0).
+      apply (piLe_rowpiece_ss_prop N i x). lia.
     - unfold Qdiv. ring. }
   rewrite Hcc, Hss.
   assert (Hsg : q_pow (-1)%Q (N - 1)%nat == - q_pow (-1)%Q N).
@@ -103,7 +110,7 @@ Proof.
   unfold Qdiv. rewrite Hsg. ring.
 Qed.
 
-(* ========= §3 Diagonal-band representation (residual = exact window-row sum) ========= *)
+(* ==== Section 3. Diagonal-band representation (residual equals the exact window-row sum) ==== *)
 
 (* Band representation: pyth_dres k x == sum_{u<S k} [ccrow k (S(k+u)) x
    + ssrow k (S(k+u)) x].  The square sum goes through the product
@@ -155,7 +162,7 @@ Proof.
                                               (fun u : nat => cos_term i x
                                                               * cos_term (S k - i + u) x) i)
                            (S k))
-    by (apply (piLe_sumR_square_split_gen (S k) (fun i => S k - i)%nat (fun i => i)
+    by (apply (piLe_sumR_square_split_gen_prop (S k) (fun i => S k - i)%nat (fun i => i)
                 (fun i j => cos_term i x * cos_term j x)); intros i Hi; lia).
   rewrite Hsplitc.
   assert (Hsplits : piLsb_sumR
@@ -169,7 +176,7 @@ Proof.
                                               (fun u : nat => sin_term i x
                                                               * sin_term (k - i + u) x)
                                               (Datatypes.S i)) (S k))
-    by (apply (piLe_sumR_square_split_gen (S k) (fun i => k - i)%nat (fun i => Datatypes.S i)
+    by (apply (piLe_sumR_square_split_gen_prop (S k) (fun i => k - i)%nat (fun i => Datatypes.S i)
                 (fun i j => sin_term i x * sin_term j x)); intros i Hi; lia).
   rewrite Hsplits.
   assert (Hflatc : piLsb_sumR
@@ -283,7 +290,7 @@ Proof.
                     + piLe_rows_full (Datatypes.S w) x).
       - apply Qeq_refl.
       - unfold piLe_rowc_full, piLe_rows_full.
-        rewrite piLh_rowP_cross by lia. reflexivity. }
+        rewrite piLh_rowP_cross_prop by lia. reflexivity. }
     assert (Hzall : forall n : nat, piLsb_sumR (fun w : nat => 0%Q) n == 0%Q).
     { induction n as [| n' IHn].
       - apply piLe_sumR_0.
@@ -292,10 +299,10 @@ Proof.
   rewrite Hfull. ring.
 Qed.
 
-(* ================= §4 Band bound and slot-face supply ================= *)
+(* ==== Section 4. The band bound and its supply ==== *)
 
 (* Band bound: |pyth_dres k x| <= band_bound k B (all k, |x| <= B). *)
-Theorem piLh_pyth_band_le : forall (k : nat) (x B : Q),
+Theorem piLh_pyth_band_le_prop : forall (k : nat) (x B : Q),
   Qle (Qabs x) B -> Qle (Qabs (piL_pyth_dres k x)) (piLe_band_bound k B).
 Proof.
   intros k x B Hx.
@@ -304,24 +311,24 @@ Proof.
            (piLsb_sumR (fun u => Qabs (piLe_ccrow k (S (k + u))%nat x
                                        + piLe_ssrow k (S (k + u))%nat x))
                        (S k))).
-  { apply piLe_abs_sumR_le. }
+  { apply piLe_abs_sumR_le_prop. }
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (piLe_ccrow k (S (k + u))%nat x)
                                  + Qabs (piLe_ssrow k (S (k + u))%nat x))
                        (S k))).
-  { apply piLe_sumR_le. intros u _. apply Qabs_triangle. }
+  { apply piLe_sumR_le_prop. intros u _. apply Qabs_triangle. }
   apply (Qle_trans _
            (piLsb_sumR (fun u => (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B
                                  + (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
                        (S k))).
-  { apply piLe_sumR_le. intros u Hu.
+  { apply piLe_sumR_le_prop. intros u Hu.
     apply (Qplus_le_compat
              (Qabs (piLe_ccrow k (S (k + u))%nat x))
              ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
              (Qabs (piLe_ssrow k (S (k + u))%nat x))
              ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)).
-    - apply (piLe_ccrow_abs_le k (S (k + u)) x B); [lia | exact Hx].
-    - apply (piLe_ssrow_abs_le k (S (k + u)) x B); [lia | exact Hx]. }
+    - apply (piLe_ccrow_abs_le_prop k (S (k + u)) x B); [lia | exact Hx].
+    - apply (piLe_ssrow_abs_le_prop k (S (k + u)) x B); [lia | exact Hx]. }
   assert (Hdouble : forall u : nat,
     ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B
      + (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
@@ -345,27 +352,125 @@ Proof.
            0%Q
            (piLe_tc_term (S (k + S k))%nat B)).
   - apply Qle_refl.
-  - apply piLe_tc_term_nonneg. exact H0B.
+  - apply piLe_tc_term_nonneg_prop. exact H0B.
 Qed.
 
 (* Slot-face supply: there is j such that k >= j and |x| <= B imply
    |pyth_dres k x| < dt.  The statement face is verbatim that of the
    Pythagorean-residual band slot of the half-window assembly segment. *)
-Lemma piLh_pyth_small : forall (B dt : Q),
+Lemma piLh_pyth_small_prop : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->
   sigT (fun j : nat => forall (k : nat) (x : Q),
     (j <= k)%nat -> Qle (Qabs x) B -> Qlt (Qabs (piL_pyth_dres k x)) dt).
 Proof.
   intros B dt HB Hdt.
-  destruct (piLe_band_small B dt HB Hdt) as [j Hj].
+  destruct (piLe_band_small_prop B dt HB Hdt) as [j Hj].
   exists j. intros k x Hkx HxB.
   apply (Qle_lt_trans _ (piLe_band_bound k B)).
-  - apply (piLh_pyth_band_le k x B HxB).
+  - apply (piLh_pyth_band_le_prop k x B HxB).
   - apply (Hj k Hkx).
 Qed.
 
 Print Assumptions piLh_pyth_sq_form.
-Print Assumptions piLh_rowP_cross.
+Print Assumptions piLh_rowP_cross_prop.
 Print Assumptions piLh_pyth_band_rows.
-Print Assumptions piLh_pyth_band_le.
-Print Assumptions piLh_pyth_small.
+Print Assumptions piLh_pyth_band_le_prop.
+Print Assumptions piLh_pyth_small_prop.
+
+(* ============================================================ *)
+(* Appended section: Set-carried twins of the order faces        *)
+(*
+   Mission.  Set-carried twins of the strict-order, non-strict
+     order and equality statement faces of this file: each twin
+     restates the same mathematical content with the reflected
+     decision types [QltT]/[QleT']/[QeqT]/[NatLe] in the place of
+     the [Prop]-level [Qlt]/[Qle]/[Qeq]/[(<=)%nat] faces, so the
+     twin statement face lives in [Set] with no [Prop] component.
+     Each twin is proved by transporting through the decision
+     bridges and calling the original statement; the original
+     statements are untouched.
+
+   Dependencies.  The decision bridges of PiKernelSlack
+     ([QltT_to_Qlt]/[Qlt_to_QltT]/[QleT'_to_Qle]/[Qle_to_QleT']/
+     [qeqT_imp_qeq]/[qeq_imp_qeqT]/[NatLe_drop]/[NatLe_lift]).
+
+   References.  The original statements of this file (each twin
+     names its original in the one-line annotation above it).
+
+   Constructivity.  Statement faces carried at the [Set] level
+     ([QltT]/[QleT']/[QeqT]/[NatLe]); proof bodies are transport
+     chains through the decision bridges; no solver closes any
+     twin; assumption-free.
+
+   Build.  Compiled together with this file; see the header of
+     this file for the build recipe.
+*)
+
+
+(* Set twin of piLh_pyth_sq_form *)
+Lemma piLh_pyth_sq_formT : forall (k : nat) (x : Q), QeqT (piL_pyth_dres k x) (sin_partial k x * sin_partial k x + cos_partial k x * cos_partial k x - 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLh_pyth_sq_form k x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLh_rowP_cross_prop *)
+Lemma piLh_rowP_crossT : forall (N : nat) (x : Q), NatLe (1) (N) -> QeqT (piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N) + piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N) (0%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLh_rowP_cross_prop N x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLh_pyth_band_rows *)
+Lemma piLh_pyth_band_rowsT : forall (k : nat) (x : Q), QeqT (piL_pyth_dres k x) (piLsb_sumR (fun u => piLe_ccrow k (S (k + u))%nat x + piLe_ssrow k (S (k + u))%nat x) (S k)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLh_pyth_band_rows k x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLh_pyth_band_le_prop *)
+Lemma piLh_pyth_band_leT : forall (k : nat) (x B : Q), QleT' (Qabs x) B -> QleT' (Qabs (piL_pyth_dres k x)) (piLe_band_bound k B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLh_pyth_band_le_prop k x B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.

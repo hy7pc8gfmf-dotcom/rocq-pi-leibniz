@@ -18,7 +18,7 @@ echo "non-none Axioms sections: ${dirty}"
 cat > piu_smoke_tmp.v <<'EOF'
 From Stdlib Require Import QArith.QArith.
 From pi_leibniz Require Import PiLeibniz.
-Print Assumptions pi_leibniz_strong_irrational.
+Print Assumptions pi_leibniz_strong_irrational_prop.
 Print Assumptions pi_leibniz_appart_all_Q.
 (* 4c witness-validity assertions: the documented sample-point contract
    (the window family must evaluate to the values the README promises;

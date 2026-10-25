@@ -35,6 +35,9 @@
       (the bridge family [QltT_to_Qlt]/[Qlt_to_QltT]); this
       development, [ConstructiveCauchyRealsSep.v] (the escape-window
       engine whose apartness conclusion this counterpart receives).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Every statement is carried at the [Set] level:
       the witness type is a [sigT] whose predicate component is the
@@ -128,17 +131,3 @@ Proof.
   right. exists (-4)%Z. unfold QltT, Qlt_bool. vm_compute. exact id_refl.
 Defined.
 
-(* Statement provenance: for every statement of this file, the source
-   statement that it mirrors, with the source coordinates.  Rows
-   marked (new) are statements first stated in this file.
-
-   [CRealLtT] <- [CRealLt] at [ConstructiveCauchyReals] (stdlib, the
-      mirrored original; the predicate component replaced by [QltT])
-   [CReal_appartT] <- [CReal_appart] at [ConstructiveCauchyReals]
-      (stdlib, the mirrored original)
-   [CRealLtT_of_CRealLt] <- (new in this file)
-   [CRealLt_of_CRealLtT] <- (new in this file)
-   [creal_appartT_of_appart] <- (new in this file)
-   [creal_appart_of_appartT] <- (new in this file)
-   [creal_appartT_half_third] <- (new in this file)
-*)

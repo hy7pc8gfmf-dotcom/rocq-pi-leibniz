@@ -8,11 +8,11 @@
       [dec : Q -> nat -> bool] as an explicit argument: starting
       from [n] it tests [dec] stage by stage, returns the first
       separating index, and returns the budget endpoint when the
-      fuel runs out.  The package: the upper bound [nsep_find_ub], the hit
-      characterization [nsep_find_hit], minimality [nsep_find_min],
+      fuel runs out.  The package: the upper bound [nsep_find_ub_prop], the hit
+      characterization [nsep_find_hit_prop], minimality [nsep_find_min_prop],
       the budgeted run [nsep_first] with its four corollaries
-      [nsep_first_bound], [nsep_first_hit], [nsep_first_least] and
-      [nsep_first_minimal].  Every conclusion holds for an
+      [nsep_first_bound_prop], [nsep_first_hit_prop], [nsep_first_least_prop] and
+      [nsep_first_minimal_prop].  Every conclusion holds for an
       arbitrary separator and budget; the [pi]-side instance is the
       window separator of [LW5SepComplexity]; a sqrt(2) Newton
       instance follows.
@@ -21,8 +21,8 @@
       [ZArith.ZArith], [Arith.Arith], [Bool.Bool], [Lia],
       [Extraction]; from this development [PiCompareT] (the
       [Set]-valued identity [Id] with [id_refl]) and [PiWindowCore]
-      (the bridges [leiblw_id_eq], [leiblw_id_inv]).  The
-      conjunction face of [nsep_find_hit] is the plain product type
+      (the bridges [leiblw_id_eq_prop], [leiblw_id_inv_prop]).  The
+      conjunction face of [nsep_find_hit_prop] is the plain product type
       in the type scope (the shape of the [And] wrapper of
       [PiKernelSlack], not imported here).
 
@@ -39,7 +39,7 @@
     Constructivity.  Assumption-free and fully proved;
       conclusions at the [Set] level ([Id] and the product type);
       [nat] order occurs in premises and in the upper bounds
-      [nsep_find_ub], [nsep_first_bound] and [nsep_first_least];
+      [nsep_find_ub_prop], [nsep_first_bound_prop] and [nsep_first_least_prop];
       [nsep_find] is structurally recursive and extractable.
 
     Build.  [rocq c -native-compiler no -q -Q theories pi_leibniz
@@ -77,7 +77,7 @@ Fixpoint nsep_find (dec : Q -> nat -> bool) (q : Q) (n fuel : nat) : nat :=
 
 (** Search upper bound: the search never passes the starting index
     plus the fuel. *)
-Lemma nsep_find_ub : forall (dec : Q -> nat -> bool) (q : Q) (fuel n : nat),
+Lemma nsep_find_ub_prop : forall (dec : Q -> nat -> bool) (q : Q) (fuel n : nat),
   (nsep_find dec q n fuel <= n + fuel)%nat.
 Proof.
   intros dec q fuel. induction fuel as [|f IH]; intros n.
@@ -93,7 +93,7 @@ Qed.
     passes [n0] (second conjunct).  Both conclusions are carried at
     the [Set] level: the Boolean equalities as [Id], the conjunction
     as the product type. *)
-Lemma nsep_find_hit : forall (dec : Q -> nat -> bool) (q : Q) (fuel n n0 : nat),
+Lemma nsep_find_hit_prop : forall (dec : Q -> nat -> bool) (q : Q) (fuel n n0 : nat),
   (n <= n0)%nat -> (n0 <= n + fuel)%nat ->
   Id (dec q n0) true ->
   (Id (dec q (nsep_find dec q n fuel)) true *
@@ -102,14 +102,14 @@ Proof.
   intros dec q fuel. induction fuel as [|f IH]; intros n n0 Hn1 Hn2 Hhit.
   - assert (Heq : n = n0) by lia. subst n0. simpl.
     split; [exact Hhit|].
-    apply leiblw_id_eq. apply Nat.leb_le. lia.
+    apply leiblw_id_eq_prop. apply Nat.leb_le. lia.
   - simpl. destruct (dec q n) eqn:E.
     + split.
       * rewrite E. apply id_refl.
-      * apply leiblw_id_eq. apply Nat.leb_le. lia.
+      * apply leiblw_id_eq_prop. apply Nat.leb_le. lia.
     + apply (IH (Datatypes.S n) n0).
       * destruct (Nat.eq_dec n n0) as [Heq|Hne].
-        -- subst n0. apply leiblw_id_inv in Hhit. rewrite E in Hhit.
+        -- subst n0. apply leiblw_id_inv_prop in Hhit. rewrite E in Hhit.
            discriminate Hhit.
         -- lia.
       * lia.
@@ -119,7 +119,7 @@ Qed.
 (** Minimality: every stage [m] below the stopping point of the
     search fails to separate ([dec q m] is [false], carried as
     [Id]). *)
-Lemma nsep_find_min : forall (dec : Q -> nat -> bool) (q : Q) (fuel n m : nat),
+Lemma nsep_find_min_prop : forall (dec : Q -> nat -> bool) (q : Q) (fuel n m : nat),
   (n <= m)%nat -> (m < nsep_find dec q n fuel)%nat ->
   Id (dec q m) false.
 Proof.
@@ -143,37 +143,37 @@ Definition nsep_first (dec : Q -> nat -> bool) (b : nat) (q : Q) : nat :=
   nsep_find dec q 0 b.
 
 (** Run upper bound: the budgeted run never passes the budget [b]. *)
-Theorem nsep_first_bound : forall (dec : Q -> nat -> bool) (b : nat) (q : Q),
+Theorem nsep_first_bound_prop : forall (dec : Q -> nat -> bool) (b : nat) (q : Q),
   (nsep_first dec b q <= b)%nat.
 Proof.
   intros dec b q. unfold nsep_first.
-  pose proof (nsep_find_ub dec q b 0) as H. lia.
+  pose proof (nsep_find_ub_prop dec q b 0) as H. lia.
 Qed.
 
 (** Hit theorem: if a separating stage lies within the budget, the
     budgeted run stops at a separating stage. *)
-Theorem nsep_first_hit : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
+Theorem nsep_first_hit_prop : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
     (n0 : nat),
   (n0 <= b)%nat ->
   Id (dec q n0) true ->
   Id (dec q (nsep_first dec b q)) true.
 Proof.
   intros dec b q n0 Hb Hhit. unfold nsep_first.
-  destruct (nsep_find_hit dec q b 0 n0 (Nat.le_0_l n0) Hb Hhit) as [H _].
+  destruct (nsep_find_hit_prop dec q b 0 n0 (Nat.le_0_l n0) Hb Hhit) as [H _].
   exact H.
 Qed.
 
 (** No-passing theorem: the budgeted run never passes any separating
     stage within the budget. *)
-Theorem nsep_first_least : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
+Theorem nsep_first_least_prop : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
     (n0 : nat),
   (n0 <= b)%nat ->
   Id (dec q n0) true ->
   (nsep_first dec b q <= n0)%nat.
 Proof.
   intros dec b q n0 Hb Hhit.
-  apply Nat.leb_le. apply leiblw_id_inv.
-  destruct (nsep_find_hit dec q b 0 n0 (Nat.le_0_l n0) Hb Hhit) as [_ H].
+  apply Nat.leb_le. apply leiblw_id_inv_prop.
+  destruct (nsep_find_hit_prop dec q b 0 n0 (Nat.le_0_l n0) Hb Hhit) as [_ H].
   exact H.
 Qed.
 
@@ -181,7 +181,7 @@ Qed.
     the budget is taken verbatim by the budgeted run; from a
     separating stage [n0] with no separating stage below it, the run
     equals [n0] as a [Set]-level identity. *)
-Theorem nsep_first_minimal : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
+Theorem nsep_first_minimal_prop : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
     (n0 : nat),
   (n0 <= b)%nat ->
   Id (dec q n0) true ->
@@ -189,15 +189,15 @@ Theorem nsep_first_minimal : forall (dec : Q -> nat -> bool) (b : nat) (q : Q)
   Id (nsep_first dec b q) n0.
 Proof.
   intros dec b q n0 Hb Hn Hmin.
-  assert (Hhit := nsep_first_hit dec b q n0 Hb Hn).
-  assert (Hle := nsep_first_least dec b q n0 Hb Hn).
+  assert (Hhit := nsep_first_hit_prop dec b q n0 Hb Hn).
+  assert (Hle := nsep_first_least_prop dec b q n0 Hb Hn).
   destruct (Nat.eq_dec (nsep_first dec b q) n0) as [E|E].
   - rewrite E. apply id_refl.
   - exfalso.
     assert (Hlt : (nsep_first dec b q < n0)%nat) by lia.
     specialize (Hmin _ Hlt).
     assert (Ht : dec q (nsep_first dec b q) = true)
-      by (apply leiblw_id_inv; exact Hhit).
+      by (apply leiblw_id_inv_prop; exact Hhit).
     rewrite Ht in Hmin. inversion Hmin.
 Qed.
 
@@ -239,10 +239,10 @@ Eval vm_compute in (nsep_find ir2_sep_dec (3 # 2) 0 10).
 
 Separate Extraction nsep_find nsep_first ir2_sep_dec ir2_x ir2_e ir2_delta.
 
-Print Assumptions nsep_find_ub.
-Print Assumptions nsep_find_hit.
-Print Assumptions nsep_find_min.
-Print Assumptions nsep_first_bound.
-Print Assumptions nsep_first_hit.
-Print Assumptions nsep_first_least.
-Print Assumptions nsep_first_minimal.
+Print Assumptions nsep_find_ub_prop.
+Print Assumptions nsep_find_hit_prop.
+Print Assumptions nsep_find_min_prop.
+Print Assumptions nsep_first_bound_prop.
+Print Assumptions nsep_first_hit_prop.
+Print Assumptions nsep_first_least_prop.
+Print Assumptions nsep_first_minimal_prop.

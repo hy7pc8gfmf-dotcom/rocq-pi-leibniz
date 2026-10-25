@@ -9,10 +9,10 @@
 (************************************************************************)
 
 (** * PiSep361RefaceT: the registration of the re-faced premise of
-      [pi_leibniz_strong_irrational], in machine-checked form.
+      [pi_leibniz_strong_irrational_prop], in machine-checked form.
 
-    Mission.  The premise [b <> 0] of [pi_leibniz_strong_irrational]
-      ([PiSeparation.v:L361-L362]) is re-faced to the Set-carried
+    Mission.  The premise [b <> 0] of [pi_leibniz_strong_irrational_prop]
+      ([PiSeparation.pi_leibniz_strong_irrational_prop]) is re-faced to the Set-carried
       [Qneq0T] of [PiSepBNeq0T].  This file registers that re-facing
       in machine-checked form.  The registration is rooted at the
       Qeq-carried disequality [~ (b == 0)] — equipollent to [Qneq0T]
@@ -32,10 +32,13 @@
       ([Qneq0T], [Qneq0T_qeq_up], [Qneq0T_down], and the premise-face
       notes this file registers).
 
-    References.  [PiSeparation.v:L361-L362] (the audited premise
+    References.  [PiSeparation.pi_leibniz_strong_irrational_prop] (the audited premise
       slot); [PiSepBNeq0T.v] (the Set-carried premise and its
       bridges); [PiCRealAppartT.v] (the sum-of-decisions
       statement-face canon the re-facing follows).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  [leibniz_qeq_transport_blocked] is a negative
       statement (a refutation of an inadmissible transport, which has
@@ -78,8 +81,8 @@ Defined.
 
 (* ============ Section 2. The registered one-way chain ================ *)
 
-(* The premise slot of [pi_leibniz_strong_irrational]
-   ([PiSeparation.v:L361-L362]) registers as the Set-carried
+(* The premise slot of [pi_leibniz_strong_irrational_prop]
+   ([PiSeparation.pi_leibniz_strong_irrational_prop]) registers as the Set-carried
    [Qneq0T], rooted at the Qeq face: the Qeq-carried disequality
    builds up into [Qneq0T], and [Qneq0T] grades down to the Leibniz
    face.  The reverse direction is blocked by Section 1. *)
@@ -89,16 +92,3 @@ Proof.
   intros b Hb. exact (Qneq0T_down b (Qneq0T_qeq_up b Hb)).
 Defined.
 
-(* Statement provenance: for every statement of this file, the source
-   statement that it mirrors or registers, with the source
-   coordinates.  Rows marked (new) are statements first stated in
-   this file.
-
-   [leibniz_qeq_transport_blocked] <- (new in this file;
-      machine-checks the premise-face note recorded at
-      [PiSepBNeq0T.v] and fixes the audited premise slot
-      [PiSeparation.v:L361-L362] to its honest re-facing)
-   [qeq_face_to_leibniz_face] <- composition of [Qneq0T_qeq_up] and
-      [Qneq0T_down] at [PiSepBNeq0T.v] (the registered one-way
-      chain, stated here for reference)
-*)

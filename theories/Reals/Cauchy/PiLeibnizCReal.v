@@ -17,16 +17,19 @@
     direct [QArith] lemma chain, with no dependency on an external
     decision procedure.
 
-    References.  This development, [S10_KVQuantTrig.v:L2693-L2703] (the
+    References.  This development, [S10_KVQuantTrig.v] (the
     inlined trivial rational forms of the [lp] family); this development,
-    [LW0MLicBridge.v:L20] and [LW0MLicBridge.v:L48-L64] (the migration
+    [LW0MLicBridge.v] (the migration
     sources of [lw0m_xL] and of the vanishing instance); this development,
-    [LW0LeibWindow.v:L947-L953] (the migration source of the vanishing
+    [LW0LeibWindow.v] (the migration source of the vanishing
     interface); this development, [maps/modulus-conversion-design.md],
     Section 3 (the family of fourteen conversion lemmas); this
     development, [ConstructiveCauchyRealsSep.v] at [:60-:87] and
     [:113-:157] (the engine styles followed by the resolution fuel and by
     the main jump).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Statements at the [Set] level; assumption-free and
     fully proved, with no non-constructive principles; within proofs,
@@ -86,16 +89,16 @@ Qed.
    order facts =================  *)
 
 (** [Z.of_nat] is monotone ([<=] on [nat] lifts to [<=] on [Z]). *)
-Lemma znat_le_mono : forall n m : nat, (n <= m)%nat -> (Z.of_nat n <= Z.of_nat m)%Z.
+Lemma znat_le_mono_prop : forall n m : nat, (n <= m)%nat -> (Z.of_nat n <= Z.of_nat m)%Z.
 Proof. intros n m H. exact (proj1 (Nat2Z.inj_le n m) H). Qed.
 
 (** [Z.of_nat] is injective (equality in [Z] reflects back to [nat]). *)
-Lemma znat_eq_inj : forall n m : nat, Z.of_nat n = (Z.of_nat m)%Z -> n = m.
+Lemma znat_eq_inj_prop : forall n m : nat, Z.of_nat n = (Z.of_nat m)%Z -> n = m.
 Proof. intros n m H. exact (proj1 (Nat2Z.inj_iff n m) H). Qed.
 
 (** [Z.pos (Pos.of_succ_nat k)] equals [Z.of_nat k + 1] (the anchor for closing denominators lifted
    to [Z]).  *)
-Lemma piL_pos_succ1 : forall k : nat, Z.pos (Pos.of_succ_nat k) = (Z.of_nat k + 1)%Z.
+Lemma piL_pos_succ1_prop : forall k : nat, Z.pos (Pos.of_succ_nat k) = (Z.of_nat k + 1)%Z.
 Proof.
   induction k as [|k IH].
   - reflexivity.
@@ -104,7 +107,7 @@ Proof.
 Qed.
 
 (** The [nat] power [2^n] is at least [1] (the fuel of the depth floor). *)
-Lemma piL_nat_pow2_ge1 : forall n : nat, (1 <= 2 ^ n)%nat.
+Lemma piL_nat_pow2_ge1_prop : forall n : nat, (1 <= 2 ^ n)%nat.
 Proof.
   intros n. apply Nat.neq_0_lt_0. apply Nat.pow_nonzero. discriminate.
 Qed.
@@ -112,7 +115,7 @@ Qed.
 (* -- [Q] power bridge: [2^(-n)] equals [1/2^n] in [Pos] denominator normal form (the resolution
    anchor of the record side) --  *)
 
-Lemma piL_qpow2_neq0 : ~ (2 == 0)%Q.
+Lemma piL_qpow2_neq0_prop : ~ (2 == 0)%Q.
 Proof. intro H. unfold Qeq in H. cbn in H. discriminate. Qed.
 
 Lemma piL_qpow2_neg : forall n : nat,
@@ -122,16 +125,16 @@ Proof.
   - reflexivity.
   - rewrite Nat2Z.inj_succ. unfold Z.succ.
     assert (Hexp : Z.opp (Z.of_nat n + 1) = (Z.opp (Z.of_nat n) + -1)%Z) by ring.
-    rewrite Hexp, (Qpower_plus 2 (Z.opp (Z.of_nat n)) (-1) piL_qpow2_neq0).
+    rewrite Hexp, (Qpower_plus 2 (Z.opp (Z.of_nat n)) (-1) piL_qpow2_neq0_prop).
     change (2 ^ (-1))%Q with (1 # 2)%Q.
     rewrite IH, (Nat.pow_succ_r 2 n (Nat.le_0_l n)).
     unfold Qeq. cbn [Qnum Qden Qmult Z.mul].
     repeat rewrite Pos2Z.inj_mul.
-    repeat rewrite piL_pos_succ1.
+    repeat rewrite piL_pos_succ1_prop.
     repeat rewrite Nat2Z.inj_mul.
     repeat rewrite Nat2Z.inj_add.
-    rewrite (Nat2Z.inj_sub (2 * 2 ^ n) 1 (piL_nat_pow2_ge1 (S n))).
-    rewrite (Nat2Z.inj_sub (2 ^ n) 1 (piL_nat_pow2_ge1 n)).
+    rewrite (Nat2Z.inj_sub (2 * 2 ^ n) 1 (piL_nat_pow2_ge1_prop (S n))).
+    rewrite (Nat2Z.inj_sub (2 ^ n) 1 (piL_nat_pow2_ge1_prop n)).
     change (Z.of_nat 2) with 2%Z.
     change (Z.of_nat 1) with 1%Z.
     repeat rewrite Nat2Z.inj_mul.
@@ -142,7 +145,7 @@ Qed.
    preservation of subtraction) --  *)
 
 (** [a <= b] implies [0 <= b - a]. *)
-Lemma qle_minus0 : forall a b : Q, Qle a b -> Qle 0 (b - a)%Q.
+Lemma qle_minus0_prop : forall a b : Q, Qle a b -> Qle 0 (b - a)%Q.
 Proof.
   intros a b H.
   pose proof (Qplus_le_compat a b (- a) (- a) H (Qle_refl (- a))) as HH.
@@ -152,7 +155,7 @@ Proof.
 Qed.
 
 (** [0 <= b - a] implies [a <= b]. *)
-Lemma qle0_minus : forall a b : Q, Qle 0 (b - a)%Q -> Qle a b.
+Lemma qle0_minus_prop : forall a b : Q, Qle 0 (b - a)%Q -> Qle a b.
 Proof.
   intros a b H.
   pose proof (Qplus_le_compat 0 (b - a)%Q a a H (Qle_refl a)) as HH.
@@ -162,7 +165,7 @@ Proof.
 Qed.
 
 (** [x <= y] implies [x - z <= y - z]. *)
-Lemma qle_minus_compat : forall x y z : Q, Qle x y -> Qle (x - z) (y - z)%Q.
+Lemma qle_minus_compat_prop : forall x y z : Q, Qle x y -> Qle (x - z) (y - z)%Q.
 Proof.
   intros x y z H.
   pose proof (Qplus_le_compat x y (- z) (- z) H (Qle_refl (- z))) as HH.
@@ -172,7 +175,7 @@ Proof.
 Qed.
 
 (** [x <= y] implies [w - y <= w - x] (antitone in the right subtrahend). *)
-Lemma qle_rsub_antitone : forall u v w : Q, Qle u v -> Qle (w - v) (w - u)%Q.
+Lemma qle_rsub_antitone_prop : forall u v w : Q, Qle u v -> Qle (w - v) (w - u)%Q.
 Proof.
   intros u v w H.
   pose proof (Qopp_le_compat u v H) as HH.
@@ -183,7 +186,7 @@ Proof.
 Qed.
 
 (** [0 <= b - a] implies [a - b <= 0]. *)
-Lemma qle_minus_flip0 : forall a b : Q, Qle 0 (b - a)%Q -> Qle (a - b) 0%Q.
+Lemma qle_minus_flip0_prop : forall a b : Q, Qle 0 (b - a)%Q -> Qle (a - b) 0%Q.
 Proof.
   intros a b H.
   assert (Heq : ((a - b)%Q == - (b - a))) by ring.
@@ -196,13 +199,13 @@ Qed.
 (* -- Two-sided closure through [Qabs] (direct chain on the stdlib [Qabs_pos]/[Qabs_neg]) -- *)
 
 (** [0 <= x <= c] implies [Qabs x <= c]. *)
-Lemma piL_qabs_le_nonneg : forall x c : Q, Qle 0 x -> Qle x c -> Qle (Qabs x) c.
+Lemma piL_qabs_le_nonneg_prop : forall x c : Q, Qle 0 x -> Qle x c -> Qle (Qabs x) c.
 Proof.
   intros x c H0 H1. rewrite (Qabs_pos x H0). exact H1.
 Qed.
 
 (** [x <= 0] and [-x <= c] imply [Qabs x <= c]. *)
-Lemma piL_qabs_neg_le : forall x c : Q, Qle x 0 -> Qle (- x) c -> Qle (Qabs x) c.
+Lemma piL_qabs_neg_le_prop : forall x c : Q, Qle x 0 -> Qle (- x) c -> Qle (Qabs x) c.
 Proof.
   intros x c Hx Hc. rewrite (Qabs_neg x Hx). exact Hc.
 Qed.
@@ -220,12 +223,12 @@ Qed.
 
 (** From strict [nat] order to the successor: [a < b] gives [S a <= b] (the shared piece of the
    strict-version contradiction cores).  *)
-Lemma piL_nat_lt_succ_le : forall a b : nat, (a < b)%nat -> (S a <= b)%nat.
+Lemma piL_nat_lt_succ_le_prop : forall a b : nat, (a < b)%nat -> (S a <= b)%nat.
 Proof. intros a b H. exact H. Qed.
 
 (** Index lemma, first form: [2a <= 2b] implies [a <= b] (cancelling the positive doubling in [Z]). 
       *)
-Lemma piL_even_le : forall a b : nat, (2 * a <= 2 * b)%nat -> (a <= b)%nat.
+Lemma piL_even_le_prop : forall a b : nat, (2 * a <= 2 * b)%nat -> (a <= b)%nat.
 Proof.
   intros a b H.
   apply (proj2 (Nat2Z.inj_le a b)).
@@ -236,7 +239,7 @@ Qed.
 
 (** Index lemma, second form: [2a <= 2b+1] implies [a <= b] (by contradiction on [b < a]: [2(b+1) <=
    2a <= 2b+1] contradicts [2b+1 < 2b+2]).  *)
-Lemma piL_even_le_odd : forall a b : nat, (2 * a <= 2 * b + 1)%nat -> (a <= b)%nat.
+Lemma piL_even_le_odd_prop : forall a b : nat, (2 * a <= 2 * b + 1)%nat -> (a <= b)%nat.
 Proof.
   intros a b H.
   destruct (Nat.le_gt_cases b a) as [Hba | Hab].
@@ -263,7 +266,7 @@ Qed.
 
 (** Index lemma, third form: [2a+1 <= 2b] implies [a < b] (by contradiction on [b <= a], which would
    give [2a+1 <= 2a]).  *)
-Lemma piL_odd_le_even : forall a b : nat, (2 * a + 1 <= 2 * b)%nat -> (a < b)%nat.
+Lemma piL_odd_le_even_prop : forall a b : nat, (2 * a + 1 <= 2 * b)%nat -> (a < b)%nat.
 Proof.
   intros a b H.
   destruct (Nat.le_gt_cases b a) as [Hba | Hab].
@@ -278,9 +281,9 @@ Proof.
 Qed.
 
 (** Index lemma, fourth form: [2a+1 <= 2b+1] implies [a <= b] (reduces to the second form). *)
-Lemma piL_odd_le_odd : forall a b : nat, (2 * a + 1 <= 2 * b + 1)%nat -> (a <= b)%nat.
+Lemma piL_odd_le_odd_prop : forall a b : nat, (2 * a + 1 <= 2 * b + 1)%nat -> (a <= b)%nat.
 Proof.
-  intros a b H. apply piL_even_le_odd.
+  intros a b H. apply piL_even_le_odd_prop.
   apply Nat.le_trans with (2 * a + 1)%nat.
   - apply Nat.le_add_r.
   - exact H.
@@ -291,22 +294,22 @@ Qed.
 
 (** Squeeze closure core, first form (same direction): [x <= y <= w] and [w - x == c] imply [Qabs (y
    - x) <= c].  *)
-Lemma piL_sandwich_abs : forall x y w c : Q,
+Lemma piL_sandwich_abs_prop : forall x y w c : Q,
   Qle x y -> Qle y w -> (w - x)%Q == c -> Qle (Qabs (y - x)) c.
 Proof.
   intros x y w c Hxy Hyw Hwx.
-  rewrite (Qabs_pos (y - x) (qle_minus0 _ _ Hxy)).
-  rewrite <- Hwx. apply qle_minus_compat. exact Hyw.
+  rewrite (Qabs_pos (y - x) (qle_minus0_prop _ _ Hxy)).
+  rewrite <- Hwx. apply qle_minus_compat_prop. exact Hyw.
 Qed.
 
 (** Squeeze closure core, second form (reverse direction): the shape [y <= x <= w] -- [0 <= x - y]
    and [x - y <= x - w == c].  *)
-Lemma piL_sandwich_abs_neg : forall x y w c : Q,
+Lemma piL_sandwich_abs_neg_prop : forall x y w c : Q,
   Qle y x -> Qle w y -> (x - w)%Q == c -> Qle (Qabs (x - y)) c.
 Proof.
   intros x y w c Hyx Hwy Hxw.
-  rewrite (Qabs_pos (x - y) (qle_minus0 y x Hyx)).
-  rewrite <- Hxw. apply qle_rsub_antitone. exact Hwy.
+  rewrite (Qabs_pos (x - y) (qle_minus0_prop y x Hyx)).
+  rewrite <- Hxw. apply qle_rsub_antitone_prop. exact Hwy.
 Qed.
 
 (** Two small [Qmake] literal normal-form lemmas (alignment anchors of the main bridge; conversions
@@ -355,12 +358,12 @@ Qed.
     [rewrite]-ed inside a [Qlt] goal -- the standing restriction of the [Q]
     tool layer); the proper name is the [QArith_base] [Proper] instance
     [Qlt_compat] in interleaved argument form [x x' proof y y' proof]. *)
-Lemma piL_qlt_transport : forall a b c : Q, Qlt a b -> b == c -> Qlt a c.
+Lemma piL_qlt_transport_prop : forall a b c : Q, Qlt a b -> b == c -> Qlt a c.
 Proof. intros a b c H Hb. exact (proj1 (Qlt_compat a a (Qeq_refl a) b c Hb) H). Qed.
 
 (** Strict [Z] order under translation: [z < z + 5] (the trivially-true core left after the [Q]
    closure scales through by the integer).  *)
-Lemma piL_zlt_add5 : forall z : Z, (z < z + 5)%Z.
+Lemma piL_zlt_add5_prop : forall z : Z, (z < z + 5)%Z.
 Proof.
   intros z.
   assert (H05 : (0 < 5)%Z) by (apply Z.ltb_lt; reflexivity).
@@ -370,17 +373,17 @@ Qed.
 
 (** The [Q] closure: [4/(4*2^n+5) < 2^(-n)] (the resolution overrun, third
     step of the tail bound; the comparison runs on both sides in [Qmake]
-    normal form, the [2^(-n)] side reformed through [piL_qlt_transport] --
+    normal form, the [2^(-n)] side reformed through [piL_qlt_transport_prop] --
     the trivially-true core [4*2^n < 4*2^n+5] leaves no numeric corner
     cases). *)
-Lemma piL_qclose_exp : forall n : nat,
+Lemma piL_qclose_exp_prop : forall n : nat,
   Qlt (Qmake 4 (Pos.of_succ_nat (4 * 2 ^ n + 4))) (2 ^ Z.opp (Z.of_nat n))%Q.
 Proof.
   intros n.
-  apply (piL_qlt_transport _ (Qmake 1 (Pos.of_succ_nat (2 ^ n - 1)))).
+  apply (piL_qlt_transport_prop _ (Qmake 1 (Pos.of_succ_nat (2 ^ n - 1)))).
   - unfold Qlt. cbn [Qnum Qden].
-    rewrite piL_pos_succ1, piL_pos_succ1.
-    rewrite (Nat2Z.inj_sub (2 ^ n) 1 (piL_nat_pow2_ge1 n)).
+    rewrite piL_pos_succ1_prop, piL_pos_succ1_prop.
+    rewrite (Nat2Z.inj_sub (2 ^ n) 1 (piL_nat_pow2_ge1_prop n)).
     change (Z.of_nat 1) with 1%Z.
     rewrite Nat2Z.inj_add, Nat2Z.inj_mul.
     change (Z.of_nat 4) with 4%Z.
@@ -389,7 +392,7 @@ Proof.
     assert (HR : (1 * (4 * Z.of_nat (2 ^ n) + 4 + 1)
                   = 4 * Z.of_nat (2 ^ n) + 5)%Z) by ring.
     rewrite HL, HR.
-    apply piL_zlt_add5.
+    apply piL_zlt_add5_prop.
   - apply Qeq_sym. exact (piL_qpow2_neg n).
 Qed.
 
@@ -398,12 +401,12 @@ Qed.
 Definition pi_leibniz_depth (k : Z) : nat := (2 ^ (Z.to_nat (Z.abs k)))%nat.
 
 (** The depth is always positive (the [2^n >= 1] fuel). *)
-Lemma pi_leibniz_depth_pos : forall k : Z, (1 <= pi_leibniz_depth k)%nat.
-Proof. intros k. unfold pi_leibniz_depth. apply piL_nat_pow2_ge1. Qed.
+Lemma pi_leibniz_depth_pos_prop : forall k : Z, (1 <= pi_leibniz_depth k)%nat.
+Proof. intros k. unfold pi_leibniz_depth. apply piL_nat_pow2_ge1_prop. Qed.
 
 (** The depth floor on the negative half-axis ([p <= k < 0] implies [pi_leibniz_depth k <=
    pi_leibniz_depth p]; [Z.abs] reverses the order, and [Z2Nat] is monotone).  *)
-Lemma pi_leibniz_depth_floor : forall p k : Z, (k < 0)%Z -> (p <= k)%Z ->
+Lemma pi_leibniz_depth_floor_prop : forall p k : Z, (k < 0)%Z -> (p <= k)%Z ->
   (pi_leibniz_depth k <= pi_leibniz_depth p)%nat.
 Proof.
   intros p k Hk Hpk.
@@ -474,7 +477,7 @@ Proof.
   intros a.
   replace (2 * a + 1)%nat with (S (2 * a)) by (rewrite Nat.add_1_r; reflexivity).
   rewrite (piL_step_diff (2 * a)). symmetry.
-  apply leiblw_qabs_id. apply (Qlt_le_weak 0%Q). apply leiblw_t_even_pos.
+  apply leiblw_qabs_id_prop. apply (Qlt_le_weak 0%Q). apply leiblw_t_even_pos_prop.
 Qed.
 
 Lemma piL_tail_odd_abs : forall a : nat,
@@ -482,102 +485,102 @@ Lemma piL_tail_odd_abs : forall a : nat,
 Proof.
   intros a.
   assert (Hn : Qle (leiblw_t (2 * a + 1)) 0%Q)
-    by (apply (Qlt_le_weak _ _); apply leiblw_t_odd_neg).
+    by (apply (Qlt_le_weak _ _); apply leiblw_t_odd_neg_prop).
   replace (2 * a + 2)%nat with (S (2 * a + 1)) by (symmetry; apply Nat.add_succ_r).
   rewrite (Qabs_neg _ Hn), <- (piL_step_diff (2 * a + 1)).
   ring.
 Qed.
 
 (** The four-case shells. *)
-Lemma piL_tail_ee : forall a b : nat, (a <= b)%nat ->
+Lemma piL_tail_ee_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Qabs ((leiblw_S (2 * b) - leiblw_S (2 * a))%Q)) (Qabs (leiblw_t (2 * a))).
 Proof.
   intros a b Hab.
-  apply (piL_sandwich_abs (leiblw_S (2 * a)) (leiblw_S (2 * b))
+  apply (piL_sandwich_abs_prop (leiblw_S (2 * a)) (leiblw_S (2 * b))
                           (leiblw_S (2 * a + 1)) (Qabs (leiblw_t (2 * a)))).
-  - apply leiblw_mono_even. exact Hab.
+  - apply leiblw_mono_even_prop. exact Hab.
   - apply (Qle_trans _ (leiblw_S (2 * b + 2))).
-    + apply qle0_minus. apply (Qlt_le_weak 0%Q). apply leiblw_step_even_pos.
+    + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q). apply leiblw_step_even_pos_prop.
     + apply (Qle_trans _ (leiblw_S (2 * b + 1))).
-      * apply leiblw_interlace.
-      * apply leiblw_mono_odd. exact Hab.
+      * apply leiblw_interlace_prop.
+      * apply leiblw_mono_odd_prop. exact Hab.
   - apply piL_tail_even_abs.
 Qed.
 
-Lemma piL_tail_eo : forall a b : nat, (a <= b)%nat ->
+Lemma piL_tail_eo_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Qabs ((leiblw_S (2 * b + 1) - leiblw_S (2 * a))%Q)) (Qabs (leiblw_t (2 * a))).
 Proof.
   intros a b Hab.
-  apply (piL_sandwich_abs (leiblw_S (2 * a)) (leiblw_S (2 * b + 1))
+  apply (piL_sandwich_abs_prop (leiblw_S (2 * a)) (leiblw_S (2 * b + 1))
                           (leiblw_S (2 * a + 1)) (Qabs (leiblw_t (2 * a)))).
   - apply (Qle_trans _ (leiblw_S (2 * b))).
-    + apply leiblw_mono_even. exact Hab.
-    + apply qle0_minus. apply (Qlt_le_weak 0%Q).
+    + apply leiblw_mono_even_prop. exact Hab.
+    + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q).
       replace (2 * b + 1)%nat with (S (2 * b)) by (rewrite Nat.add_1_r; reflexivity).
-      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos.
-  - apply leiblw_mono_odd. exact Hab.
+      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos_prop.
+  - apply leiblw_mono_odd_prop. exact Hab.
   - apply piL_tail_even_abs.
 Qed.
 
-Lemma piL_tail_oe : forall a b : nat, (a < b)%nat ->
+Lemma piL_tail_oe_prop : forall a b : nat, (a < b)%nat ->
   Qle (Qabs ((leiblw_S (2 * b) - leiblw_S (2 * a + 1))%Q)) (Qabs (leiblw_t (2 * a + 1))).
 Proof.
   intros a b Hab.
   rewrite (piL_qabs_sym (leiblw_S (2 * b)) (leiblw_S (2 * a + 1))).
-  apply (piL_sandwich_abs_neg (leiblw_S (2 * a + 1)) (leiblw_S (2 * b))
+  apply (piL_sandwich_abs_neg_prop (leiblw_S (2 * a + 1)) (leiblw_S (2 * b))
                               (leiblw_S (2 * a + 2)) (Qabs (leiblw_t (2 * a + 1)))).
   - apply (Qle_trans _ (leiblw_S (2 * b + 1))).
-    + apply qle0_minus. apply (Qlt_le_weak 0%Q).
+    + apply qle0_minus_prop. apply (Qlt_le_weak 0%Q).
       replace (2 * b + 1)%nat with (S (2 * b)) by (rewrite Nat.add_1_r; reflexivity).
-      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos.
-    + apply leiblw_mono_odd. exact (Nat.lt_le_incl _ _ Hab).
+      rewrite (piL_step_diff (2 * b)). apply leiblw_t_even_pos_prop.
+    + apply leiblw_mono_odd_prop. exact (Nat.lt_le_incl _ _ Hab).
   - replace (2 * a + 2)%nat with (2 * S a)%nat
       by (rewrite (Nat.mul_succ_r 2 a); reflexivity).
-    apply leiblw_mono_even. exact Hab.
+    apply leiblw_mono_even_prop. exact Hab.
   - apply piL_tail_odd_abs.
 Qed.
 
-Lemma piL_tail_oo : forall a b : nat, (a <= b)%nat ->
+Lemma piL_tail_oo_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Qabs ((leiblw_S (2 * b + 1) - leiblw_S (2 * a + 1))%Q)) (Qabs (leiblw_t (2 * a + 1))).
 Proof.
   intros a b Hab.
   rewrite (piL_qabs_sym (leiblw_S (2 * b + 1)) (leiblw_S (2 * a + 1))).
-  apply (piL_sandwich_abs_neg (leiblw_S (2 * a + 1)) (leiblw_S (2 * b + 1))
+  apply (piL_sandwich_abs_neg_prop (leiblw_S (2 * a + 1)) (leiblw_S (2 * b + 1))
                               (leiblw_S (2 * a + 2)) (Qabs (leiblw_t (2 * a + 1)))).
-  - apply leiblw_mono_odd. exact Hab.
+  - apply leiblw_mono_odd_prop. exact Hab.
   - apply (Qle_trans _ (leiblw_S (2 * S b))).
     + replace (2 * a + 2)%nat with (2 * S a)%nat
         by (rewrite (Nat.mul_succ_r 2 a); reflexivity).
-      apply leiblw_mono_even. apply (proj1 (Nat.succ_le_mono a b)). exact Hab.
+      apply leiblw_mono_even_prop. apply (proj1 (Nat.succ_le_mono a b)). exact Hab.
     + replace (2 * S b)%nat with (2 * b + 2)%nat
         by (rewrite (Nat.mul_succ_r 2 b); reflexivity).
-      apply leiblw_interlace.
+      apply leiblw_interlace_prop.
   - apply piL_tail_odd_abs.
 Qed.
 
 (** The interleaved tail-bound main lemma: [Qabs (leiblw_S k - leiblw_S n) <= Qabs (leiblw_t n)] (a
    four-case squeeze; proved anew, with no precedent case lemmas).  *)
-Lemma leiblw_S_tail_bound : forall n k : nat, (n <= k)%nat ->
+Lemma leiblw_S_tail_bound_prop : forall n k : nat, (n <= k)%nat ->
   Qle (Qabs ((leiblw_S k - leiblw_S n)%Q)) (Qabs (leiblw_t n)).
 Proof.
   intros n k Hnk.
-  destruct (leiblw_par_decomp n) as [[a Ha]|[a Ha]];
-  destruct (leiblw_par_decomp k) as [[b Hb]|[b Hb]]; subst.
-  - apply piL_tail_ee. apply piL_even_le. exact Hnk.
-  - apply piL_tail_eo. apply piL_even_le_odd. exact Hnk.
-  - apply piL_tail_oe. apply piL_odd_le_even. exact Hnk.
-  - apply piL_tail_oo. apply piL_odd_le_odd. exact Hnk.
+  destruct (leiblw_par_decomp_prop n) as [[a Ha]|[a Ha]];
+  destruct (leiblw_par_decomp_prop k) as [[b Hb]|[b Hb]]; subst.
+  - apply piL_tail_ee_prop. apply piL_even_le_prop. exact Hnk.
+  - apply piL_tail_eo_prop. apply piL_even_le_odd_prop. exact Hnk.
+  - apply piL_tail_oe_prop. apply piL_odd_le_even_prop. exact Hnk.
+  - apply piL_tail_oo_prop. apply piL_odd_le_odd_prop. exact Hnk.
 Qed.
 
 (** Shared by both legs: [D <= d] implies [Qabs (leiblw_S (2D+2) - leiblw_S (2d+2)) <= Qabs
    (leiblw_t (2D+2))].  *)
-Lemma piL_seq_pair_bound : forall a b : nat, (a <= b)%nat ->
+Lemma piL_seq_pair_bound_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Qabs ((leiblw_S (2 * a + 2) - leiblw_S (2 * b + 2))%Q))
       (Qabs (leiblw_t (2 * a + 2))).
 Proof.
   intros a b Hab.
   rewrite (piL_qabs_sym (leiblw_S (2 * a + 2)) (leiblw_S (2 * b + 2))).
-  apply (leiblw_S_tail_bound (2 * a + 2) (2 * b + 2)).
+  apply (leiblw_S_tail_bound_prop (2 * a + 2) (2 * b + 2)).
   apply Nat.add_le_mono.
   - apply Nat.mul_le_mono_l. exact Hab.
   - apply Nat.le_refl.
@@ -616,27 +619,27 @@ Qed.
 
 (** The antitone core of the even branch of [t] (in the [2j] form): [i <= j] implies [Qabs (leiblw_t
    (2j)) <= Qabs (leiblw_t (2i))].  *)
-Lemma piL_t_even_antitone : forall i j : nat, (i <= j)%nat ->
+Lemma piL_t_even_antitone_prop : forall i j : nat, (i <= j)%nat ->
   Qle (Qabs (leiblw_t (2 * j))) (Qabs (leiblw_t (2 * i))).
 Proof.
   intros i j Hij.
-  rewrite (leiblw_qabs_id (leiblw_t (2 * j))
-            (Qlt_le_weak 0%Q _ (leiblw_t_even_pos j))).
-  rewrite (leiblw_qabs_id (leiblw_t (2 * i))
-            (Qlt_le_weak 0%Q _ (leiblw_t_even_pos i))).
+  rewrite (leiblw_qabs_id_prop (leiblw_t (2 * j))
+            (Qlt_le_weak 0%Q _ (leiblw_t_even_pos_prop j))).
+  rewrite (leiblw_qabs_id_prop (leiblw_t (2 * i))
+            (Qlt_le_weak 0%Q _ (leiblw_t_even_pos_prop i))).
   rewrite (leiblw_t_even j), (leiblw_t_even i).
-  apply (proj2 (leiblw_qmake_le 4 4
+  apply (proj2 (leiblw_qmake_le_prop 4 4
             (Pos.of_succ_nat (4 * j)) (Pos.of_succ_nat (4 * i)))).
-  rewrite piL_pos_succ1, piL_pos_succ1.
+  rewrite piL_pos_succ1_prop, piL_pos_succ1_prop.
   apply (proj1 (Z.mul_le_mono_pos_l (Z.of_nat (4*i) + 1) (Z.of_nat (4*j) + 1) 4
             (Pos2Z.is_pos 4))).
   apply (Zplus_le_compat_r (Z.of_nat (4*i)) (Z.of_nat (4*j)) 1).
-  apply znat_le_mono. apply Nat.mul_le_mono_l. exact Hij.
+  apply znat_le_mono_prop. apply Nat.mul_le_mono_l. exact Hij.
 Qed.
 
 (** The even branch of [t] is antitone in the [+2] index form: [i <= j] implies [Qabs (leiblw_t
    (2j+2)) <= Qabs (leiblw_t (2i+2))].  *)
-Lemma piL_tail2_antitone : forall i j : nat, (i <= j)%nat ->
+Lemma piL_tail2_antitone_prop : forall i j : nat, (i <= j)%nat ->
   Qle (Qabs (leiblw_t (2 * j + 2))) (Qabs (leiblw_t (2 * i + 2))).
 Proof.
   intros i j Hij.
@@ -644,25 +647,25 @@ Proof.
     by (symmetry; rewrite (Nat.mul_succ_r 2 i); reflexivity).
   replace (2 * j + 2)%nat with (2 * S j)%nat
     by (symmetry; rewrite (Nat.mul_succ_r 2 j); reflexivity).
-  apply (piL_t_even_antitone (S i) (S j)).
+  apply (piL_t_even_antitone_prop (S i) (S j)).
   apply (proj1 (Nat.succ_le_mono i j)). exact Hij.
 Qed.
 
 (** The resolution overrun: [Qabs (leiblw_t (2*2^n+2)) < 2^(-n)] (the trivially-true core [4*2^n <
    4*2^n+5]).  *)
-Lemma piL_tail2_qclose : forall n : nat,
+Lemma piL_tail2_qclose_prop : forall n : nat,
   Qlt (Qabs (leiblw_t (2 * 2 ^ n + 2))) (2 ^ Z.opp (Z.of_nat n))%Q.
 Proof.
   intros n.
   assert (Hp0 : Qlt 0%Q (4 # Pos.of_succ_nat (4 * 2 ^ n + 4))%Q)
     by (unfold Qlt; cbn; reflexivity).
-  rewrite piL_t_2p2_even, (leiblw_qabs_id _ (Qlt_le_weak 0%Q _ Hp0)).
-  apply piL_qclose_exp.
+  rewrite piL_t_2p2_even, (leiblw_qabs_id_prop _ (Qlt_le_weak 0%Q _ Hp0)).
+  apply piL_qclose_exp_prop.
 Qed.
 
 (** The [Q] power floor: [0 <= z] implies [1 <= 2^z] (the resolution fuel of the [k >= 0] branch; a
    miniature of the engine lines [:60-:87]).  *)
-Lemma piL_qpow2_ge1 : forall z : Z, (0 <= z)%Z -> Qle 1 (2 ^ z)%Q.
+Lemma piL_qpow2_ge1_prop : forall z : Z, (0 <= z)%Z -> Qle 1 (2 ^ z)%Q.
 Proof.
   intros z Hz.
   replace z with (Z.of_nat (Z.to_nat z)) by (apply Z2Nat.id; exact Hz).
@@ -671,7 +674,7 @@ Proof.
   - assert (Hstep : (2 ^ Z.of_nat (S m))%Q == ((2 ^ Z.of_nat m) * (2 ^ 1))%Q).
     { replace (Z.of_nat (S m))%Z with (Z.of_nat m + 1)%Z
         by (rewrite Nat2Z.inj_succ; reflexivity).
-      apply Qpower_plus. exact piL_qpow2_neq0. }
+      apply Qpower_plus. exact piL_qpow2_neq0_prop. }
     assert (H02 : Qle 0 2) by (unfold Qle; cbn; apply Z.leb_le; reflexivity).
     assert (H12 : Qle 1 2) by (unfold Qle; cbn; apply Z.leb_le; reflexivity).
     pose proof (Qmult_le_compat_r 1 (2 ^ Z.of_nat m) 2 IH H02) as HM1.
@@ -681,18 +684,18 @@ Proof.
 Qed.
 
 (** Resolution on the [k < 0] branch: [2^n <= dp] implies [Qabs (leiblw_t (2*dp+2)) < 2^(-n)]. *)
-Lemma piL_cauchy_neg : forall (n dp : nat), (2 ^ n <= dp)%nat ->
+Lemma piL_cauchy_neg_prop : forall (n dp : nat), (2 ^ n <= dp)%nat ->
   Qlt (Qabs (leiblw_t (2 * dp + 2))) (2 ^ Z.opp (Z.of_nat n))%Q.
 Proof.
   intros n dp Hdn.
   apply (Qle_lt_trans _ (Qabs (leiblw_t (2 * 2 ^ n + 2)))).
-  - apply piL_tail2_antitone. exact Hdn.
-  - apply piL_tail2_qclose.
+  - apply piL_tail2_antitone_prop. exact Hdn.
+  - apply piL_tail2_qclose_prop.
 Qed.
 
 (** Resolution on the [k >= 0] branch: [1 <= dp] implies [Qabs (leiblw_t (2*dp+2)) < 1] (sharpened
    to [1/2] in use).  *)
-Lemma piL_cauchy_pos : forall dp : nat, (1 <= dp)%nat ->
+Lemma piL_cauchy_pos_prop : forall dp : nat, (1 <= dp)%nat ->
   Qlt (Qabs (leiblw_t (2 * dp + 2))) 1%Q.
 Proof.
   intros dp Hdp1.
@@ -700,9 +703,9 @@ Proof.
     by (unfold Qlt; cbn; reflexivity).
   assert (Hlt08 : Qlt (4 # Pos.of_succ_nat (4 * 1 + 4)) 1%Q)
     by (unfold Qlt; cbn; reflexivity).
-  pose proof (piL_tail2_antitone 1 dp Hdp1) as Hanti.
+  pose proof (piL_tail2_antitone_prop 1 dp Hdp1) as Hanti.
   rewrite (piL_t_2p2_even 1) in Hanti.
-  rewrite (leiblw_qabs_id _ (Qlt_le_weak 0%Q _ Hp08)) in Hanti.
+  rewrite (leiblw_qabs_id_prop _ (Qlt_le_weak 0%Q _ Hp08)) in Hanti.
   exact (Qle_lt_trans _ _ _ Hanti Hlt08).
 Qed.
 
@@ -718,9 +721,9 @@ Proof.
     + assert (Hr0 : Z.of_nat (Z.to_nat (Z.abs k)) = Z.opp k).
       { rewrite (Z2Nat.id (Z.abs k) (Z.abs_nonneg k)).
         exact (Z.abs_neq k (Z.lt_le_incl _ _ Hk0)). }
-      pose proof (piL_seq_pair_bound (pi_leibniz_depth p) (pi_leibniz_depth q) Hle) as Hb.
-      pose proof (piL_cauchy_neg (Z.to_nat (Z.abs k)) (pi_leibniz_depth p)
-                    (pi_leibniz_depth_floor p k Hk0 Hp)) as Hr.
+      pose proof (piL_seq_pair_bound_prop (pi_leibniz_depth p) (pi_leibniz_depth q) Hle) as Hb.
+      pose proof (piL_cauchy_neg_prop (Z.to_nat (Z.abs k)) (pi_leibniz_depth p)
+                    (pi_leibniz_depth_floor_prop p k Hk0 Hp)) as Hr.
       rewrite Hr0, Z.opp_involutive in Hr.
       exact (Qle_lt_trans _ _ _ Hb Hr).
     + assert (Hr0 : Z.of_nat (Z.to_nat (Z.abs k)) = Z.opp k).
@@ -728,27 +731,27 @@ Proof.
         exact (Z.abs_neq k (Z.lt_le_incl _ _ Hk0)). }
       rewrite (piL_qabs_sym (leiblw_S (2 * pi_leibniz_depth p + 2))
                 (leiblw_S (2 * pi_leibniz_depth q + 2))).
-      pose proof (piL_seq_pair_bound (pi_leibniz_depth q) (pi_leibniz_depth p)
+      pose proof (piL_seq_pair_bound_prop (pi_leibniz_depth q) (pi_leibniz_depth p)
                     (Nat.lt_le_incl _ _ Hgt)) as Hb.
-      pose proof (piL_cauchy_neg (Z.to_nat (Z.abs k)) (pi_leibniz_depth q)
-                    (pi_leibniz_depth_floor q k Hk0 Hq)) as Hr.
+      pose proof (piL_cauchy_neg_prop (Z.to_nat (Z.abs k)) (pi_leibniz_depth q)
+                    (pi_leibniz_depth_floor_prop q k Hk0 Hq)) as Hr.
       rewrite Hr0, Z.opp_involutive in Hr.
       exact (Qle_lt_trans _ _ _ Hb Hr).
   - (* k >= 0: the value-range difference is at most [1/2] < [1] <= [2^k]. *)
-    assert (H1 : Qle 1 (2 ^ k)%Q) by (apply piL_qpow2_ge1; exact Hk0).
+    assert (H1 : Qle 1 (2 ^ k)%Q) by (apply piL_qpow2_ge1_prop; exact Hk0).
     destruct (Nat.le_gt_cases (pi_leibniz_depth p) (pi_leibniz_depth q)) as [Hle | Hgt].
-    + pose proof (piL_seq_pair_bound (pi_leibniz_depth p) (pi_leibniz_depth q) Hle) as Hb.
-      exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos _ (pi_leibniz_depth_pos p))) H1).
+    + pose proof (piL_seq_pair_bound_prop (pi_leibniz_depth p) (pi_leibniz_depth q) Hle) as Hb.
+      exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos_prop _ (pi_leibniz_depth_pos_prop p))) H1).
     + rewrite (piL_qabs_sym (leiblw_S (2 * pi_leibniz_depth p + 2))
                 (leiblw_S (2 * pi_leibniz_depth q + 2))).
-      pose proof (piL_seq_pair_bound (pi_leibniz_depth q) (pi_leibniz_depth p)
+      pose proof (piL_seq_pair_bound_prop (pi_leibniz_depth q) (pi_leibniz_depth p)
                     (Nat.lt_le_incl _ _ Hgt)) as Hb.
-      exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos _ (pi_leibniz_depth_pos q))) H1).
+      exact (Qlt_le_trans _ _ _ (Qle_lt_trans _ _ _ Hb (piL_cauchy_pos_prop _ (pi_leibniz_depth_pos_prop q))) H1).
 Qed.
 
 (** The delivered-form convergence theorem: the window bound of the negative tail is the modulus
    itself.  *)
-Lemma pi_leibniz_negtail_cauchy : forall n m : nat, (n <= m)%nat ->
+Lemma pi_leibniz_negtail_cauchy_prop : forall n m : nat, (n <= m)%nat ->
   Qlt (Qabs (pi_leibniz_seq (Z.opp (Z.of_nat m))
             - pi_leibniz_seq (Z.opp (Z.of_nat n))))
       (2 ^ Z.opp (Z.of_nat n))%Q.
@@ -758,10 +761,10 @@ Proof.
   rewrite (leiblw_xL_eq_S (2 ^ m)), (leiblw_xL_eq_S (2 ^ n)).
   rewrite (piL_qabs_sym (leiblw_S (2 * 2 ^ m + 2)) (leiblw_S (2 * 2 ^ n + 2))).
   apply (Qle_lt_trans _ (Qabs (leiblw_t (2 * 2 ^ n + 2)))).
-  - apply piL_seq_pair_bound. apply Nat.pow_le_mono_r.
+  - apply piL_seq_pair_bound_prop. apply Nat.pow_le_mono_r.
     + apply Nat.neq_succ_0.
     + exact Hnm.
-  - apply piL_tail2_qclose.
+  - apply piL_tail2_qclose_prop.
 Qed.
 
 (* -- The [bound] field: the value range satisfies [0 <= S <= 4 < 2^3] -- *)
@@ -771,10 +774,10 @@ Lemma pi_leibniz_bound : QBound pi_leibniz_seq pi_leibniz_scale.
 Proof.
   unfold QBound, pi_leibniz_scale. intros k. unfold pi_leibniz_seq.
   assert (Hge : Qle 0%Q (leiblw_S (2 * pi_leibniz_depth k + 2)))
-    by (apply leiblw_S_ge0).
+    by (apply leiblw_S_ge0_prop).
   assert (Hle : Qle (leiblw_S (2 * pi_leibniz_depth k + 2)) 4%Q)
-    by (apply leiblw_S_le4).
-  rewrite (leiblw_qabs_id _ Hge).
+    by (apply leiblw_S_le4_prop).
+  rewrite (leiblw_qabs_id_prop _ Hge).
   apply (Qle_lt_trans _ 4%Q).
   - exact Hle.
   - unfold Qlt. cbn. reflexivity.
@@ -793,22 +796,22 @@ Definition pi_leibniz : CReal := {|
 Definition lw0m_e (n : nat) : Q := 5 * leiblw_nivwin n.
 
 (** The [leiblw_nivwin] window is always positive. *)
-Lemma nivwin_pos : forall n : nat, Qlt 0%Q (leiblw_nivwin n)%Q.
+Lemma nivwin_pos_prop : forall n : nat, Qlt 0%Q (leiblw_nivwin n)%Q.
 Proof. intros n. unfold leiblw_nivwin. unfold Qlt. cbn. reflexivity. Qed.
 
 (** The [leiblw_nivwin] window is antitone: [a <= b] implies [leiblw_nivwin b <= leiblw_nivwin a]. 
       *)
-Lemma nivwin_antitone : forall a b : nat, (a <= b)%nat ->
+Lemma nivwin_antitone_prop : forall a b : nat, (a <= b)%nat ->
   Qle (leiblw_nivwin b) (leiblw_nivwin a)%Q.
 Proof.
   intros a b Hab. unfold leiblw_nivwin.
-  apply (proj2 (leiblw_qmake_le 1 1
+  apply (proj2 (leiblw_qmake_le_prop 1 1
             (Pos.of_succ_nat (b + b + 1)) (Pos.of_succ_nat (a + a + 1)))).
-  rewrite piL_pos_succ1, piL_pos_succ1.
+  rewrite piL_pos_succ1_prop, piL_pos_succ1_prop.
   apply (proj1 (Z.mul_le_mono_pos_l (Z.of_nat (a + a + 1) + 1)
             (Z.of_nat (b + b + 1) + 1) 1 (Pos2Z.is_pos 1))).
   apply (Zplus_le_compat_r (Z.of_nat (a + a + 1)) (Z.of_nat (b + b + 1)) 1).
-  apply znat_le_mono.
+  apply znat_le_mono_prop.
   apply Nat.add_le_mono; [apply Nat.add_le_mono; exact Hab | apply Nat.le_refl].
 Qed.
 
@@ -824,7 +827,7 @@ Lemma piL_inject_add1 : forall k : Z,
   (QArith_base.inject_Z k + 1)%Q == QArith_base.inject_Z (k + 1).
 Proof. intros k. unfold inject_Z, Qplus, Qeq. cbn. ring. Qed.
 
-Lemma piL_e_split2 : forall (eps : Q) (c z : Z),
+Lemma piL_e_split2_prop : forall (eps : Q) (c z : Z),
   Qle 0%Q eps -> (c + 1 <= z)%Z ->
   Qle (eps * (QArith_base.inject_Z c + 1)%Q) (eps * QArith_base.inject_Z z).
 Proof.
@@ -852,7 +855,7 @@ Definition lw0m_modulus (eps : Q) : nat := S (Z.to_nat (Qceiling (5 / eps))).
    procedure anywhere).  *)
 (** Right cancellation for [Q] multiplication on the strict side (the closing lemma of the modulus
    bound).  *)
-Lemma piL_qmult_cancel : forall (a b : Q), Qlt 0%Q b -> ((a * b) * / b == a)%Q.
+Lemma piL_qmult_cancel_prop : forall (a b : Q), Qlt 0%Q b -> ((a * b) * / b == a)%Q.
 Proof.
   intros a b Hb0.
   rewrite <- Qmult_assoc, Qmult_inv_r, Qmult_1_r.
@@ -863,7 +866,7 @@ Qed.
 (** The first split step: [eps * (QArith_base.inject_Z (Qceiling
     (5 / eps)) + 1)] exceeds [5] -- in the shape
     [eps * QArith_base.inject_Z (Qceiling (5 / eps)) + eps >= 5 + eps > 5]. *)
-Lemma piL_e_split1 : forall eps : Q, Qlt 0%Q eps ->
+Lemma piL_e_split1_prop : forall eps : Q, Qlt 0%Q eps ->
   Qlt 5 (eps * (QArith_base.inject_Z (Qceiling (5 / eps)) + 1)%Q).
 Proof.
   intros eps Hpos.
@@ -898,11 +901,11 @@ Qed.
     [lw0m_e (lw0m_modulus eps)] undercuts [eps] -- the [inject_Z] argument
     moves monotonically under multiplication by [eps] (the second split
     step) on top of the first split step. *)
-Lemma lw0m_modulus_bound : forall eps : Q, Qlt 0%Q eps ->
+Lemma lw0m_modulus_bound_prop : forall eps : Q, Qlt 0%Q eps ->
   Qlt (lw0m_e (lw0m_modulus eps)) eps.
 Proof.
   intros eps Hpos.
-  assert (Hs1 := piL_e_split1 eps Hpos).
+  assert (Hs1 := piL_e_split1_prop eps Hpos).
   assert (Hc0 : (0 <= Qceiling (5 / eps))%Z).
   { pose proof (Qle_ceiling (5 / eps)) as Hceil.
     assert (H05 : Qlt 0 5) by (unfold Qlt; cbn; reflexivity).
@@ -920,7 +923,7 @@ Proof.
   assert (HleA : (Qceiling (5 / eps) <= Z.of_nat (S t + S t + 1))%Z).
   { apply (Z.le_trans _ (Z.of_nat (Z.to_nat (Qceiling (5 / eps))))).
     - rewrite Z2Nat.id by exact Hc0. apply Z.le_refl.
-    - apply znat_le_mono. apply Nat.le_trans with (S t).
+    - apply znat_le_mono_prop. apply Nat.le_trans with (S t).
       + apply Nat.le_succ_diag_r.
       + rewrite <- Nat.add_assoc. apply Nat.le_add_r. }
   assert (Hcz : (Qceiling (5 / eps) + 1 <= Z.of_nat (S (S t + S t + 1)))%Z).
@@ -930,7 +933,7 @@ Proof.
     - apply Z.le_refl. }
 
   assert (H0eps : Qle 0 eps) by (apply (Qlt_le_weak 0%Q); exact Hpos).
-  assert (Hs2 := piL_e_split2 eps (Qceiling (5 / eps))
+  assert (Hs2 := piL_e_split2_prop eps (Qceiling (5 / eps))
                 (Z.of_nat (S (S t + S t + 1))) H0eps Hcz).
   assert (Hcore : Qlt 5 (eps * QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))).
   { apply (Qlt_le_trans _ (eps * (QArith_base.inject_Z (Qceiling (5 / eps)) + 1)%Q)).
@@ -942,11 +945,11 @@ Proof.
   assert (Hbne0 : ~ (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1)))) == 0%Q).
   { apply Qnot_eq_sym. apply (Qlt_not_eq 0 _). exact Hbpos. }
   assert (Hmid : Qlt (5 * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) eps).
-  { apply (piL_qlt_transport (5 * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) ((eps * (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) eps).
+  { apply (piL_qlt_transport_prop (5 * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) ((eps * (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) eps).
     - apply (Qmult_lt_compat_r 5 (eps * (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))) (/ (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1)))))).
       + exact Hbpos.
       + exact Hcore.
-    - apply (piL_qmult_cancel eps (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))).
+    - apply (piL_qmult_cancel_prop eps (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1))))).
       exact Hbpos. }
   assert (HeqA : (5 * leiblw_nivwin (S t))%Q == (5 * / (QArith_base.inject_Z (Z.of_nat (S (S t + S t + 1)))))%Q).
   { unfold leiblw_nivwin. rewrite Hbinv. reflexivity. }
@@ -964,9 +967,9 @@ Definition leiblw_lic_vanish (e : nat -> Q) : Set :=
   forall eps : Q, QltT 0 eps ->
     sigT (fun N : nat => forall n : nat, (N <= n)%nat -> QltT (e n) eps).
 
-(** The unified window vanishing instance: [lw0m_vanish_pi] (the modulus family of this file
+(** The unified window vanishing instance: [lw0m_vanish_pi_prop] (the modulus family of this file
    replaces the earlier family wholesale).  *)
-Definition lw0m_vanish_pi : leiblw_lic_vanish lw0m_e.
+Definition lw0m_vanish_pi_prop : leiblw_lic_vanish lw0m_e.
 Proof.
   intros eps Heps.
   assert (H05 : Qle 0 5) by (unfold Qle; cbn; apply Z.leb_le; reflexivity).
@@ -977,94 +980,14 @@ Proof.
   rewrite (Qmult_comm 5 (leiblw_nivwin n)).
   assert (Hmid2 : Qle (leiblw_nivwin n * 5) (leiblw_nivwin (lw0m_modulus eps) * 5)).
   { apply (Qmult_le_compat_r (leiblw_nivwin n) (leiblw_nivwin (lw0m_modulus eps)) 5).
-    + apply nivwin_antitone. exact Hn.
+    + apply nivwin_antitone_prop. exact Hn.
     + exact H05. }
-  pose proof (lw0m_modulus_bound eps (QltT_to_Qlt 0 eps Heps)) as Hmb.
+  pose proof (lw0m_modulus_bound_prop eps (QltT_to_Qlt 0 eps Heps)) as Hmb.
   rewrite (Qmult_comm 5 (leiblw_nivwin (lw0m_modulus eps))) in Hmb.
   apply (Qle_lt_trans _ (leiblw_nivwin (lw0m_modulus eps) * 5)).
   - apply (Qmult_le_compat_r (leiblw_nivwin n) (leiblw_nivwin (lw0m_modulus eps)) 5).
-    + apply nivwin_antitone. exact Hn.
+    + apply nivwin_antitone_prop. exact Hn.
     + exact H05.
   - exact Hmb.
 Defined.
 
-(* Statement provenance: for every statement of this file, the
-   source statement of this development that it was migrated from,
-   with the source coordinates.  Rows marked (new) are statements
-   first stated in this file.
-
-   [lp_a] <- [lp_a] at [S10_KVQuantTrig.v:L2693]
-   [lp_pair] <- [lp_pair] at [S10_KVQuantTrig.v:L2695]
-   [lp_odd] <- [lp_odd] at [S10_KVQuantTrig.v:L2697]
-   [lp_four] <- [lp_four] at [S10_KVQuantTrig.v:L2703]
-   [lw0m_xL] <- [lw0m_xL] at [LW0MLicBridge.v:L20]
-   [piL_lp_a_0] <- (new in this file)
-   [piL_lp_a_S] <- (new in this file)
-   [znat_le_mono] <- (new in this file)
-   [znat_eq_inj] <- (new in this file)
-   [piL_pos_succ1] <- (new in this file)
-   [piL_nat_pow2_ge1] <- (new in this file)
-   [piL_qpow2_neq0] <- (new in this file)
-   [piL_qpow2_neg] <- (new in this file)
-   [qle_minus0] <- (new in this file)
-   [qle0_minus] <- (new in this file)
-   [qle_minus_compat] <- (new in this file)
-   [qle_rsub_antitone] <- (new in this file)
-   [qle_minus_flip0] <- (new in this file)
-   [piL_qabs_le_nonneg] <- (new in this file)
-   [piL_qabs_neg_le] <- (new in this file)
-   [piL_qabs_sym] <- (new in this file)
-   [piL_nat_lt_succ_le] <- (new in this file)
-   [piL_even_le] <- (new in this file)
-   [piL_even_le_odd] <- (new in this file)
-   [piL_odd_le_even] <- (new in this file)
-   [piL_odd_le_odd] <- (new in this file)
-   [piL_sandwich_abs] <- (new in this file)
-   [piL_sandwich_abs_neg] <- (new in this file)
-   [piL_qmult_make4] <- (new in this file)
-   [piL_qopp_make] <- (new in this file)
-   [piL_pair_val] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_qlt_transport] <- (new in this file)
-   [piL_zlt_add5] <- (new in this file)
-   [piL_qclose_exp] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_depth] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_depth_pos] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_depth_floor] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_step_diff] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_t_shift] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [leiblw_xL_eq_S] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_tail_even_abs] <- (new in this file)
-   [piL_tail_odd_abs] <- (new in this file)
-   [piL_tail_ee] <- (new in this file)
-   [piL_tail_eo] <- (new in this file)
-   [piL_tail_oe] <- (new in this file)
-   [piL_tail_oo] <- (new in this file)
-   [leiblw_S_tail_bound] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_seq_pair_bound] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_seq] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_seq_negtail] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_t_2p2_even] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_t_even_antitone] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_tail2_antitone] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_tail2_qclose] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_qpow2_ge1] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_cauchy_neg] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_cauchy_pos] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_cauchy] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_negtail_cauchy] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_scale] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz_bound] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [pi_leibniz] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [lw0m_e] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [nivwin_pos] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [nivwin_antitone] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_inject_add1] <- (new in this file)
-   [piL_e_split2] <- (new in this file)
-   [piL_qinv_inject_succ] <- (new in this file)
-   [lw0m_modulus] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [piL_qmult_cancel] <- (new in this file)
-   [piL_e_split1] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [lw0m_modulus_bound] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [leiblw_lic_vanish] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-   [lw0m_vanish_pi] <- (new in this file; design ancestry: [maps/modulus-conversion-design.md], Section 3)
-*)

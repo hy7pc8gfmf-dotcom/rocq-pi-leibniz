@@ -1,4 +1,12 @@
-(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
+(************************************************************************)
+(*         *      The Rocq Prover / The Rocq Development Team           *)
+(*  v      *         Copyright INRIA, CNRS and contributors             *)
+(* <O___,, * (see version control and CREDITS file for authors & dates) *)
+(*   \VV/  **************************************************************)
+(*    //   *    This file is distributed under the terms of the         *)
+(*         *     GNU Lesser General Public License Version 2.1          *)
+(*         *     (see LICENSE file for the text of the license)         *)
+(************************************************************************)
 
 (** * The row identity behind the partial-sum stratification of the
     double-angle sine
@@ -40,17 +48,17 @@
     Build.  [coqc -native-compiler no -q -Q . "" PiRowIdentity.v];
     the first eight bytes of the artifact are [436f7121 00015ff4].
 
-    This file is part of the rocq-pi-leibniz package; its interface
-    may change in future releases. *)
+    WARNING: this file is experimental and likely to change in future
+    releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 From Stdlib Require Import Lia.
 Require Import PiKernelSlack.
+Require Import PiCompareT.
 Require Import PiPascalMachine.
 
-(* ============ Section 1. The product-coefficient row (carried by the row-sum machine [sumR]) and
-   the scalar lemmas ============  *)
+(* ============ Section 1. The product-coefficient row (carried by the row-sum machine [sumR]) and the scalar lemmas ============ *)
 
 (** The coefficient row of the double product
     [2 * (sum sin_term) * (sum cos_term)], grouped by [i+j=m].  The
@@ -102,8 +110,7 @@ Proof.
     cbv beta. rewrite IH. ring.
 Qed.
 
-(* ============ Section 2. Cancellation base lemmas ([Qmult_inv_r], explicit at every step)
-   ============  *)
+(* ============ Section 2. Cancellation base lemmas ([Qmult_inv_r], explicit at every step) ============ *)
 
 Lemma piLrowB_qfact_neq0 : forall n : nat, ~ (q_fact n == 0)%Q.
 Proof.
@@ -137,8 +144,7 @@ Proof.
   - rewrite Hcc. apply Qmult_1_r.
 Qed.
 
-(* ============ Section 3. Row-piece denominator cancellation (product form; one [Qmult_inv_r] pair
-   per piece) ============  *)
+(* ============ Section 3. Row-piece denominator cancellation (product form; one [Qmult_inv_r] pair per piece) ============ *)
 
 Lemma piLrowB_rowpiece : forall (m t : nat) (x : Q), (t <= m)%nat ->
   (2 * sin_term t x * cos_term (m - t)%nat x) * q_fact (Datatypes.S (2 * m))
@@ -191,8 +197,7 @@ Proof.
   rewrite Hreg, H1, H2. ring.
 Qed.
 
-(* ============ Section 4. The row sum with canceled denominators (after piece-by-piece
-   cancellation, the odd half-row concludes) ============  *)
+(* ============ Section 4. The row sum with canceled denominators (after piece-by-piece cancellation, the odd half-row concludes) ============ *)
 
 Lemma piLrowB_row_fact_sum : forall (m : nat) (x : Q),
   piLrowB_row m x * q_fact (Datatypes.S (2 * m))
@@ -218,8 +223,7 @@ Proof.
   rewrite piLsb_row_odd. ring.
 Qed.
 
-(* ============ Section 5. The main theorem, the row identity (both sides multiplied by the
-   denominator and the factor canceled) ============  *)
+(* ============ Section 5. The main theorem, the row identity (both sides multiplied by the denominator and the factor canceled) ============ *)
 
 Theorem piLrowB_row_sin_term : forall (m : nat) (x : Q),
   piLrowB_row m x == sin_term m (2 * x)%Q.
@@ -240,8 +244,7 @@ Proof.
     ring.
 Qed.
 
-(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared
-   explicitly) ============  *)
+(* ============ Section 6. Computational witnesses (auxiliary statements; trivial character declared explicitly) ============ *)
 
 (** In-kernel witnesses for small instances: for [m] = 3 and [4]
     with [x = 13/10], the row values agree with the double-angle
@@ -259,3 +262,203 @@ Definition piLrowB_witness_row4 : Q := piLrowB_row 4 (13 # 10)%Q.
 
 Lemma piLrowB_witness_row4_val : piLrowB_witness_row4 == (10604499373 # 708750000000)%Q.
 Proof. vm_compute. reflexivity. Qed.
+
+(* ============================================================ *)
+(* Appended section: Set-carried twins of the order faces        *)
+(*
+   Mission.  Set-carried twins of the strict-order, non-strict
+     order and equality statement faces of this file: each twin
+     restates the same mathematical content with the reflected
+     decision types [QltT]/[QleT']/[QeqT]/[NatLe] in the place of
+     the [Prop]-level [Qlt]/[Qle]/[Qeq]/[(<=)%nat] faces, so the
+     twin statement face lives in [Set] with no [Prop] component.
+     Each twin is proved by transporting through the decision
+     bridges and calling the original statement; the original
+     statements are untouched.
+
+   Dependencies.  The decision bridges of PiKernelSlack
+     ([QltT_to_Qlt]/[Qlt_to_QltT]/[QleT'_to_Qle]/[Qle_to_QleT']/
+     [qeqT_imp_qeq]/[qeq_imp_qeqT]/[NatLe_drop]/[NatLe_lift]).
+
+   References.  The original statements of this file (each twin
+     names its original in the one-line annotation above it).
+
+   Constructivity.  Statement faces carried at the [Set] level
+     ([QltT]/[QleT']/[QeqT]/[NatLe]); proof bodies are transport
+     chains through the decision bridges; no solver closes any
+     twin; assumption-free.
+
+   Build.  Compiled together with this file; see the header of
+     this file for the build recipe.
+*)
+
+
+(* Set twin of piLrowB_row_scal *)
+Lemma piLrowB_row_scalT : forall (c : Q) (f : nat -> Q) (n : nat), QeqT (piLsb_sumR (fun i => c * f i) n) (c * piLsb_sumR f n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_row_scal c f n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_row_scal_r *)
+Lemma piLrowB_row_scal_rT : forall (c : Q) (f : nat -> Q) (n : nat), QeqT (piLsb_sumR f n * c) (piLsb_sumR (fun i => f i * c) n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_row_scal_r c f n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_sin_partial_sumR *)
+Lemma piLrowB_sin_partial_sumRT : forall (n : nat) (x : Q), QeqT (sin_partial n x) (piLsb_sumR (fun m => sin_term m x) (Datatypes.S n)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_sin_partial_sumR n x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_cos_partial_sumR *)
+Lemma piLrowB_cos_partial_sumRT : forall (n : nat) (x : Q), QeqT (cos_partial n x) (piLsb_sumR (fun m => cos_term m x) (Datatypes.S n)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_cos_partial_sumR n x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_rowpiece *)
+Lemma piLrowB_rowpieceT : forall (m t : nat) (x : Q), NatLe (t) (m) -> QeqT ((2 * sin_term t x * cos_term (m - t)%nat x) * q_fact (Datatypes.S (2 * m))) (2%Q * q_pow (-1)%Q m * q_pow x (Datatypes.S (2 * m)) * bpa_binom (Datatypes.S (2 * m)) (Datatypes.S (2 * t))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_rowpiece m t x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_row_fact_sum *)
+Lemma piLrowB_row_fact_sumT : forall (m : nat) (x : Q), QeqT (piLrowB_row m x * q_fact (Datatypes.S (2 * m))) (2%Q * q_pow (-1)%Q m * q_pow x (Datatypes.S (2 * m)) * q_pow 2%Q (2 * m)%nat).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_row_fact_sum m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_row_sin_term *)
+Lemma piLrowB_row_sin_termT : forall (m : nat) (x : Q), QeqT (piLrowB_row m x) (sin_term m (2 * x)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLrowB_row_sin_term m x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_witness_row3_val *)
+Lemma piLrowB_witness_row3_valT : QeqT (piLrowB_witness_row3) ((-62748517 # 393750000)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply piLrowB_witness_row3_val.
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_witness_row3_term *)
+Lemma piLrowB_witness_row3_termT : QeqT (piLrowB_witness_row3) (sin_term 3 (2 * (13 # 10))%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply piLrowB_witness_row3_term.
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLrowB_witness_row4_val *)
+Lemma piLrowB_witness_row4_valT : QeqT (piLrowB_witness_row4) ((10604499373 # 708750000000)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply piLrowB_witness_row4_val.
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.

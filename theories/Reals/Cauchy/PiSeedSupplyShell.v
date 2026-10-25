@@ -36,19 +36,18 @@ Require Import PiCompareT.
 Require Import PiKernelSlack.
 Require Import PiLeibnizCReal.
 (* Supply module lines: the two truncation-residual seed theorems
-   [piLe_seed_dres]/[piLe_seed_dcos] live in [PiCosBandAssemble];
-   the half-window pair seed theorem [piLh_seed_halfwin] lives in
+   [piLe_seed_dres_prop]/[piLe_seed_dcos_prop] live in [PiCosBandAssemble];
+   the half-window pair seed theorem [piLh_seed_halfwin_prop] lives in
    [PiHalfwinSeed]. *)
 Require Import PiCosBandAssemble.
 Require Import PiHalfwinSeed.
 (* Topology note: in this tree the identity premise bundles and the
    synthesis segment are carried by the merged PiKernelSlack segment;
    the slot definitions piLd3_seed_* and the V1/V2 vanishing forms
-   (piL_sin_xL_vanish/piL_cos_xL_neg1_vanish) are supplied by the
+   (piL_sin_xL_vanish_prop/piL_cos_xL_neg1_vanish_prop) are supplied by the
    Requires above. *)
 
-(* ====== §1 The three supply faces = the three slot faces, verbatim (same-source supplies) ====== 
-      *)
+(* ==== Section 1. The three supplies, stated verbatim ==== *)
 
 (* The sigma-1 half-window pair supply face: |C_k(2*lp_odd m)| -> 0 and
    |S_k(2*lp_odd m) - 1| -> 0, uniform in both indices. *)
@@ -62,20 +61,18 @@ Definition piLsup_dres : Set := piLd3_seed_dres.
    B.  *)
 Definition piLsup_dcos : Set := piLd3_seed_dcos.
 
-(* ====== §1.5 Loading the three supplies (explicit ascriptions checked verbatim against the slot
-   types) ======  *)
+(* ==== Section 1.5. Loading the three supplies with checked type ascriptions ==== *)
 
 (* Loading: the three slots are supplied under pinned names --
-   sigma-1 [piLh_seed_halfwin] ([PiHalfwinSeed]); sigma-2
-   [piLe_seed_dres] and sigma-3 [piLe_seed_dcos] ([PiCosBandAssemble]).
+   sigma-1 [piLh_seed_halfwin_prop] ([PiHalfwinSeed]); sigma-2
+   [piLe_seed_dres_prop] and sigma-3 [piLe_seed_dcos_prop] ([PiCosBandAssemble]).
    The three ascriptions match the slot types [piLd3_seed_*] verbatim,
    so the supplies load with zero adaptation. *)
-Definition piLsup_halfwin_supply : piLsup_halfwin := piLh_seed_halfwin.
-Definition piLsup_dres_supply : piLsup_dres := piLe_seed_dres.
-Definition piLsup_dcos_supply : piLsup_dcos := piLe_seed_dcos.
+Definition piLsup_halfwin_supply : piLsup_halfwin := piLh_seed_halfwin_prop.
+Definition piLsup_dres_supply : piLsup_dres := piLe_seed_dres_prop.
+Definition piLsup_dcos_supply : piLsup_dcos := piLe_seed_dcos_prop.
 
-(* ====== §2 The vertex anchor face (an explicitly stated open companion of the sigma-1 supply)
-   ======  *)
+(* ==== Section 2. The vertex anchor premise (open companion of the sigma-1 supply) ==== *)
 
 (* The anchor face is the sigma-1 face with the k-lower-bound half removed:
    at the window half-points 2*lp_odd m the sin/cos partial sums vanish
@@ -90,7 +87,7 @@ Definition piLsup_vertex_anchor : Set :=
           (QltT (Qabs (sin_partial k (2 * lp_odd m) - (1 # 1)%Q)) dt)).
 
 (* A resolution of the anchor face implies the sigma-1 supply face (glue: take K := N). *)
-Theorem piLsup_halfwin_of_anchor :
+Theorem piLsup_halfwin_of_anchor_prop :
   piLsup_vertex_anchor -> piLsup_halfwin.
 Proof.
   intros Hanchor dt Hdt.
@@ -98,7 +95,7 @@ Proof.
   exists N. intros k m Hk Hm. exact (HN k m Hm).
 Qed.
 
-(* ====== §3 Direct feeding of the sigma-2/sigma-3 supplies (wiring check) ====== *)
+(* ==== Section 3. Direct use of the sigma-2 and sigma-3 supplies ==== *)
 
 (* With the sigma-2 supply resolved, the V1 conclusion form holds (fed directly, zero adaptation). 
       *)
@@ -109,7 +106,7 @@ Theorem piLsup_sin_vanish_of_sup :
       QltT (Qabs (sin_partial m (lw0m_xL m))) dt).
 Proof.
   intros H1 H2 dt Hdt.
-  exact (piL_sin_xL_vanish H1 H2 dt Hdt).
+  exact (piL_sin_xL_vanish_prop H1 H2 dt Hdt).
 Qed.
 
 (* With the sigma-3 supply resolved, the V2 conclusion form holds (fed directly, zero adaptation). 
@@ -121,11 +118,10 @@ Theorem piLsup_cos_vanish_of_sup :
       QltT (Qabs (cos_partial m (lw0m_xL m) + (1 # 1)%Q)) dt).
 Proof.
   intros H1 H3 dt Hdt.
-  exact (piL_cos_xL_neg1_vanish H1 H3 dt Hdt).
+  exact (piL_cos_xL_neg1_vanish_prop H1 H3 dt Hdt).
 Qed.
 
-(* ====== §4 The final assembly with the three supplies as explicit premises (the seed-free form)
-   ======  *)
+(* ==== Section 4. Final assembly with the three supplies as explicit premises ==== *)
 
 (* With the three supplies at hand, the conjunction of the sin/cos double
    vanishing follows (the two positive identity forms wired in one step);
@@ -144,7 +140,7 @@ Proof.
   - exact (piLsup_cos_vanish_of_sup H1 H3 dt Hdt).
 Qed.
 
-(* ====== §5 The final form (the seed-free vanishing conjunction, supplies loaded) ====== *)
+(* ==== Section 5. The final vanishing-conjunction form ==== *)
 
 Theorem piLsup_seedfree_xL_vanish :
   forall dt : Q, QltT 0 dt ->

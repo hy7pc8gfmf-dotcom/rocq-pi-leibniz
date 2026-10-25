@@ -13,7 +13,7 @@
 
     Mission.  The two closing theorems of [PiSeparation]
       ([pi_leibniz_appart_all_Q] and
-      [pi_leibniz_strong_irrational]) conclude in the stdlib
+      [pi_leibniz_strong_irrational_prop]) conclude in the stdlib
       apartness [CReal_appart].  This file carries their mirror
       images concluding in [CReal_appartT] (of [PiCRealAppartT]):
       the final jump is taken from the unchanged stdlib-form
@@ -34,10 +34,13 @@
       bridges); [PiSepBNeq0T] (the Set-carried nonzero premise and
       its up-builder on the Qeq face).
 
-    References.  [PiSeparation.v:L349-L366] (the mirrored
+    References.  [PiSeparation.v] (the mirrored
       originals); [PiCRealAppartT.v] ([creal_appartT_of_appart],
       the transport used at the jump); [PiSepBNeq0T.v]
       ([Qneq0T], [Qneq0T_qeq_up]).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Every statement face is [Set]-carried (the
       [CReal_appartT] sum with [sigT] witnesses, the [Qneq0T] sum
@@ -63,7 +66,7 @@ Require Import PiSepBNeq0T.
 
 (* ============ Section 1. The mirror of the closing theorems ========== *)
 
-(* Mirror of [pi_leibniz_appart_all_Q] ([PiSeparation.v:L349]): the
+(* Mirror of [pi_leibniz_appart_all_Q] ([PiSeparation.v]): the
    final jump is taken from the unchanged stdlib-form theorem and
    transported through the apartness-level interchange bridge. *)
 Definition pi_leibniz_appart_all_Q_T :
@@ -72,7 +75,7 @@ Proof.
   intros q. exact (creal_appartT_of_appart _ _ (pi_leibniz_appart_all_Q q)).
 Defined.
 
-(* Mirror of [pi_leibniz_strong_irrational] ([PiSeparation.v:L361]):
+(* Mirror of [pi_leibniz_strong_irrational_prop] ([PiSeparation.v]):
    the conclusion face re-faced to [CReal_appartT] and the premise
    face re-faced to [Qneq0T].  Note on the zero-consumption premise:
    as in the original, the mounting piece holds for every rational,
@@ -110,14 +113,3 @@ Proof.
   exact (creal_appartT_of_appart _ _ (pi_leibniz_appart_all_Q (22 # 7))).
 Defined.
 
-(* Statement provenance: for every statement of this file, the source
-   statement that it mirrors, with the source coordinates.  Rows
-   marked (new) are statements first stated in this file.
-
-   [pi_leibniz_appart_all_Q_T] <-
-      [pi_leibniz_appart_all_Q] at [PiSeparation.v:L349-L350]
-   [pi_leibniz_strong_irrational_T] <-
-      [pi_leibniz_strong_irrational] at [PiSeparation.v:L361-L362]
-   [pi_leibniz_strong_irrational_T_qeq] <- (new in this file)
-   [creal_appartT_pi_227] <- (new in this file)
-*)

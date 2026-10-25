@@ -71,7 +71,19 @@ A fast-converging variant of this development is on the roadmap
 ## Guarantees
 
 - **Premise-free.**  Both main theorems are stated with no section
-  variables and no hypotheses beyond the rational `q` itself.
+  variables and no hypotheses beyond the rational `q` itself.  The one
+  registered antecedent, `b <> 0` in `pi_leibniz_strong_irrational`,
+  is zero-consumption: the proof discards it, the content rests on the
+  premise-free companion `pi_leibniz_appart_all_Q`, and it serves only
+  as the semantic guard of the notion of a rational number (header
+  note in `PiSeparation`).  It is entered in the exception register as
+  a backfill line for a statement face already on disk (red-line law
+  v2.4 freezes the register — no new entries).  Its Set-carried
+  re-facing is recorded in machine-checked form in `PiSep361RefaceT`:
+  the Leibniz face admits no transport into the `Qeq` face
+  (`leibniz_qeq_transport_blocked`, counterexample `0 # 2`), and the
+  chain is one-way, from `~ (b == 0)` to `Qneq0T b` to `b <> 0`
+  (`qeq_face_to_leibniz_face`).
 - **Zero axioms.**  `Print Assumptions pi_leibniz_strong_irrational` and
   `Print Assumptions pi_leibniz_appart_all_Q` report *Closed under the
   global context*; the same holds for the main statements of every
@@ -79,13 +91,25 @@ A fast-converging variant of this development is on the roadmap
   *Modules were successfully checked*, assumption context summary
   all-none.
 - **Extractable witnesses.**  Statement faces are Set-carried: the
-  sigma witnesses and the `CReal_appart` sum are `Set`-valued, with
-  `Qlt` predicates occurring inside those sigma types as the registered
-  mirror of stdlib's `CRealLt` (scheduled for a `QltT`-based Set-carrier
-  rewrite).  Legacy supply-layer helper lemmas stated over `Prop` are
-  being restated over Set carriers wave by wave (red-line law v2.4:
-  the exception register is frozen — no new entries, existing ones
-  sunset on a fixed schedule).  Proof-internal `Prop` is erased at
+  sigma witnesses and the apartness sum are `Set`-valued, and the
+  kernel-slack restatement file carries 238 Set-carried twin faces of
+  its order statements (`QltT`/`QleT'`/`QeqT` reflected decisions in
+  the place of the `Prop`-level faces), each proved by transport
+  through the decision bridges.  The canonical `QltT`-based carriers
+  are unified in `PiCompareT` — `QltT`, `QleT'`, the `Id` equality
+  type, and the `And`/`NatLe`/`ZleT`/`ZltT`/`IffT` carrier block,
+  obtained from that single source by every consumer module — and the
+  scheduled `QltT`-based Set-carrier rewrite of the registered
+  `CRealLt` mirror is now in place: `CRealLtT` and `CReal_appartT`
+  (in `PiCRealAppartT`) mirror the stdlib originals and run in
+  parallel with them over two-way bridges, the main theorems remaining
+  on the stdlib face pending the full Set replacement.  Legacy
+  supply-layer helper lemmas stated over `Prop` are being restated
+  over Set carriers wave by wave (red-line law v2.4: the exception
+  register is frozen — no new entries, existing ones sunset on a
+  fixed schedule); the kernel-slack twin ablation and the 26-face
+  window-equality cascade, reshaped onto its `Set` twin
+  `lw0_qpoly_eqT`, are complete.  Proof-internal `Prop` is erased at
   extraction: the extracted OCaml carries zero `Obj.magic` and zero
   statement-name loss.
 - **Runnable witnesses.**  Sample-point probes run in the REPL with
@@ -181,8 +205,19 @@ Three layers, all under `theories/Reals/Cauchy/`:
   variants), and `PiSepSearch` (generic separation search, groundwork
   for the approximation interface).
 
-Counting: 27 pi-stack files (about 36,700 lines) plus the 221-line engine
-file they build on = 28 content modules, about 36,900 lines.
+- **v1.0.3 additions (5 files).**  `PiCRealAppartT` (the `Set`-carried
+  apartness counterpart: `CRealLtT`/`CReal_appartT` mirroring the
+  stdlib `CRealLt`/`CReal_appart` over the `QltT` carrier, with two-way
+  bridges), `PiSepBNeq0T` (a `Set`-carried nonzero premise for the
+  strong irrationality theorem), `PiSep361RefaceT` (the re-faced
+  premise of `pi_leibniz_strong_irrational` registered in
+  machine-checked form), `PiSepMirrorT` (the closing theorems re-faced
+  to the `Set`-carried apartness twin), and `PiSepTriple227`
+  (witness-value assertions for the documented escape triple at
+  `22 # 7`).
+
+Counting: 32 pi-stack files (about 47,000 lines) plus the 230-line engine
+file they build on = 33 content modules, about 47,200 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 
@@ -199,6 +234,11 @@ restated as the equivalent `Notation` declarations, because the
 the 9.1 line as its compatibility floor.  No proof content is affected.
 The packaging scaffolding (opam file, build files, README, package
 layout) is new.
+
+Statement-level migration provenance (per-statement source coordinates,
+frozen as recorded) is maintained in
+[docs/statement-provenance.md](docs/statement-provenance.md); citations
+inside the library are by fully qualified name.
 
 ## Prior work
 

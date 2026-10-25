@@ -11,7 +11,7 @@
 (** * PiSepBNeq0T: a Set-carried nonzero premise for the strong
       irrationality theorem.
 
-    Mission.  The main theorem [pi_leibniz_strong_irrational] (in
+    Mission.  The main theorem [pi_leibniz_strong_irrational_prop] (in
       [PiSeparation]) carries the premise [b <> 0] as a bare
       [Prop] disequality.  This file re-faces that premise so the
       whole statement face lives in [Set]: the nonzero premise
@@ -33,6 +33,9 @@
       premise this file re-faces); [QArith_base] ([Qcompare_spec],
       [Qeq_sym], [Qlt_not_eq]); [PiCompareT] (the strict-order
       decision [QltT]).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Both statement faces are [Set]-carried (a sum
       of two [Id]-wrapped decision witnesses); the proof bodies use
@@ -113,15 +116,3 @@ Proof.
   vm_compute. exact id_refl.
 Defined.
 
-(* Statement provenance: for every statement of this file, the source
-   statement that it mirrors or re-faces, with the source coordinates.
-   Rows marked (new) are statements first stated in this file.
-
-   [Qneq0T] <- the premise face [b <> 0] of
-      [pi_leibniz_strong_irrational] at [PiSeparation.v:L361-L362]
-      (re-faced to the Set-carried sum form)
-   [Qneq0T_down] <- (new in this file)
-   [Qneq0T_qeq_down] <- (new in this file)
-   [Qneq0T_qeq_up] <- (new in this file)
-   [qneq0T_two] <- (new in this file)
-*)

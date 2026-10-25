@@ -22,19 +22,19 @@
     Dependencies.  [PiCompareT] (the [Set]-reflected form [QleT']);
     [PiKernelSlack] ([q_pow]/[q_fact], the [Set]-carried [And] and
     [NatLe] with the [NatLe_drop]/[NatLe_lift] bridges,
-    [QleT'_to_Qle]/[Qle_to_QleT'], [qeq_le], [Qle_plus_nonneg_r],
-    [q_le_div_le], [q_fact_pos], [q_pow_nonneg], [q_fact_succ]);
+    [QleT'_to_Qle]/[Qle_to_QleT'], [qeq_le_prop], [Qle_plus_nonneg_r_prop],
+    [q_le_div_le_prop], [q_fact_pos], [q_pow_nonneg_prop], [q_fact_succ]);
     [PiExpTrigSeries] (the [exp_series] series and its monotonicity,
-    [q_pow_fact_nonneg]/[q_pow_fact2_nonneg], [Qle_0_1]); stdlib
+    [q_pow_fact_nonneg_prop]/[q_pow_fact2_nonneg_prop], [Qle_0_1_prop]); stdlib
     [QArith], [Qfield], [ZArith], [PeanoNat], [Lia], [Setoid],
     [Morphisms].
 
     References.  This development, [S03_QExp.v
     :30/:84/:159-:278/:292/:304/:315-:329/:403/:519/:545/:811/:941/
     :1129] (statements and proofs transcribed verbatim from the source
-    passages; one closing step of [geo_sum_le_two] uses [Qhalf_nonneg]
-    in place of [Qle_0_1], the same-file [Qhalf_nonneg] form,
-    semantically identical; [q_neq_of_lt] restates the stdlib
+    passages; one closing step of [geo_sum_le_two_prop] uses [Qhalf_nonneg_prop]
+    in place of [Qle_0_1_prop], the same-file [Qhalf_nonneg_prop] form,
+    semantically identical; [q_neq_of_lt_prop] restates the stdlib
     [Qlt_not_eq], [QArith_base :963]).
 
     Constructivity.  Statements carried at the [Set] level ([sigT]
@@ -62,36 +62,36 @@ Require Import PiExpTrigSeries.
 
 (* ---- Counting bridge and bookkeeping constants ---- *)
 
-Lemma positive_nat_Z : forall p : positive, Z.of_nat (Pos.to_nat p) = Z.pos p.
+Lemma positive_nat_Z_prop : forall p : positive, Z.of_nat (Pos.to_nat p) = Z.pos p.
 Proof.
   intro p. lia.
 Qed.
 
-Lemma Q2_pos : Qlt 0 (1 + 1)%Q.
+Lemma Q2_pos_prop : Qlt 0 (1 + 1)%Q.
 Proof. unfold Qlt; simpl; lia. Qed.
 
-Lemma Qhalf_nonneg : Qle 0 (1 / 2)%Q.
+Lemma Qhalf_nonneg_prop : Qle 0 (1 / 2)%Q.
 Proof.
   unfold Qle.
   simpl.
   lia.
 Qed.
 
-Lemma Qle_of_nat : forall a b : nat, (a <= b)%nat ->
+Lemma Qle_of_nat_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros a b Hab.
   unfold Qle; simpl; lia.
 Qed.
 
-Lemma Qlt_of_nat_lt : forall a b : nat, (a < b)%nat ->
+Lemma Qlt_of_nat_lt_prop : forall a b : nat, (a < b)%nat ->
   Qlt (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros a b Hab.
   unfold Qlt; simpl; lia.
 Qed.
 
-Lemma q_neq_of_lt : forall x : Q, Qlt 0 x -> ~ (x == 0).
+Lemma q_neq_of_lt_prop : forall x : Q, Qlt 0 x -> ~ (x == 0).
 Proof.
   intros x Hx H. exact (Qlt_not_eq 0 x Hx (Qeq_sym x 0 H)).
 Qed.
@@ -114,15 +114,15 @@ Proof.
   apply Qlt_le_weak.
   apply (Qlt_trans _ (Z.pos p # 1) _).
   - exact Hp.
-  - rewrite <- (positive_nat_Z p).
-    apply (Qlt_of_nat_lt (Pos.to_nat p) (t + 1)).
+  - rewrite <- (positive_nat_Z_prop p).
+    apply (Qlt_of_nat_lt_prop (Pos.to_nat p) (t + 1)).
     apply NatLe_drop in Ht. lia.
 Qed.
 
 (* ---- Geometric decay: [A^{S k}/(S k)! <= (A^k/k!) * (1/2)] when
        [2A <= (k+1)#1] ---- *)
 
-Lemma pow_fact_geom_int : forall (A : Q) (k : nat),
+Lemma pow_fact_geom_int_prop : forall (A : Q) (k : nat),
   Qle 0 A -> Qle (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) ->
   Qle (q_pow A (Datatypes.S k) * q_fact k * (1 + 1)) (q_pow A k * q_fact (Datatypes.S k)).
 Proof.
@@ -132,44 +132,44 @@ Proof.
   setoid_replace (Z.of_nat (Datatypes.S k) # 1) with (Z.of_nat (k + 1) # 1).
   2: { unfold Qeq. simpl. lia. }
   apply (Qle_trans _ ((Qmult (1 + 1)%Q A) * (q_pow A k * q_fact k)) _).
-  - apply qeq_le. ring.
+  - apply qeq_le_prop. ring.
   - apply (Qle_trans _ ((Z.of_nat (k + 1) # 1) * (q_pow A k * q_fact k)) _).
     + apply (Qmult_le_compat_r (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) (q_pow A k * q_fact k)).
       * exact Hle.
       * apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg. exact HA.
+        -- apply q_pow_nonneg_prop. exact HA.
         -- apply (Qlt_le_weak 0 (q_fact k)). apply q_fact_pos.
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
 Qed.
 
 Lemma div_form_lhs : forall (A : Q) (k : nat),
   q_pow A (Datatypes.S k) * q_fact k == (q_pow A (Datatypes.S k) * q_fact k * (1 + 1)) * (1 / 2).
 Proof. intros. field. Qed.
 
-Lemma pow_fact_geom_step : forall (A : Q) (k : nat),
+Lemma pow_fact_geom_step_prop : forall (A : Q) (k : nat),
   Qle 0 A -> Qle (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) ->
   Qle (q_pow A (Datatypes.S k) / q_fact (Datatypes.S k)) ((q_pow A k / q_fact k) * (1 / 2)).
 Proof.
   intros A k HA Hle.
   apply (Qle_trans _ ((q_pow A k * (1 / 2)) / q_fact k) _).
-  - apply (q_le_div_le (q_pow A (Datatypes.S k)) (q_fact (Datatypes.S k))
+  - apply (q_le_div_le_prop (q_pow A (Datatypes.S k)) (q_fact (Datatypes.S k))
                        (q_pow A k * (1 / 2)) (q_fact k)).
     + apply q_fact_pos.
     + apply q_fact_pos.
     + apply (Qle_trans _ ((q_pow A k * q_fact (Datatypes.S k)) * (1 / 2)) _).
       * apply (Qle_trans _ ((q_pow A (Datatypes.S k) * q_fact k * (1 + 1)) * (1 / 2)) _).
-        -- apply qeq_le. apply div_form_lhs.
+        -- apply qeq_le_prop. apply div_form_lhs.
         -- apply (Qmult_le_compat_r (q_pow A (Datatypes.S k) * q_fact k * (1 + 1))
                                    (q_pow A k * q_fact (Datatypes.S k)) (1 / 2)).
-           ++ apply (pow_fact_geom_int A k HA Hle).
+           ++ apply (pow_fact_geom_int_prop A k HA Hle).
            ++ apply Qlt_le_weak. unfold Qlt; simpl; lia.
-      * apply qeq_le. field.
-  - apply qeq_le.
+      * apply qeq_le_prop. field.
+  - apply qeq_le_prop.
     field.
-    intro Hz. apply (q_neq_of_lt (q_fact k) (q_fact_pos k)). exact Hz.
+    intro Hz. apply (q_neq_of_lt_prop (q_fact k) (q_fact_pos k)). exact Hz.
 Qed.
 
-Lemma pow_fact_geom_iter : forall (A : Q) (m j : nat),
+Lemma pow_fact_geom_iter_prop : forall (A : Q) (m j : nat),
   Qle 0 A ->
   (forall t : nat, (m <= t)%nat -> Qle (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) ->
   Qle (q_pow A (m + Datatypes.S j) / q_fact (m + Datatypes.S j))
@@ -180,7 +180,7 @@ Proof.
   - replace (m + 1)%nat with (Datatypes.S m) by lia.
     setoid_replace (q_pow (1 / 2) 1) with (1 / 2).
     2: { change ((1 / 2) * 1 == 1 / 2). field. }
-    apply (pow_fact_geom_step A m HA).
+    apply (pow_fact_geom_step_prop A m HA).
     apply Hgeom. lia.
   - setoid_replace (q_pow (1 / 2) (Datatypes.S (Datatypes.S j))) with (q_pow (1 / 2) (Datatypes.S j) * (1 / 2)).
     2: { setoid_rewrite (q_pow_succ (1 / 2) (Datatypes.S j)). ring. }
@@ -189,7 +189,7 @@ Proof.
       with (q_pow A (Datatypes.S (m + Datatypes.S j)) / q_fact (Datatypes.S (m + Datatypes.S j))).
     2: { rewrite Hm. reflexivity. }
     apply (Qle_trans _ ((q_pow A (m + Datatypes.S j) / q_fact (m + Datatypes.S j)) * (1 / 2)) _).
-    { apply (pow_fact_geom_step A (m + Datatypes.S j) HA).
+    { apply (pow_fact_geom_step_prop A (m + Datatypes.S j) HA).
       apply (Hgeom (m + Datatypes.S j)%nat). lia. }
     { setoid_replace ((q_pow A m / q_fact m) * (q_pow (1 / 2) (Datatypes.S j) * (1 / 2)))
         with ((q_pow A m / q_fact m) * q_pow (1 / 2) (Datatypes.S j) * (1 / 2)).
@@ -220,7 +220,7 @@ Proof.
     field.
 Qed.
 
-Lemma geo_sum_le_two : forall n : nat, Qle (geo_sum n) (1 + 1).
+Lemma geo_sum_le_two_prop : forall n : nat, Qle (geo_sum n) (1 + 1).
 Proof.
   intro n. rewrite geo_sum_closed.
   apply Qle_minus_iff.
@@ -229,7 +229,7 @@ Proof.
   2: { ring. }
   apply Qmult_le_0_compat.
   - unfold Qle; simpl; lia.
-  - apply q_pow_nonneg. apply Qhalf_nonneg.
+  - apply q_pow_nonneg_prop. apply Qhalf_nonneg_prop.
 Qed.
 
 (* ---- Tail sum: [exp_tail_abs m n A = sum of A^{S j}/(S j)! for
@@ -241,7 +241,7 @@ Fixpoint exp_tail_abs (m : nat) (n : nat) (A : Q) : Q :=
   | Datatypes.S n' => exp_tail_abs m n' A + (if Nat.leb m n' then q_pow A (Datatypes.S n') / q_fact (Datatypes.S n') else 0)
   end.
 
-Lemma exp_tail_abs_le_m : forall m n A, (n <= m)%nat -> exp_tail_abs m n A == 0.
+Lemma exp_tail_abs_le_m_prop : forall m n A, (n <= m)%nat -> exp_tail_abs m n A == 0.
 Proof.
   intros m n A Hn. induction n as [| n IH]; simpl.
   - reflexivity.
@@ -251,24 +251,24 @@ Proof.
       rewrite (IH Hn'). ring.
 Qed.
 
-Lemma exp_tail_abs_nonneg : forall (m n : nat) (A : Q), Qle 0 A -> Qle 0 (exp_tail_abs m n A).
+Lemma exp_tail_abs_nonneg_prop : forall (m n : nat) (A : Q), Qle 0 A -> Qle 0 (exp_tail_abs m n A).
 Proof.
   intros m n A HA. induction n as [| n IH]; simpl.
   - exact (Qle_refl 0).
   - destruct (Nat.leb m n) eqn:E.
   + exact (Qle_trans 0 (exp_tail_abs m n A)
   (exp_tail_abs m n A + (q_pow A (Datatypes.S n) / q_fact (Datatypes.S n)))
-  IH (Qle_plus_nonneg_r (exp_tail_abs m n A)
+  IH (Qle_plus_nonneg_r_prop (exp_tail_abs m n A)
   (q_pow A (Datatypes.S n) / q_fact (Datatypes.S n))
-  (q_pow_fact_nonneg A (Datatypes.S n) HA))).
+  (q_pow_fact_nonneg_prop A (Datatypes.S n) HA))).
   + exact (Qle_trans 0 (exp_tail_abs m n A) (exp_tail_abs m n A + 0) IH
-  (Qle_plus_nonneg_r (exp_tail_abs m n A) 0 (Qle_refl 0))).
+  (Qle_plus_nonneg_r_prop (exp_tail_abs m n A) 0 (Qle_refl 0))).
 Qed.
 
 (* ---- Tail-sum / geometric-sum bound:
        [exp_tail_abs m n A <= (A^m/m!) * geo_sum] ---- *)
 
-Lemma exp_tail_abs_geom : forall (A : Q) (m n : nat),
+Lemma exp_tail_abs_geom_prop : forall (A : Q) (m n : nat),
   Qle 0 A ->
   (forall t : nat, (m <= t)%nat -> Qle (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) ->
   (m <= n)%nat ->
@@ -288,27 +288,27 @@ Proof.
       * apply Qplus_le_compat.
         -- exact (IH Emn).
         -- apply (Qle_trans _ (q_pow A (m + Datatypes.S (n - m)) / q_fact (m + Datatypes.S (n - m))) _).
-           ++ apply qeq_le.
+           ++ apply qeq_le_prop.
               assert (Hn : (Datatypes.S n = m + Datatypes.S (n - m))%nat) by lia.
               rewrite Hn. reflexivity.
-           ++ exact (pow_fact_geom_iter A m (n - m) HA Hgeom).
+           ++ exact (pow_fact_geom_iter_prop A m (n - m) HA Hgeom).
       * replace (Datatypes.S ((Datatypes.S n) - m))%nat with (Datatypes.S (Datatypes.S (n - m)))%nat by lia.
-        apply qeq_le.
+        apply qeq_le_prop.
         change (geo_sum (Datatypes.S (Datatypes.S (n - m))))
           with (geo_sum (Datatypes.S (n - m)) + q_pow (1 / 2)%Q (Datatypes.S (n - m))).
         ring.
     + apply Nat.leb_gt in Emn.
       assert (Hle : (n <= m)%nat) by lia.
-      rewrite (exp_tail_abs_le_m m n A Hle).
+      rewrite (exp_tail_abs_le_m_prop m n A Hle).
       replace (Datatypes.S ((Datatypes.S n) - m))%nat with (Datatypes.S 0)%nat by lia.
       simpl.
       apply (Qle_trans _ (q_pow A m / q_fact m) _).
-      * apply q_pow_fact_nonneg. exact HA.
-      * apply qeq_le. ring.
+      * apply q_pow_fact_nonneg_prop. exact HA.
+      * apply qeq_le_prop. ring.
 Qed.
 
 (* Tail sum <= [(A^m/m!) * 2] (closing with [geo_sum <= 2]). *)
-Lemma exp_tail_abs_geom2 : forall (A : Q) (m n : nat),
+Lemma exp_tail_abs_geom2_prop : forall (A : Q) (m n : nat),
   Qle 0 A ->
   (forall t : nat, (m <= t)%nat -> Qle (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) ->
   (m <= n)%nat ->
@@ -316,27 +316,27 @@ Lemma exp_tail_abs_geom2 : forall (A : Q) (m n : nat),
 Proof.
   intros A m n HA Hgeom Hmn.
   apply (Qle_trans _ ((q_pow A m / q_fact m) * geo_sum (Datatypes.S (n - m))) _).
-  - apply exp_tail_abs_geom; assumption.
+  - apply exp_tail_abs_geom_prop; assumption.
   - apply (Qle_trans _ (geo_sum (Datatypes.S (n - m)) * (q_pow A m / q_fact m)) _).
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
     + apply (Qle_trans _ ((1 + 1)%Q * (q_pow A m / q_fact m)) _).
       * apply (Qmult_le_compat_r (geo_sum (Datatypes.S (n - m))) (1 + 1)%Q (q_pow A m / q_fact m)).
-        -- apply geo_sum_le_two.
-        -- apply q_pow_fact_nonneg. exact HA.
-      * apply qeq_le. ring.
+        -- apply geo_sum_le_two_prop.
+        -- apply q_pow_fact_nonneg_prop. exact HA.
+      * apply qeq_le_prop. ring.
 Qed.
 
 (* ---- Tail difference <= tail sum: [n <= k] implies
        [exp_series k B - exp_series n B <= exp_tail_abs n k B] ---- *)
 
-Lemma exp_series_tail_le : forall (B : Q) (n k : nat), Qle 0 B -> (n <= k)%nat ->
+Lemma exp_series_tail_le_prop : forall (B : Q) (n k : nat), Qle 0 B -> (n <= k)%nat ->
   Qle (exp_series k B - exp_series n B) (exp_tail_abs n k B).
 Proof.
   intros B n k HB Hnk.
   revert n Hnk.
   induction k as [| k IH]; intros n Hnk.
   - assert (Hn0 : n = 0%nat) by lia. subst n. simpl.
-    apply qeq_le. reflexivity.
+    apply qeq_le_prop. reflexivity.
   - simpl.
     destruct (Nat.leb n k) eqn:E.
     + apply Nat.leb_le in E.
@@ -355,9 +355,9 @@ Proof.
         setoid_replace (exp_series n B - exp_series (Datatypes.S k) B)
           with (exp_series n B + - exp_series (Datatypes.S k) B) by ring.
         apply (proj1 (Qle_minus_iff (exp_series (Datatypes.S k) B) (exp_series n B))).
-        apply exp_series_mono; [exact HB | lia].
+        apply exp_series_mono_prop; [exact HB | lia].
       * setoid_replace (exp_tail_abs n k B + 0) with (exp_tail_abs n k B) by ring.
-        apply exp_tail_abs_nonneg. exact HB.
+        apply exp_tail_abs_nonneg_prop. exact HB.
 Qed.
 
 (* ---- Main statement: [0 <= B] implies some [C >= 1] with
@@ -376,17 +376,17 @@ Proof.
     apply (Qle_trans _ (exp_series N0 B) _).
     + setoid_replace 1 with (exp_series 0 B).
       2: reflexivity.
-      apply exp_series_mono; [exact (QleT'_to_Qle _ _ HB) | lia].
-    + apply (Qle_plus_nonneg_r (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
-      apply q_pow_fact2_nonneg. exact (QleT'_to_Qle _ _ HB).
+      apply exp_series_mono_prop; [exact (QleT'_to_Qle _ _ HB) | lia].
+    + apply (Qle_plus_nonneg_r_prop (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
+      apply q_pow_fact2_nonneg_prop. exact (QleT'_to_Qle _ _ HB).
   - intro n.
     apply Qle_to_QleT'.
     destruct (Nat.leb n N0) eqn:En.
     + apply Nat.leb_le in En.
       apply (Qle_trans _ (exp_series N0 B) _).
-      * apply exp_series_mono; [exact (QleT'_to_Qle _ _ HB) | exact En].
-      * unfold C. apply (Qle_plus_nonneg_r (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
-        apply q_pow_fact2_nonneg. exact (QleT'_to_Qle _ _ HB).
+      * apply exp_series_mono_prop; [exact (QleT'_to_Qle _ _ HB) | exact En].
+      * unfold C. apply (Qle_plus_nonneg_r_prop (exp_series N0 B) ((q_pow B N0 / q_fact N0) * (1 + 1)%Q)).
+        apply q_pow_fact2_nonneg_prop. exact (QleT'_to_Qle _ _ HB).
     + apply Nat.leb_gt in En.
       apply (Qle_trans _ (exp_series N0 B + (q_pow B N0 / q_fact N0) * (1 + 1)%Q) _).
       * apply (Qle_trans _ (exp_series N0 B + exp_tail_abs N0 n B) _).
@@ -396,8 +396,8 @@ Proof.
            setoid_replace (exp_tail_abs N0 n B - (exp_series n B - exp_series N0 B))
              with (exp_tail_abs N0 n B + - (exp_series n B - exp_series N0 B)) by ring.
            apply (proj1 (Qle_minus_iff (exp_series n B - exp_series N0 B) (exp_tail_abs N0 n B))).
-            apply (exp_series_tail_le B N0 n (QleT'_to_Qle _ _ HB)). lia.
-        -- apply (Qplus_le_compat _ _ _ _); [apply Qle_refl | apply (exp_tail_abs_geom2 B N0 n (QleT'_to_Qle _ _ HB))].
+            apply (exp_series_tail_le_prop B N0 n (QleT'_to_Qle _ _ HB)). lia.
+        -- apply (Qplus_le_compat _ _ _ _); [apply Qle_refl | apply (exp_tail_abs_geom2_prop B N0 n (QleT'_to_Qle _ _ HB))].
            { intros u Hu. apply QleT'_to_Qle. apply (HN0 u). apply NatLe_lift. lia. }
            { lia. }
       * unfold C. apply Qle_refl.
@@ -433,12 +433,12 @@ Qed.
 *)
 
 
-(* Set twin of Q2_pos (Path A v2.4) *)
+(* Set twin of Q2_pos_prop (Path A v2.4) *)
 Lemma Q2_posT : QltT 0 (1 + 1)%Q.
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply Q2_pos.
+  eapply Q2_pos_prop.
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -450,12 +450,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of Qhalf_nonneg (Path A v2.4) *)
+(* Set twin of Qhalf_nonneg_prop (Path A v2.4) *)
 Lemma Qhalf_nonnegT : QleT' 0 (1 / 2)%Q.
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply Qhalf_nonneg.
+  eapply Qhalf_nonneg_prop.
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -467,12 +467,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of Qle_of_nat (Path A v2.4) *)
+(* Set twin of Qle_of_nat_prop (Path A v2.4) *)
 Lemma Qle_of_natT : forall a b : nat, NatLe (a) (b) -> QleT' (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (Qle_of_nat a b).
+  eapply (Qle_of_nat_prop a b).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -484,12 +484,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of Qlt_of_nat_lt (Path A v2.4) *)
+(* Set twin of Qlt_of_nat_lt_prop (Path A v2.4) *)
 Lemma Qlt_of_nat_ltT : forall a b : nat, NatLe (Datatypes.S (a)) (b) -> QltT (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (Qlt_of_nat_lt a b).
+  eapply (Qlt_of_nat_lt_prop a b).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -518,12 +518,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pow_fact_geom_int (Path A v2.4) *)
+(* Set twin of pow_fact_geom_int_prop (Path A v2.4) *)
 Lemma pow_fact_geom_intT : forall (A : Q) (k : nat), QleT' 0 A -> QleT' (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) -> QleT' (q_pow A (Datatypes.S k) * q_fact k * (1 + 1)) (q_pow A k * q_fact (Datatypes.S k)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (pow_fact_geom_int A k).
+  eapply (pow_fact_geom_int_prop A k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -552,12 +552,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pow_fact_geom_step (Path A v2.4) *)
+(* Set twin of pow_fact_geom_step_prop (Path A v2.4) *)
 Lemma pow_fact_geom_stepT : forall (A : Q) (k : nat), QleT' 0 A -> QleT' (Qmult (1 + 1)%Q A) (Z.of_nat (k + 1) # 1) -> QleT' (q_pow A (Datatypes.S k) / q_fact (Datatypes.S k)) ((q_pow A k / q_fact k) * (1 / 2)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (pow_fact_geom_step A k).
+  eapply (pow_fact_geom_step_prop A k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -569,11 +569,11 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of pow_fact_geom_iter (Path A v2.4) *)
+(* Set twin of pow_fact_geom_iter_prop (Path A v2.4) *)
 Lemma pow_fact_geom_iterT : forall (A : Q) (m j : nat), QleT' 0 A -> (forall t : nat, NatLe (m) (t) -> QleT' (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) -> QleT' (q_pow A (m + Datatypes.S j) / q_fact (m + Datatypes.S j)) ((q_pow A m / q_fact m) * q_pow (1 / 2) (Datatypes.S j)).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (pow_fact_geom_iter A m j (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))))).
+  exact (Qle_to_QleT' _ _ (pow_fact_geom_iter_prop A m j (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))))).
 Qed.
 
 (* Set twin of geo_sum_closed (Path A v2.4) *)
@@ -593,12 +593,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of geo_sum_le_two (Path A v2.4) *)
+(* Set twin of geo_sum_le_two_prop (Path A v2.4) *)
 Lemma geo_sum_le_twoT : forall n : nat, QleT' (geo_sum n) (1 + 1).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (geo_sum_le_two n).
+  eapply (geo_sum_le_two_prop n).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -610,12 +610,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_tail_abs_le_m (Path A v2.4) *)
+(* Set twin of exp_tail_abs_le_m_prop (Path A v2.4) *)
 Lemma exp_tail_abs_le_mT : forall m n A, NatLe (n) (m) -> QeqT (exp_tail_abs m n A) (0).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (exp_tail_abs_le_m m n A).
+  eapply (exp_tail_abs_le_m_prop m n A).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -627,12 +627,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_tail_abs_nonneg (Path A v2.4) *)
+(* Set twin of exp_tail_abs_nonneg_prop (Path A v2.4) *)
 Lemma exp_tail_abs_nonnegT : forall (m n : nat) (A : Q), QleT' 0 A -> QleT' 0 (exp_tail_abs m n A).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (exp_tail_abs_nonneg m n A).
+  eapply (exp_tail_abs_nonneg_prop m n A).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -644,26 +644,26 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of exp_tail_abs_geom (Path A v2.4) *)
+(* Set twin of exp_tail_abs_geom_prop (Path A v2.4) *)
 Lemma exp_tail_abs_geomT : forall (A : Q) (m n : nat), QleT' 0 A -> (forall t : nat, NatLe (m) (t) -> QleT' (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) -> NatLe (m) (n) -> QleT' (exp_tail_abs m n A) ((q_pow A m / q_fact m) * geo_sum (Datatypes.S (n - m))).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (exp_tail_abs_geom A m n (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))) (NatLe_drop _ _ H1))).
+  exact (Qle_to_QleT' _ _ (exp_tail_abs_geom_prop A m n (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))) (NatLe_drop _ _ H1))).
 Qed.
 
-(* Set twin of exp_tail_abs_geom2 (Path A v2.4) *)
+(* Set twin of exp_tail_abs_geom2_prop (Path A v2.4) *)
 Lemma exp_tail_abs_geom2T : forall (A : Q) (m n : nat), QleT' 0 A -> (forall t : nat, NatLe (m) (t) -> QleT' (Qmult (1 + 1)%Q A) (Z.of_nat (t + 1) # 1)) -> NatLe (m) (n) -> QleT' (exp_tail_abs m n A) ((q_pow A m / q_fact m) * (1 + 1)%Q).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (exp_tail_abs_geom2 A m n (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))) (NatLe_drop _ _ H1))).
+  exact (Qle_to_QleT' _ _ (exp_tail_abs_geom2_prop A m n (QleT'_to_Qle _ _ H) (fun t Ht => QleT'_to_Qle _ _ (H0 t (NatLe_lift _ _ Ht))) (NatLe_drop _ _ H1))).
 Qed.
 
-(* Set twin of exp_series_tail_le (Path A v2.4) *)
+(* Set twin of exp_series_tail_le_prop (Path A v2.4) *)
 Lemma exp_series_tail_leT : forall (B : Q) (n k : nat), QleT' 0 B -> NatLe (n) (k) -> QleT' (exp_series k B - exp_series n B) (exp_tail_abs n k B).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (exp_series_tail_le B n k).
+  eapply (exp_series_tail_le_prop B n k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption

@@ -24,26 +24,26 @@
     (3) bisection [vt_bisect]: with [K >= 2] fixed, bisection of the
         sign of [cos_partial K] inside [[a,b]] subset of [[0,2]], with
         interval length [(b-a)/2^n] and the endpoint sign certificates
-        preserved along the nesting; [vt_scan_bracket] returns, carried
+        preserved along the nesting; [vt_scan_bracket_prop] returns, carried
         as a two-level [sigT], the step-[n] bracketing interval on
         [[3/2, 5/3]];
-    (4) downstream interfaces: the upper bound [vt_bisect_left_val_le]
+    (4) downstream interfaces: the upper bound [vt_bisect_left_val_le_prop]
         on the function value at the left endpoint of the bracket (the
         Lipschitz constant [leibsep_abssum_cos] times the interval
         length, shrinking with [n]), and the strictly decreasing lower
-        bound [vt_cos_decr_half] (consuming the difference-bound lemma
-        [sc_cos_partial_diff_le], the pointwise uniqueness core).
+        bound [vt_cos_decr_half_prop] (consuming the difference-bound lemma
+        [sc_cos_partial_diff_le_prop], the pointwise uniqueness core).
 
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
     [ZArith.ZArith], [Arith.PeanoNat], [Setoid], [Morphisms], [Lia];
     this development, [PiCompareT] ([QltT]/[QleT']), [PiKernelSlack]
     ([cos_term]/[cos_partial]/[q_pow]/[q_fact]/
     [leibsep_cos_partial_lipschitz]/[leibsep_abssum_cos]),
-    [PiVertexPolyDiff] ([sc_cos_partial_diff_le] and the [sum_upto]
+    [PiVertexPolyDiff] ([sc_cos_partial_diff_le_prop] and the [sum_upto]
     infrastructure).
 
     References.  [S10_KVQuantTrig.v], the [cos_scan] family
-    ([:7679]-[:7812]) and [cos_root_pt_bound] ([:8156]), restated over
+    ([:7679]-[:7812]) and [cos_root_pt_bound_prop] ([:8156]), restated over
     the rationals [Q]; the pure-cos alternating tail bound is new (the
     pointwise root bounds of [S10] are obtained jointly through the
     Lipschitz, Cauchy and [log_eps] machinery, with no standalone
@@ -78,21 +78,21 @@ Definition cos_abs_term (x : Q) (j : nat) : Q :=
   q_pow (x * x) j / q_fact (2 * j).
 
 (* Nonnegativity of the term absolute value *)
-Lemma vt_abs_term_nonneg : forall (x : Q) (j : nat),
+Lemma vt_abs_term_nonneg_prop : forall (x : Q) (j : nat),
   Qle 0 x -> Qle 0 (cos_abs_term x j).
 Proof.
   intros x j Hx. unfold cos_abs_term. unfold Qdiv.
   apply Qmult_le_0_compat.
-  - apply q_pow_nonneg. apply Qmult_le_0_compat; exact Hx.
+  - apply q_pow_nonneg_prop. apply Qmult_le_0_compat; exact Hx.
   - apply (Qlt_le_weak 0 (Qinv (q_fact (2 * j)))).
     apply Qinv_lt_0_compat. apply q_fact_pos.
 Qed.
 
 (* The term absolute value == the absolute value of the cos term ([0 <= x]; the even and odd cases) *)
-Lemma vt_cos_term_abs : forall (j : nat) (x : Q),
+Lemma vt_cos_term_abs_prop : forall (j : nat) (x : Q),
   Qle 0 x -> Qabs (cos_term j x) == cos_abs_term x j.
 Proof.
-  intros j x Hx. destruct (vt_parity j) as [[m Hm] | [m Hm]].
+  intros j x Hx. destruct (vt_parity_prop j) as [[m Hm] | [m Hm]].
   - (* j = 2m *)
     rewrite Hm. unfold cos_term, cos_abs_term.
     rewrite (q_pow_neg1_even m). rewrite Qmult_1_l.
@@ -102,7 +102,7 @@ Proof.
     replace (2 * (2 * m))%nat with (4 * m)%nat by lia.
     assert (Hnn : Qle 0 (q_pow (x * x) (2 * m) / q_fact (4 * m))).
     { unfold Qdiv. apply Qmult_le_0_compat.
-      - apply q_pow_nonneg. apply Qmult_le_0_compat; exact Hx.
+      - apply q_pow_nonneg_prop. apply Qmult_le_0_compat; exact Hx.
       - apply (Qlt_le_weak 0 (Qinv (q_fact (4 * m)))).
         apply Qinv_lt_0_compat. apply q_fact_pos. }
     apply Qabs_pos. exact Hnn.
@@ -117,14 +117,14 @@ Proof.
     replace (2 * (2 * m + 1))%nat with (4 * m + 2)%nat by lia.
     assert (Hnn : Qle 0 (q_pow (x * x) (2 * m + 1) / q_fact (4 * m + 2))).
     { unfold Qdiv. apply Qmult_le_0_compat.
-      - apply q_pow_nonneg. apply Qmult_le_0_compat; exact Hx.
+      - apply q_pow_nonneg_prop. apply Qmult_le_0_compat; exact Hx.
       - apply (Qlt_le_weak 0 (Qinv (q_fact (4 * m + 2)))).
         apply Qinv_lt_0_compat. apply q_fact_pos. }
     apply Qabs_pos. exact Hnn.
 Qed.
 
 (* Adjacent decay ratio: for [j >= 1] and [0 <= x <= 2], t_{j+1} <= (1/3) * t_j *)
-Lemma vt_abs_term_step : forall (x : Q) (j : nat),
+Lemma vt_abs_term_step_prop : forall (x : Q) (j : nat),
   Qle 0 x -> Qle x 2 -> (1 <= j)%nat ->
   Qle (cos_abs_term x (Datatypes.S j)) ((1#3) * cos_abs_term x j).
 Proof.
@@ -140,8 +140,8 @@ Proof.
                q_pow (x * x) j / (3 * q_fact (2 * j))).
   { field.
     all: intro Hfx;
-         (exact (vt_qpos_neq (q_fact (2 * j)) (q_fact_pos (2 * j)) Hfx)
-          || exact (vt_qpos_neq (3 * q_fact (2 * j)) H3F Hfx)). }
+         (exact (vt_qpos_neq_prop (q_fact (2 * j)) (q_fact_pos (2 * j)) Hfx)
+          || exact (vt_qpos_neq_prop (3 * q_fact (2 * j)) H3F Hfx)). }
   rewrite HR.
   (* The decay-ratio core: 3 * x^2 <= (2j+2) * (2j+1); for [j >= 1], bridged through 12 *)
   assert (Hc02 : Qle 0 2) by (unfold Qle; simpl; lia).
@@ -149,7 +149,7 @@ Proof.
   { apply (Qle_trans (x * x) (2 * x) (2 * 2)).
     - exact (Qmult_le_compat_r x 2 x Hx2 Hx0).
     - apply (Qle_trans (2 * x) (x * 2) (2 * 2)).
-      + apply qeq_le. apply Qmult_comm.
+      + apply qeq_le_prop. apply Qmult_comm.
       + exact (Qmult_le_compat_r x 2 2 Hx2 Hc02). }
   assert (Hmq : (Z.of_nat (2 * j + 2) # 1) * (Z.of_nat (2 * j + 1) # 1)
                 == (Z.of_nat (2 * j + 2) * Z.of_nat (2 * j + 1)) # 1)
@@ -159,7 +159,7 @@ Proof.
                       ((Z.of_nat (2 * j + 2) # 1) * (Z.of_nat (2 * j + 1) # 1))).
   { apply (Qle_trans _ 12).
     - apply (Qle_trans _ ((3#1) * (2 * 2))).
-      + apply (sc_qmult_le_l (x * x) (2 * 2) (3#1) Hxx Hc31).
+      + apply (sc_qmult_le_l_prop (x * x) (2 * 2) (3#1) Hxx Hc31).
       + unfold Qle; simpl; lia.
     - rewrite Hmq. unfold Qle. simpl.
       rewrite ?Z.mul_1_r.
@@ -169,9 +169,9 @@ Proof.
   assert (HM2 : Qlt 0 ((Z.of_nat (2 * j + 2) # 1))) by (unfold Qlt; simpl; lia).
   assert (Hpf0 : Qle 0 (q_pow (x * x) j * q_fact (2 * j)))
     by (apply Qmult_le_0_compat;
-        [apply q_pow_nonneg; apply Qmult_le_0_compat; exact Hx0
+        [apply q_pow_nonneg_prop; apply Qmult_le_0_compat; exact Hx0
         | apply (Qlt_le_weak 0 (q_fact (2 * j))); apply q_fact_pos]).
-  apply (sc_qle_div_cross ((x * x) * q_pow (x * x) j) (q_pow (x * x) j)
+  apply (sc_qle_div_cross_prop ((x * x) * q_pow (x * x) j) (q_pow (x * x) j)
           (((Z.of_nat (2 * j + 2) # 1) * (Z.of_nat (2 * j + 1) # 1)) * q_fact (2 * j))
           (3 * q_fact (2 * j))).
   - apply Qmult_lt_0_compat.
@@ -179,17 +179,17 @@ Proof.
     + apply q_fact_pos.
   - exact H3F.
   - apply (Qle_trans _ (q_pow (x * x) j * q_fact (2 * j) * ((3#1) * (x * x)))).
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
     + apply (Qle_trans _ (q_pow (x * x) j * q_fact (2 * j) *
              ((Z.of_nat (2 * j + 2) # 1) * (Z.of_nat (2 * j + 1) # 1)))).
-      * exact (sc_qmult_le_l ((3#1) * (x * x))
+      * exact (sc_qmult_le_l_prop ((3#1) * (x * x))
                 ((Z.of_nat (2 * j + 2) # 1) * (Z.of_nat (2 * j + 1) # 1))
                 (q_pow (x * x) j * q_fact (2 * j)) Hcore Hpf0).
-      * apply qeq_le. ring.
+      * apply qeq_le_prop. ring.
 Qed.
 
 (* Step decay: t_{m+i} <= (1/3)^i * t_m *)
-Lemma vt_abs_term_decay : forall (x : Q) (m i : nat),
+Lemma vt_abs_term_decay_prop : forall (x : Q) (m i : nat),
   Qle 0 x -> Qle x 2 -> (1 <= m)%nat ->
   Qle (cos_abs_term x (m + i)) (q_pow (1#3) i * cos_abs_term x m).
 Proof.
@@ -203,11 +203,11 @@ Proof.
     rewrite Hs.
     rewrite q_pow_succ.
     apply (Qle_trans _ ((1#3) * cos_abs_term x (m + i'))).
-    + apply vt_abs_term_step; [exact Hx0 | exact Hx2 | lia].
+    + apply vt_abs_term_step_prop; [exact Hx0 | exact Hx2 | lia].
     + apply (Qle_trans _ ((1#3) * (q_pow (1#3) i' * cos_abs_term x m))).
-      * exact (sc_qmult_le_l (cos_abs_term x (m + i'))
+      * exact (sc_qmult_le_l_prop (cos_abs_term x (m + i'))
                 (q_pow (1#3) i' * cos_abs_term x m) (1#3) IH Hc13).
-      * apply qeq_le. ring.
+      * apply qeq_le_prop. ring.
 Qed.
 
 (* Closed form of the geometric sum: sum_{i<n} (1/3)^i == (3/2) * (1 - (1/3)^n) *)
@@ -227,21 +227,21 @@ Proof.
 Qed.
 
 (* Upper bound on the geometric sum: sum_{i<n} (1/3)^i <= 3/2 *)
-Lemma vt_geom_le : forall n : nat,
+Lemma vt_geom_le_prop : forall n : nat,
   Qle (sum_upto n (fun i : nat => q_pow (1#3) i)) (3#2).
 Proof.
   intro n. rewrite vt_geom_closed.
   apply (Qle_trans _ ((3#2) * 1)).
-  - apply (sc_qmult_le_l (1 - q_pow (1#3) n) 1 (3#2)).
+  - apply (sc_qmult_le_l_prop (1 - q_pow (1#3) n) 1 (3#2)).
     + apply (proj2 (Qle_minus_iff (1 - q_pow (1#3) n) 1)).
       assert (Hr : 1 - (1 - q_pow (1#3) n) == q_pow (1#3) n) by ring.
-      rewrite Hr. apply q_pow_nonneg. unfold Qle; simpl; lia.
+      rewrite Hr. apply q_pow_nonneg_prop. unfold Qle; simpl; lia.
     + unfold Qle; simpl; lia.
-  - apply qeq_le. apply Qmult_1_r.
+  - apply qeq_le_prop. apply Qmult_1_r.
 Qed.
 
 (* Sums preserve the pointwise order *)
-Lemma vt_sum_upto_le : forall (f g : nat -> Q) (d : nat),
+Lemma vt_sum_upto_le_prop : forall (f g : nat -> Q) (d : nat),
   (forall i : nat, Qle (f i) (g i)) -> Qle (sum_upto d f) (sum_upto d g).
 Proof.
   intros f g d H. induction d as [| d' IH]; cbn [sum_upto].
@@ -250,7 +250,7 @@ Proof.
 Qed.
 
 (* Triangle inequality for the absolute value of a sum *)
-Lemma vt_sum_abs_le : forall (g : nat -> Q) (d : nat),
+Lemma vt_sum_abs_le_prop : forall (g : nat -> Q) (d : nat),
   Qle (Qabs (sum_upto d g)) (sum_upto d (fun i : nat => Qabs (g i))).
 Proof.
   intros g d. induction d as [| d' IH]; cbn [sum_upto].
@@ -281,7 +281,7 @@ Qed.
 (* Section 2. Main tail bound: |cos_partial k x - cos_partial m x| <= (3/2) * t_{m+1} *)
 (* ============================================================ *)
 
-Lemma vt_cos_partial_tail_bound : forall (x : Q) (m k : nat),
+Lemma vt_cos_partial_tail_bound_prop : forall (x : Q) (m k : nat),
   Qle 0 x -> Qle x 2 -> (2 <= m)%nat -> (m <= k)%nat ->
   Qle (Qabs (cos_partial k x - cos_partial m x))
       ((3#2) * cos_abs_term x (Datatypes.S m)).
@@ -296,11 +296,11 @@ Proof.
            (fun i : nat => cos_abs_term x ((Datatypes.S m + i)%nat)))).
   - apply (Qle_trans _ (sum_upto (k - m)
            (fun i : nat => Qabs (cos_term ((Datatypes.S m + i)%nat) x)))).
-    + exact (vt_sum_abs_le (fun i : nat => cos_term ((Datatypes.S m + i)%nat) x) (k - m)).
+    + exact (vt_sum_abs_le_prop (fun i : nat => cos_term ((Datatypes.S m + i)%nat) x) (k - m)).
     + assert (Habs : sum_upto (k - m)
              (fun i : nat => Qabs (cos_term ((Datatypes.S m + i)%nat) x)) ==
              sum_upto (k - m) (fun i : nat => cos_abs_term x ((Datatypes.S m + i)%nat))).
-      { apply sum_upto_ext. intro i. apply vt_cos_term_abs. exact Hx0. }
+      { apply sum_upto_ext. intro i. apply vt_cos_term_abs_prop. exact Hx0. }
       rewrite Habs. apply Qle_refl.
   - assert (Hm0 : (1 <= Datatypes.S m)%nat) by lia.
     assert (Hpt : forall i : nat,
@@ -308,28 +308,28 @@ Proof.
           (cos_abs_term x (Datatypes.S m) * q_pow (1#3) i)).
     { intro i.
       apply (Qle_trans _ (q_pow (1#3) i * cos_abs_term x (Datatypes.S m))).
-      - exact (vt_abs_term_decay x (Datatypes.S m) i Hx0 Hx2 Hm0).
-      - apply qeq_le. apply Qmult_comm. }
+      - exact (vt_abs_term_decay_prop x (Datatypes.S m) i Hx0 Hx2 Hm0).
+      - apply qeq_le_prop. apply Qmult_comm. }
     assert (Ht0 : Qle 0 (cos_abs_term x (Datatypes.S m)))
-      by (apply vt_abs_term_nonneg; exact Hx0).
+      by (apply vt_abs_term_nonneg_prop; exact Hx0).
     apply (Qle_trans _ (cos_abs_term x (Datatypes.S m) *
               sum_upto (k - m) (fun i : nat => q_pow (1#3) i))).
     + rewrite <- (sum_upto_scale (k - m) (cos_abs_term x (Datatypes.S m))
                     (fun i : nat => q_pow (1#3) i)).
-      apply vt_sum_upto_le. exact Hpt.
+      apply vt_sum_upto_le_prop. exact Hpt.
     + apply (Qle_trans _ (cos_abs_term x (Datatypes.S m) * (3#2))).
-      * exact (sc_qmult_le_l (sum_upto (k - m) (fun i : nat => q_pow (1#3) i))
-                (3#2) (cos_abs_term x (Datatypes.S m)) (vt_geom_le (k - m)) Ht0).
-      * apply qeq_le. apply Qmult_comm.
+      * exact (sc_qmult_le_l_prop (sum_upto (k - m) (fun i : nat => q_pow (1#3) i))
+                (3#2) (cos_abs_term x (Datatypes.S m)) (vt_geom_le_prop (k - m)) Ht0).
+      * apply qeq_le_prop. apply Qmult_comm.
 Qed.
 
 (* Lower edge of the tail bound: [P m - B <= P k] (for [k >= m]) *)
-Lemma vt_cos_tail_shift_le : forall (x : Q) (m k : nat),
+Lemma vt_cos_tail_shift_le_prop : forall (x : Q) (m k : nat),
   Qle 0 x -> Qle x 2 -> (2 <= m)%nat -> (m <= k)%nat ->
   Qle (cos_partial m x - (3#2) * cos_abs_term x (Datatypes.S m)) (cos_partial k x).
 Proof.
   intros x m k Hx0 Hx2 Hm Hmk.
-  assert (HB := vt_cos_partial_tail_bound x m k Hx0 Hx2 Hm Hmk).
+  assert (HB := vt_cos_partial_tail_bound_prop x m k Hx0 Hx2 Hm Hmk).
   apply (proj1 (Qabs_Qle_condition (cos_partial k x - cos_partial m x)
           ((3#2) * cos_abs_term x (Datatypes.S m)))) in HB.
   destruct HB as [HB1 HB2].
@@ -337,26 +337,26 @@ Proof.
   - exact (Qplus_le_compat (cos_partial m x) (cos_partial m x)
              (- ((3#2) * cos_abs_term x (Datatypes.S m)))
              (cos_partial k x - cos_partial m x) (Qle_refl _) HB1).
-  - apply qeq_le. ring.
+  - apply qeq_le_prop. ring.
 Qed.
 
 (* Upper edge of the tail bound: [P k <= P m + B] *)
-Lemma vt_cos_tail_shift_ub : forall (x : Q) (m k : nat),
+Lemma vt_cos_tail_shift_ub_prop : forall (x : Q) (m k : nat),
   Qle 0 x -> Qle x 2 -> (2 <= m)%nat -> (m <= k)%nat ->
   Qle (cos_partial k x) (cos_partial m x + (3#2) * cos_abs_term x (Datatypes.S m)).
 Proof.
   intros x m k Hx0 Hx2 Hm Hmk.
-  assert (HB := vt_cos_partial_tail_bound x m k Hx0 Hx2 Hm Hmk).
+  assert (HB := vt_cos_partial_tail_bound_prop x m k Hx0 Hx2 Hm Hmk).
   apply (proj1 (Qabs_Qle_condition (cos_partial k x - cos_partial m x)
           ((3#2) * cos_abs_term x (Datatypes.S m)))) in HB.
   destruct HB as [HB1 HB2].
   apply (Qle_trans _ ((cos_partial k x - cos_partial m x) + cos_partial m x)).
-  - apply qeq_le. ring.
+  - apply qeq_le_prop. ring.
   - apply (Qle_trans _ ((3#2) * cos_abs_term x (Datatypes.S m) + cos_partial m x)).
     + exact (Qplus_le_compat (cos_partial k x - cos_partial m x)
                ((3#2) * cos_abs_term x (Datatypes.S m)) (cos_partial m x)
                (cos_partial m x) HB2 (Qle_refl _)).
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
 Qed.
 
 (* ============================================================ *)
@@ -364,13 +364,13 @@ Qed.
 (* ============================================================ *)
 
 (* [cos_partial 5 (3/2) - (3/2) * t_6] is positive (a concrete rational margin) *)
-Lemma vt_three_halves_pos : forall k : nat, (5 <= k)%nat -> Qlt 0 (cos_partial k (3#2)).
+Lemma vt_three_halves_pos_prop : forall k : nat, (5 <= k)%nat -> Qlt 0 (cos_partial k (3#2)).
 Proof.
   intros k Hk.
   assert (Hc1 : Qle 0 (3#2)) by (unfold Qle; simpl; lia).
   assert (Hc2 : Qle (3#2) 2) by (unfold Qle; simpl; lia).
   assert (Hc3 : (2 <= 5)%nat) by lia.
-  assert (Hlow := vt_cos_tail_shift_le (3#2) 5 k Hc1 Hc2 Hc3 Hk).
+  assert (Hlow := vt_cos_tail_shift_le_prop (3#2) 5 k Hc1 Hc2 Hc3 Hk).
   assert (Hpos : Qlt 0 (cos_partial 5 (3#2)
     - (3#2) * cos_abs_term (3#2) (Datatypes.S 5)))
     by (vm_compute; reflexivity).
@@ -380,13 +380,13 @@ Proof.
 Qed.
 
 (* [cos_partial 5 (5/3) + (3/2) * t_6] is negative (a concrete rational margin) *)
-Lemma vt_five_thirds_neg : forall k : nat, (5 <= k)%nat -> Qlt (cos_partial k (5#3)) 0.
+Lemma vt_five_thirds_neg_prop : forall k : nat, (5 <= k)%nat -> Qlt (cos_partial k (5#3)) 0.
 Proof.
   intros k Hk.
   assert (Hc1 : Qle 0 (5#3)) by (unfold Qle; simpl; lia).
   assert (Hc2 : Qle (5#3) 2) by (unfold Qle; simpl; lia).
   assert (Hc3 : (2 <= 5)%nat) by lia.
-  assert (Hup := vt_cos_tail_shift_ub (5#3) 5 k Hc1 Hc2 Hc3 Hk).
+  assert (Hup := vt_cos_tail_shift_ub_prop (5#3) 5 k Hc1 Hc2 Hc3 Hk).
   assert (Hneg : Qlt (cos_partial 5 (5#3)
     + (3#2) * cos_abs_term (5#3) (Datatypes.S 5)) 0)
     by (vm_compute; reflexivity).
@@ -397,10 +397,10 @@ Qed.
 
 (* Top-level certificates carried at the [Set] level *)
 Lemma vt_three_halves_pos_T : forall k : nat, (5 <= k)%nat -> QltT 0 (cos_partial k (3#2)).
-Proof. intros k Hk. apply Qlt_to_QltT. apply vt_three_halves_pos. exact Hk. Qed.
+Proof. intros k Hk. apply Qlt_to_QltT. apply vt_three_halves_pos_prop. exact Hk. Qed.
 
 Lemma vt_five_thirds_neg_T : forall k : nat, (5 <= k)%nat -> QltT (cos_partial k (5#3)) 0.
-Proof. intros k Hk. apply Qlt_to_QltT. apply vt_five_thirds_neg. exact Hk. Qed.
+Proof. intros k Hk. apply Qlt_to_QltT. apply vt_five_thirds_neg_prop. exact Hk. Qed.
 
 (* ============================================================ *)
 (* Section 4. The bisection body *)
@@ -408,7 +408,7 @@ Proof. intros k Hk. apply Qlt_to_QltT. apply vt_five_thirds_neg. exact Hk. Qed.
 
 Definition vt_mid (a b : Q) : Q := (a + b) * (1#2).
 
-Lemma vt_mid_lt_r : forall a b : Q, Qlt a b -> Qlt (vt_mid a b) b.
+Lemma vt_mid_lt_r_prop : forall a b : Q, Qlt a b -> Qlt (vt_mid a b) b.
 Proof.
   intros a b Hab. apply (proj2 (Qlt_minus_iff (vt_mid a b) b)).
   assert (Hbm : b - vt_mid a b == (b - a) * (1#2))
@@ -418,7 +418,7 @@ Proof.
   - compute; reflexivity.
 Qed.
 
-Lemma vt_mid_gt_l : forall a b : Q, Qlt a b -> Qlt a (vt_mid a b).
+Lemma vt_mid_gt_l_prop : forall a b : Q, Qlt a b -> Qlt a (vt_mid a b).
 Proof.
   intros a b Hab. apply (proj2 (Qlt_minus_iff a (vt_mid a b))).
   assert (Hma : vt_mid a b - a == (b - a) * (1#2))
@@ -429,11 +429,11 @@ Proof.
 Qed.
 
 (* Transport of a Boolean equality to a Set-valued [Id] *)
-Lemma vt_eq_to_Id : forall (x y : bool), x = y -> Id x y.
+Lemma vt_eq_to_Id_prop : forall (x y : bool), x = y -> Id x y.
 Proof. intros x y H. destruct H. exact (@id_refl bool x). Qed.
 
 (* The negated branch of the non-strict order Boolean: the strict-order face *)
-Lemma vt_Qle_bool_false : forall x y : Q, Qle_bool x y = false -> Qlt y x.
+Lemma vt_Qle_bool_false_prop : forall x y : Q, Qle_bool x y = false -> Qlt y x.
 Proof.
   intros x y H.
   assert (Hnot : ~ Qle x y).
@@ -446,19 +446,19 @@ Fixpoint vt_bisect (K : nat) (a b : Q) (Hab : Qlt a b) (n : nat) : Q * Q :=
   | 0%nat => (a, b)
   | Datatypes.S n' =>
       if Qle_bool (cos_partial K (vt_mid a b)) 0
-      then vt_bisect K a (vt_mid a b) (vt_mid_gt_l a b Hab) n'
-      else vt_bisect K (vt_mid a b) b (vt_mid_lt_r a b Hab) n'
+      then vt_bisect K a (vt_mid a b) (vt_mid_gt_l_prop a b Hab) n'
+      else vt_bisect K (vt_mid a b) b (vt_mid_lt_r_prop a b Hab) n'
   end.
 
-Lemma vt_bisect_S : forall (K : nat) (a b : Q) (Hab : Qlt a b) (n : nat),
+Lemma vt_bisect_S_prop : forall (K : nat) (a b : Q) (Hab : Qlt a b) (n : nat),
   vt_bisect K a b Hab (Datatypes.S n) =
   (if Qle_bool (cos_partial K (vt_mid a b)) 0
-   then vt_bisect K a (vt_mid a b) (vt_mid_gt_l a b Hab) n
-   else vt_bisect K (vt_mid a b) b (vt_mid_lt_r a b Hab) n).
+   then vt_bisect K a (vt_mid a b) (vt_mid_gt_l_prop a b Hab) n
+   else vt_bisect K (vt_mid a b) b (vt_mid_lt_r_prop a b Hab) n).
 Proof. intros. reflexivity. Qed.
 
 (* The five-part scanning invariant: nested lower bound / nested upper bound / closed form of the length / left endpoint strictly positive / right endpoint nonpositive *)
-Lemma vt_bisect_spec : forall (n K : nat) (a b : Q) (Hab : Qlt a b),
+Lemma vt_bisect_spec_prop : forall (n K : nat) (a b : Q) (Hab : Qlt a b),
   Qle 0 a -> Qle b 2 -> (2 <= K)%nat ->
   QltT 0 (cos_partial K a) -> QleT' (cos_partial K b) 0 ->
   And (Qle a (fst (vt_bisect K a b Hab n)))
@@ -474,17 +474,17 @@ Proof.
     + assert (Hp0 : q_pow (1#2) 0 == 1) by reflexivity.
       rewrite Hp0. apply Qmult_1_r.
     + split; assumption.
-  - rewrite vt_bisect_S. destruct (Qle_bool (cos_partial K (vt_mid a b)) 0) eqn:EQ.
+  - rewrite vt_bisect_S_prop. destruct (Qle_bool (cos_partial K (vt_mid a b)) 0) eqn:EQ.
     + (* midpoint nonpositive: left half *)
-      destruct (IH K a (vt_mid a b) (vt_mid_gt_l a b Hab) H0a
+      destruct (IH K a (vt_mid a b) (vt_mid_gt_l_prop a b Hab) H0a
         (Qle_trans (vt_mid a b) b 2
-          (Qlt_le_weak (vt_mid a b) b (vt_mid_lt_r a b Hab)) Hb2) HK Hpa
-        (vt_eq_to_Id _ _ EQ)) as [I1 [I2 [I3 [I4 I5]]]].
+          (Qlt_le_weak (vt_mid a b) b (vt_mid_lt_r_prop a b Hab)) Hb2) HK Hpa
+        (vt_eq_to_Id_prop _ _ EQ)) as [I1 [I2 [I3 [I4 I5]]]].
       split; [exact I1 | ].
       split.
-      * apply (Qle_trans (snd (vt_bisect K a (vt_mid a b) (vt_mid_gt_l a b Hab) n))
+      * apply (Qle_trans (snd (vt_bisect K a (vt_mid a b) (vt_mid_gt_l_prop a b Hab) n))
               (vt_mid a b) b);
-          [exact I2 | apply Qlt_le_weak; apply vt_mid_lt_r; exact Hab].
+          [exact I2 | apply Qlt_le_weak; apply vt_mid_lt_r_prop; exact Hab].
       * split.
         -- setoid_rewrite <- I3. rewrite q_pow_succ.
            assert (Hma : vt_mid a b - a == (b - a) * (1#2))
@@ -492,16 +492,16 @@ Proof.
            setoid_rewrite Hma. ring.
         -- split; [exact I4 | exact I5].
     + (* midpoint strictly positive: right half *)
-      destruct (IH K (vt_mid a b) b (vt_mid_lt_r a b Hab)
+      destruct (IH K (vt_mid a b) b (vt_mid_lt_r_prop a b Hab)
         (Qle_trans 0 a (vt_mid a b) H0a
-          (Qlt_le_weak a (vt_mid a b) (vt_mid_gt_l a b Hab)))
+          (Qlt_le_weak a (vt_mid a b) (vt_mid_gt_l_prop a b Hab)))
         Hb2 HK (Qlt_to_QltT 0 (cos_partial K (vt_mid a b))
-                  (vt_Qle_bool_false (cos_partial K (vt_mid a b)) 0 EQ)) Hpb)
+                  (vt_Qle_bool_false_prop (cos_partial K (vt_mid a b)) 0 EQ)) Hpb)
         as [I1 [I2 [I3 [I4 I5]]]].
       split.
       * apply (Qle_trans a (vt_mid a b)
-              (fst (vt_bisect K (vt_mid a b) b (vt_mid_lt_r a b Hab) n))).
-        -- apply Qlt_le_weak. apply vt_mid_gt_l. exact Hab.
+              (fst (vt_bisect K (vt_mid a b) b (vt_mid_lt_r_prop a b Hab) n))).
+        -- apply Qlt_le_weak. apply vt_mid_gt_l_prop. exact Hab.
         -- exact I1.
       * split.
         -- exact I2.
@@ -518,7 +518,7 @@ Qed.
 (* ============================================================ *)
 
 (* The step-[n] bracketing interval, carried as a two-level [sigT] *)
-Lemma vt_scan_bracket : forall n : nat,
+Lemma vt_scan_bracket_prop : forall n : nat,
   sigT (fun iv : Q * Q =>
     And (QleT' (3#2) (fst iv))
       (And (QleT' (fst iv) (snd iv))
@@ -533,10 +533,10 @@ Proof.
   assert (Hb2 : Qle (5#3) 2) by (unfold Qle; simpl; lia).
   assert (HK : (2 <= 5)%nat) by lia.
   assert (Hap : QltT 0 (cos_partial 5 (3#2)))
-    by (apply Qlt_to_QltT; apply vt_three_halves_pos; lia).
+    by (apply Qlt_to_QltT; apply vt_three_halves_pos_prop; lia).
   assert (Hbn : QleT' (cos_partial 5 (5#3)) 0)
-    by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg; lia).
-  destruct (vt_bisect_spec n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
+    by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg_prop; lia).
+  destruct (vt_bisect_spec_prop n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
     as [S1 [S2 [S3 [S4 S5]]]].
   assert (Hfs : Qle (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                     (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
@@ -544,7 +544,7 @@ Proof.
                    (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
     rewrite <- S3. apply Qmult_le_0_compat.
     - unfold Qle; simpl; lia.
-    - apply q_pow_nonneg. unfold Qle; simpl; lia. }
+    - apply q_pow_nonneg_prop. unfold Qle; simpl; lia. }
   exists (vt_bisect 5 (3#2) (5#3) Hab35 n).
   split; [apply Qle_to_QleT'; exact S1 | ].
   split; [apply Qle_to_QleT'; exact Hfs | ].
@@ -554,7 +554,7 @@ Proof.
 Qed.
 
 (* The function value at the left endpoint of the bracket is at most the Lipschitz constant times the interval length (shrinking to zero with [n]) *)
-Lemma vt_bisect_left_val_le : forall (n : nat) (Hab35 : Qlt (3#2) (5#3)),
+Lemma vt_bisect_left_val_le_prop : forall (n : nat) (Hab35 : Qlt (3#2) (5#3)),
   Qle (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) Hab35 n)))
       (leibsep_abssum_cos (5#3) 5 * ((((5#3) - (3#2))) * q_pow (1#2) n)).
 Proof.
@@ -563,10 +563,10 @@ Proof.
   assert (Hb2 : Qle (5#3) 2) by (unfold Qle; simpl; lia).
   assert (HK : (2 <= 5)%nat) by lia.
   assert (Hap : QltT 0 (cos_partial 5 (3#2)))
-    by (apply Qlt_to_QltT; apply vt_three_halves_pos; lia).
+    by (apply Qlt_to_QltT; apply vt_three_halves_pos_prop; lia).
   assert (Hbn : QleT' (cos_partial 5 (5#3)) 0)
-    by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg; lia).
-  destruct (vt_bisect_spec n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
+    by (apply Qle_to_QleT'; apply Qlt_le_weak; apply vt_five_thirds_neg_prop; lia).
+  destruct (vt_bisect_spec_prop n 5 (3#2) (5#3) Hab35 H0a Hb2 HK Hap Hbn)
     as [S1 [S2 [S3 [S4 S5]]]].
   assert (Hfs : Qle (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                     (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))).
@@ -574,7 +574,7 @@ Proof.
                    (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
     rewrite <- S3. apply Qmult_le_0_compat.
     - unfold Qle; simpl; lia.
-    - apply q_pow_nonneg. unfold Qle; simpl; lia. }
+    - apply q_pow_nonneg_prop. unfold Qle; simpl; lia. }
   assert (Habsf : Qabs (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
                   == fst (vt_bisect 5 (3#2) (5#3) Hab35 n)).
   { apply Qabs_pos. apply (Qle_trans 0 (3#2)
@@ -629,26 +629,26 @@ Proof.
         - cos_partial 5 (snd (vt_bisect 5 (3#2) (5#3) Hab35 n)))).
   - apply (Qle_trans _ (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
           + (- cos_partial 5 (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))))).
-    + apply Qle_plus_nonneg_r. exact Hneg.
-    + apply qeq_le. ring.
+    + apply Qle_plus_nonneg_r_prop. exact Hneg.
+    + apply qeq_le_prop. ring.
   - apply (Qle_trans _ (Qabs (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) Hab35 n))
           - cos_partial 5 (snd (vt_bisect 5 (3#2) (5#3) Hab35 n))))).
     + apply Qle_Qabs.
     + apply (Qle_trans _ (((((5#3) - (3#2))) * q_pow (1#2) n)
             * leibsep_abssum_cos (5#3) 5)).
       * exact HL.
-      * apply qeq_le. ring.
+      * apply qeq_le_prop. ring.
 Qed.
 
-  (* Strictly decreasing lower bound: inside the interval, [v - u] is at least half of [(v^2 - u^2)/6] (direct consumption of the difference-bound lemma [sc_cos_partial_diff_le]) *)
-Lemma vt_cos_decr_half : forall (K : nat) (u v : Q),
+  (* Strictly decreasing lower bound: inside the interval, [v - u] is at least half of [(v^2 - u^2)/6] (direct consumption of the difference-bound lemma [sc_cos_partial_diff_le_prop]) *)
+Lemma vt_cos_decr_half_prop : forall (K : nat) (u v : Q),
   (2 <= K)%nat -> Qle (3#2) u -> Qle u v -> Qle v (5#3) ->
   Qle (cos_partial K v) (cos_partial K u - (v - u) * (1#2)).
 Proof.
   intros K u v HK Hu Huv Hv.
   assert (H032 : Qle 0 (3#2)) by (unfold Qle; simpl; lia).
   assert (H52 : Qle (5#3) 2) by (unfold Qle; simpl; lia).
-  assert (HD := sc_cos_partial_diff_le K u v
+  assert (HD := sc_cos_partial_diff_le_prop K u v
     (Qle_trans 0 (3#2) u H032 Hu) Huv (Qle_trans v (5#3) 2 Hv H52) HK).
   (* (v - u) * 3 <= v^2 - u^2 (for [u, v >= 3/2], so [v + u >= 3]) *)
   assert (Hvu3 : Qle ((v - u) * 3) (v * v - u * u)).
@@ -661,22 +661,22 @@ Proof.
       assert (Hc33 : ((3#2) + (3#2)) == 3) by (unfold Qeq; simpl; lia).
       apply (Qle_trans _ ((u + v) - ((3#2) + (3#2)))).
       + apply (proj1 (Qle_minus_iff ((3#2) + (3#2)) (u + v))). exact Huv3.
-      + apply qeq_le. rewrite Hc33. ring. }
+      + apply qeq_le_prop. rewrite Hc33. ring. }
   assert (Hc16 : Qle 0 (1#6)) by (unfold Qle; simpl; lia).
   assert (Hc61 : (1#6) * 3 == (1#2)) by (unfold Qeq; simpl; lia).
   assert (Hhalf : Qle ((v - u) * (1#2)) ((v * v - u * u) * (1#6))).
-  { assert (Hs1 := sc_qmult_le_l ((v - u) * 3) (v * v - u * u) (1#6) Hvu3 Hc16).
+  { assert (Hs1 := sc_qmult_le_l_prop ((v - u) * 3) (v * v - u * u) (1#6) Hvu3 Hc16).
     apply (Qle_trans _ ((v - u) * ((1#6) * 3))).
-    - apply qeq_le. rewrite Hc61. reflexivity.
+    - apply qeq_le_prop. rewrite Hc61. reflexivity.
     - apply (Qle_trans _ ((1#6) * ((v - u) * 3))).
-      + apply qeq_le. ring.
+      + apply qeq_le_prop. ring.
       + apply (Qle_trans _ ((1#6) * (v * v - u * u))).
         * exact Hs1.
-        * apply qeq_le. ring. }
+        * apply qeq_le_prop. ring. }
   apply (Qle_trans _ (cos_partial K u - (v * v - u * u) * (1#6))).
   - exact HD.
   - apply (Qle_trans _ (cos_partial K u + (- ((v * v - u * u) * (1#6))))).
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
     + apply Qplus_le_compat; [apply Qle_refl | ].
       exact (Qopp_le_compat ((v - u) * (1#2)) ((v * v - u * u) * (1#6)) Hhalf).
 Qed.
@@ -685,13 +685,13 @@ Qed.
 (* Assumption audit (anchored at line starts) *)
 (* ============================================================ *)
 
-Print Assumptions vt_cos_partial_tail_bound.
+Print Assumptions vt_cos_partial_tail_bound_prop.
 Print Assumptions vt_three_halves_pos_T.
 Print Assumptions vt_five_thirds_neg_T.
-Print Assumptions vt_cos_decr_half.
-Print Assumptions vt_bisect_spec.
-Print Assumptions vt_scan_bracket.
-Print Assumptions vt_bisect_left_val_le.
+Print Assumptions vt_cos_decr_half_prop.
+Print Assumptions vt_bisect_spec_prop.
+Print Assumptions vt_scan_bracket_prop.
+Print Assumptions vt_bisect_left_val_le_prop.
 
 (* ============================================================ *)
 (* Appended section: Set-carried twins of the order faces        *)
@@ -723,12 +723,12 @@ Print Assumptions vt_bisect_left_val_le.
 *)
 
 
-(* Set twin of vt_abs_term_nonneg (Path A v2.4) *)
+(* Set twin of vt_abs_term_nonneg_prop (Path A v2.4) *)
 Lemma vt_abs_term_nonnegT : forall (x : Q) (j : nat), QleT' 0 x -> QleT' 0 (cos_abs_term x j).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_abs_term_nonneg x j).
+  eapply (vt_abs_term_nonneg_prop x j).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -740,12 +740,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_cos_term_abs (Path A v2.4) *)
+(* Set twin of vt_cos_term_abs_prop (Path A v2.4) *)
 Lemma vt_cos_term_absT : forall (j : nat) (x : Q), QleT' 0 x -> QeqT (Qabs (cos_term j x)) (cos_abs_term x j).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_cos_term_abs j x).
+  eapply (vt_cos_term_abs_prop j x).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -757,12 +757,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_abs_term_step (Path A v2.4) *)
+(* Set twin of vt_abs_term_step_prop (Path A v2.4) *)
 Lemma vt_abs_term_stepT : forall (x : Q) (j : nat), QleT' 0 x -> QleT' x 2 -> NatLe (1) (j) -> QleT' (cos_abs_term x (Datatypes.S j)) ((1#3) * cos_abs_term x j).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_abs_term_step x j).
+  eapply (vt_abs_term_step_prop x j).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -774,12 +774,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_abs_term_decay (Path A v2.4) *)
+(* Set twin of vt_abs_term_decay_prop (Path A v2.4) *)
 Lemma vt_abs_term_decayT : forall (x : Q) (m i : nat), QleT' 0 x -> QleT' x 2 -> NatLe (1) (m) -> QleT' (cos_abs_term x (m + i)) (q_pow (1#3) i * cos_abs_term x m).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_abs_term_decay x m i).
+  eapply (vt_abs_term_decay_prop x m i).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -808,12 +808,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_geom_le (Path A v2.4) *)
+(* Set twin of vt_geom_le_prop (Path A v2.4) *)
 Lemma vt_geom_leT : forall n : nat, QleT' (sum_upto n (fun i : nat => q_pow (1#3) i)) (3#2).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_geom_le n).
+  eapply (vt_geom_le_prop n).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -825,19 +825,19 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_sum_upto_le (Path A v2.4) *)
+(* Set twin of vt_sum_upto_le_prop (Path A v2.4) *)
 Lemma vt_sum_upto_leT : forall (f g : nat -> Q) (d : nat), (forall i : nat, QleT' (f i) (g i)) -> QleT' (sum_upto d f) (sum_upto d g).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (vt_sum_upto_le f g d (fun i => QleT'_to_Qle _ _ (H i)))).
+  exact (Qle_to_QleT' _ _ (vt_sum_upto_le_prop f g d (fun i => QleT'_to_Qle _ _ (H i)))).
 Qed.
 
-(* Set twin of vt_sum_abs_le (Path A v2.4) *)
+(* Set twin of vt_sum_abs_le_prop (Path A v2.4) *)
 Lemma vt_sum_abs_leT : forall (g : nat -> Q) (d : nat), QleT' (Qabs (sum_upto d g)) (sum_upto d (fun i : nat => Qabs (g i))).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_sum_abs_le g d).
+  eapply (vt_sum_abs_le_prop g d).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -866,12 +866,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_cos_partial_tail_bound (Path A v2.4) *)
+(* Set twin of vt_cos_partial_tail_bound_prop (Path A v2.4) *)
 Lemma vt_cos_partial_tail_boundT : forall (x : Q) (m k : nat), QleT' 0 x -> QleT' x 2 -> NatLe (2) (m) -> NatLe (m) (k) -> QleT' (Qabs (cos_partial k x - cos_partial m x)) ((3#2) * cos_abs_term x (Datatypes.S m)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_cos_partial_tail_bound x m k).
+  eapply (vt_cos_partial_tail_bound_prop x m k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -883,12 +883,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_cos_tail_shift_le (Path A v2.4) *)
+(* Set twin of vt_cos_tail_shift_le_prop (Path A v2.4) *)
 Lemma vt_cos_tail_shift_leT : forall (x : Q) (m k : nat), QleT' 0 x -> QleT' x 2 -> NatLe (2) (m) -> NatLe (m) (k) -> QleT' (cos_partial m x - (3#2) * cos_abs_term x (Datatypes.S m)) (cos_partial k x).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_cos_tail_shift_le x m k).
+  eapply (vt_cos_tail_shift_le_prop x m k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -900,12 +900,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_cos_tail_shift_ub (Path A v2.4) *)
+(* Set twin of vt_cos_tail_shift_ub_prop (Path A v2.4) *)
 Lemma vt_cos_tail_shift_ubT : forall (x : Q) (m k : nat), QleT' 0 x -> QleT' x 2 -> NatLe (2) (m) -> NatLe (m) (k) -> QleT' (cos_partial k x) (cos_partial m x + (3#2) * cos_abs_term x (Datatypes.S m)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_cos_tail_shift_ub x m k).
+  eapply (vt_cos_tail_shift_ub_prop x m k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -917,12 +917,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_three_halves_pos (Path A v2.4) *)
+(* Set twin of vt_three_halves_pos_prop (Path A v2.4) *)
 Lemma vt_three_halves_posT : forall k : nat, NatLe (5) (k) -> QltT 0 (cos_partial k (3#2)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_three_halves_pos k).
+  eapply (vt_three_halves_pos_prop k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -934,12 +934,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_five_thirds_neg (Path A v2.4) *)
+(* Set twin of vt_five_thirds_neg_prop (Path A v2.4) *)
 Lemma vt_five_thirds_negT : forall k : nat, NatLe (5) (k) -> QltT (cos_partial k (5#3)) 0.
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_five_thirds_neg k).
+  eapply (vt_five_thirds_neg_prop k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -983,12 +983,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_mid_lt_r (Path A v2.4) *)
+(* Set twin of vt_mid_lt_r_prop (Path A v2.4) *)
 Lemma vt_mid_lt_rT : forall a b : Q, QltT a b -> QltT (vt_mid a b) b.
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_mid_lt_r a b).
+  eapply (vt_mid_lt_r_prop a b).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1000,12 +1000,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_mid_gt_l (Path A v2.4) *)
+(* Set twin of vt_mid_gt_l_prop (Path A v2.4) *)
 Lemma vt_mid_gt_lT : forall a b : Q, QltT a b -> QltT a (vt_mid a b).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_mid_gt_l a b).
+  eapply (vt_mid_gt_l_prop a b).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1017,12 +1017,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_bisect_left_val_le (Path A v2.4) *)
+(* Set twin of vt_bisect_left_val_le_prop (Path A v2.4) *)
 Lemma vt_bisect_left_val_leT : forall (n : nat) (Hab35 : QltT (3#2) (5#3)), QleT' (cos_partial 5 (fst (vt_bisect 5 (3#2) (5#3) (QltT_to_Qlt _ _ Hab35) n))) (leibsep_abssum_cos (5#3) 5 * ((((5#3) - (3#2))) * q_pow (1#2) n)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_bisect_left_val_le n (QltT_to_Qlt _ _ Hab35)).
+  eapply (vt_bisect_left_val_le_prop n (QltT_to_Qlt _ _ Hab35)).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1034,12 +1034,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_cos_decr_half (Path A v2.4) *)
+(* Set twin of vt_cos_decr_half_prop (Path A v2.4) *)
 Lemma vt_cos_decr_halfT : forall (K : nat) (u v : Q), NatLe (2) (K) -> QleT' (3#2) u -> QleT' u v -> QleT' v (5#3) -> QleT' (cos_partial K v) (cos_partial K u - (v - u) * (1#2)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_cos_decr_half K u v).
+  eapply (vt_cos_decr_half_prop K u v).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption

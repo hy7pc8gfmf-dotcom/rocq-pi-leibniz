@@ -57,12 +57,13 @@ Require Export PiKernelSlack.
 Require Export PiLeibnizCReal.
 Require Export PiPascalMachine.
 Require Export PiPascalResidue.
+Require Export PiPascalResidueT.
 Require Export PiPythBandDonor.
 Require Export PiRowIdentity.
 Require Export PiSeedSupplyShell.
 Require Export PiSeparation.
 Require Export PiVertexPolyDiff.
-Require Export PiWindowCore.
+Require PiWindowCore.
 Require Export QCauchyZeroCos.
 Require Export PiLeibnizMargin.
 Require Export PiPadeQLeg.

@@ -4,7 +4,7 @@
 # Toolchain-critical binaries are asserted on PATH up front; file
 # enumeration uses bash globs (the Windows system32 find.exe, which may
 # precede Git's find on a runner PATH, has incompatible syntax and
-# fails silently — the L1863 single-source-measurement lesson).
+# fails silently.
 set -u
 cd "$(dirname "$0")/.." || exit 9
 export PATH="/c/Rocq-Platform~9.1~2026.01/bin:/c/Program Files/Python313:$PATH"

@@ -42,6 +42,7 @@ theories/Reals/Cauchy/PiLeibnizMargin.v
 theories/Reals/Cauchy/PiPadeQLeg.v
 theories/Reals/Cauchy/PiPascalMachine.v
 theories/Reals/Cauchy/PiPascalResidue.v
+theories/Reals/Cauchy/PiPascalResidueT.v
 theories/Reals/Cauchy/PiPythBandDonor.v
 theories/Reals/Cauchy/PiRowIdentity.v
 theories/Reals/Cauchy/PiSeedSupplyShell.v

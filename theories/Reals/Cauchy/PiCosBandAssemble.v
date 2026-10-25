@@ -1,4 +1,12 @@
-(* rocq-pi-leibniz — constructive pi for the Rocq constructive Cauchy reals. Released under LGPL-2.1; see LICENSE. *)
+(************************************************************************)
+(*         *      The Rocq Prover / The Rocq Development Team           *)
+(*  v      *         Copyright INRIA, CNRS and contributors             *)
+(* <O___,, * (see version control and CREDITS file for authors & dates) *)
+(*   \VV/  **************************************************************)
+(*    //   *    This file is distributed under the terms of the         *)
+(*         *     GNU Lesser General Public License Version 2.1          *)
+(*         *     (see LICENSE file for the text of the license)         *)
+(************************************************************************)
 (** * PiCosBandAssemble.v: band assembly for the cos double-angle identity
 
     Mission.  Partial-sum stratification of the cos double-angle
@@ -20,7 +28,7 @@
     [PiKernelSlack_D1_identity] ([piL_cos_dres],
     [piL_cos_partial_double]); [PiKernelSlack_D2_remainder]
     (term-level absolute-value bounds); [PiKernelSlack_D3_prereq]
-    ([d3p_quarter_pow_lt], [d3p_inject_ceiling_ge]);
+    ([d3p_quarter_pow_lt_prop], [d3p_inject_ceiling_ge_prop]);
     [PiPascalMachine] (the [piLsb_sumR] row-sum machine, the binomial
     row family); [PiPascalResidue] ([piLc_sumR_rev]);
     [PiRowIdentity] ([piLrowB_row_scal] scalar extraction).
@@ -32,24 +40,20 @@
     controlling-term method for truncation-remainder bands.
 
     Constructivity.  Statements live entirely on the stdlib
-    [Qeq]/[Qle]/[Qlt] with [Set]-level [sigT] carriers; assumption-free (coqchk-certified),
+    [Qeq]/[Qle]/[Qlt] with [Set]-level [sigT] carriers; zero axioms,
     no abandoned proofs, no classical logic; induction with
     explicit algebraic chains and zero solvers on the [Q] side
     ([Lia] only for [nat] bookkeeping); [Print Assumptions] at the
     end of the file checks each item [Closed].
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-    PiCosBandAssemble.v] compiles cleanly (exit 0); the first eight
-    bytes of the artifact are [436f7121 00015ff4].
-
-    This file is part of the rocq-pi-leibniz package; its interface
-    may change in future releases. *)
+    WARNING: this file is experimental and likely to change in future releases. *)
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import QArith.Qabs QArith.Qround.
 From Stdlib Require Import ZArith.ZArith Arith.PeanoNat.
 From Stdlib Require Import Lia.
 Require Import PiKernelSlack.
+Require Import PiCompareT.
 Require Import PiPascalMachine.
 Require Import PiPascalResidue.
 Require Import PiRowIdentity.
@@ -79,7 +83,7 @@ Proof.
 Qed.
 
 (** Order under right addition: [0 <= y] implies [x <= x + y]. *)
-Lemma piLe_qle_add_rw : forall x y : Q, Qle 0 y -> Qle x (x + y).
+Lemma piLe_qle_add_rw_prop : forall x y : Q, Qle 0 y -> Qle x (x + y).
 Proof.
   intros x y Hy.
   assert (He : x%Q == (x + 0%Q)%Q) by ring.
@@ -89,7 +93,7 @@ Proof.
 Qed.
 
 (** Nonnegative row sums: pointwise nonnegativity implies a nonnegative row sum. *)
-Lemma piLe_sumR_nonneg : forall (f : nat -> Q) (n : nat),
+Lemma piLe_sumR_nonneg_prop : forall (f : nat -> Q) (n : nat),
   (forall i : nat, (i < n)%nat -> Qle 0 (f i)) ->
   Qle 0 (piLsb_sumR f n).
 Proof.
@@ -97,15 +101,15 @@ Proof.
   - cbn [piLsb_sumR]. apply Qle_refl.
   - cbn [piLsb_sumR].
     apply (Qle_trans _ (0%Q + piLsb_sumR f n)%Q).
-    + apply piLe_qle_add_rw.
+    + apply piLe_qle_add_rw_prop.
       apply IH. intros i Hi. apply Hf. lia.
     + rewrite Qplus_0_l.
-      apply piLe_qle_add_rw.
+      apply piLe_qle_add_rw_prop.
       apply Hf. lia.
 Qed.
 
 (** Row-sum monotonicity: pointwise [<=] implies [<=] for the row sums. *)
-Lemma piLe_sumR_le : forall (f g : nat -> Q) (n : nat),
+Lemma piLe_sumR_le_prop : forall (f g : nat -> Q) (n : nat),
   (forall i : nat, (i < n)%nat -> Qle (f i) (g i)) ->
   Qle (piLsb_sumR f n) (piLsb_sumR g n).
 Proof.
@@ -120,7 +124,7 @@ Proof.
 Qed.
 
 (** Triangle inequality for row sums: [|Σ f| <= Σ |f|]. *)
-Lemma piLe_abs_sumR_le : forall (f : nat -> Q) (n : nat),
+Lemma piLe_abs_sumR_le_prop : forall (f : nat -> Q) (n : nat),
   Qle (Qabs (piLsb_sumR f n)) (piLsb_sumR (fun i => Qabs (f i)) n).
 Proof.
   intros f n. induction n as [| n IH].
@@ -133,9 +137,8 @@ Proof.
       exact IH.
 Qed.
 
-(** Sub-row-sum bound: if the window [a, a+n) is contained in [0, m) and the row is nonnegative,
-   then the shifted row sum is at most the full row sum.  *)
-Lemma piLe_sumR_shift_le : forall (f : nat -> Q) (a n m : nat),
+(** Sub-row-sum bound: if the window [a, a+n) is contained in [0, m) and the row is nonnegative, then the shifted row sum is at most the full row sum. *)
+Lemma piLe_sumR_shift_le_prop : forall (f : nat -> Q) (a n m : nat),
   (a + n <= m)%nat ->
   (forall i : nat, Qle 0 (f i)) ->
   Qle (piLsb_sumR (fun u => f (a + u)%nat) n) (piLsb_sumR f m).
@@ -145,22 +148,22 @@ Proof.
   rewrite HmEq.
   rewrite piLe_sumR_split.
   rewrite (piLe_sumR_split f a n).
-  assert (Hpre : Qle 0 (piLsb_sumR f a)) by (apply piLe_sumR_nonneg; intros i _; apply Hpos).
+  assert (Hpre : Qle 0 (piLsb_sumR f a)) by (apply piLe_sumR_nonneg_prop; intros i _; apply Hpos).
   assert (Htail : Qle 0 (piLsb_sumR (fun u => f (a + n + u)%nat) (m - (a + n))))
-    by (apply piLe_sumR_nonneg; intros i _; apply Hpos).
+    by (apply piLe_sumR_nonneg_prop; intros i _; apply Hpos).
   rewrite (Qplus_comm (piLsb_sumR f a)
              (piLsb_sumR (fun u => f (a + u)%nat) n)).
   apply (Qle_trans _ (piLsb_sumR (fun u => f (a + u)%nat) n + piLsb_sumR f a)%Q).
-  - apply piLe_qle_add_rw. exact Hpre.
-  - apply piLe_qle_add_rw. exact Htail.
+  - apply piLe_qle_add_rw_prop. exact Hpre.
+  - apply piLe_qle_add_rw_prop. exact Htail.
 Qed.
 
 (** [Q]-order cancellation: [0 < c] and [a·c <= b·c] imply [a <= b]. *)
-Lemma piLe_qle_mul_pos_cancel : forall (a b c : Q),
+Lemma piLe_qle_mul_pos_cancel_prop : forall (a b c : Q),
   Qlt 0 c -> Qle (a * c) (b * c) -> Qle a b.
 Proof.
   intros a b c Hc H.
-  assert (Hc0 : ~ (c == 0)%Q) by (apply q_neq_of_lt; exact Hc).
+  assert (Hc0 : ~ (c == 0)%Q) by (apply q_neq_of_lt_prop; exact Hc).
   assert (Ha : a == a * c * / c).
   { symmetry. transitivity (a * (c * / c))%Q.
     - ring.
@@ -176,7 +179,7 @@ Proof.
 Qed.
 
 (** [Qeq] right-division cancellation: [c] nonzero and [a·c == b] imply [a == b/c]. *)
-Lemma piLe_qeq_mul_div_r : forall (a b c : Q),
+Lemma piLe_qeq_mul_div_r_prop : forall (a b c : Q),
   ~ (c == 0)%Q -> a * c == b -> a == b / c.
 Proof.
   intros a b c Hc H.
@@ -186,7 +189,7 @@ Proof.
 Qed.
 
 (** Multiplicativity of [Qinv]: for nonzero [a] and [d], [/a·/d == /(a·d)]. *)
-Lemma piLe_qinv_distr : forall a d : Q,
+Lemma piLe_qinv_distr_prop : forall a d : Q,
   ~ (a == 0)%Q -> ~ (d == 0)%Q -> / a * / d == / (a * d)%Q.
 Proof.
   intros a d Ha Hd.
@@ -206,16 +209,15 @@ Proof.
 Qed.
 
 (** Embedding order: [a <= b] implies [(Z.of_nat a # 1) <= (Z.of_nat b # 1)]. *)
-Lemma piLe_inject_le : forall a b : nat, (a <= b)%nat ->
+Lemma piLe_inject_le_prop : forall a b : nat, (a <= b)%nat ->
   Qle (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros a b H. unfold Qle. cbn [Qnum Qden].
   rewrite !Z.mul_1_r. apply Nat2Z.inj_le. exact H.
 Qed.
 
-(** Embedding positivity: [0 < (Z.of_nat (S n) # 1)] (at [n = 0], [Z.of_nat 0 # 1 == 0], hence [S
-   n]).  *)
-Lemma piLe_inject_pos : forall n : nat, Qlt 0 (Z.of_nat (S n) # 1).
+(** Embedding positivity: [0 < (Z.of_nat (S n) # 1)] (at [n = 0], [Z.of_nat 0 # 1 == 0], hence [S n]). *)
+Lemma piLe_inject_pos_prop : forall n : nat, Qlt 0 (Z.of_nat (S n) # 1).
 Proof.
   intros n. unfold Qlt. cbn [Qnum Qden].
   rewrite !Z.mul_1_r.
@@ -223,24 +225,24 @@ Proof.
 Qed.
 
 (** The embedding is nonzero. *)
-Lemma piLe_inject_neq0 : forall n : nat, ~ ((Z.of_nat (S n) # 1)%Q == 0).
+Lemma piLe_inject_neq0_prop : forall n : nat, ~ ((Z.of_nat (S n) # 1)%Q == 0).
 Proof.
   intros n H. apply Qeq_sym in H.
-  exact (Qlt_not_eq 0 (Z.of_nat (S n) # 1) (piLe_inject_pos n) H).
+  exact (Qlt_not_eq 0 (Z.of_nat (S n) # 1) (piLe_inject_pos_prop n) H).
 Qed.
 
 (** Factorial pairs are nonzero. *)
-Lemma piLe_qfact_pair_neq0 : forall i j : nat,
+Lemma piLe_qfact_pair_neq0_prop : forall i j : nat,
   ~ (q_fact i * q_fact j == 0)%Q.
 Proof.
   intros i j H.
-  exact (q_neq_of_lt (q_fact i * q_fact j)
+  exact (q_neq_of_lt_prop (q_fact i * q_fact j)
            (Qmult_lt_0_compat (q_fact i) (q_fact j)
               (q_fact_pos i) (q_fact_pos j)) H).
 Qed.
 
 (** Positive powers: [0 < x] implies [0 < q_pow x n]. *)
-Lemma piLe_q_pow_pos : forall (x : Q) (n : nat),
+Lemma piLe_q_pow_pos_prop : forall (x : Q) (n : nat),
   Qlt 0 x -> Qlt 0 (q_pow x n).
 Proof.
   intros x n Hx. induction n as [| n IH].
@@ -254,15 +256,12 @@ Qed.
 Definition piLe_tc_term (m : nat) (B : Q) : Q :=
   q_pow (2 * B) (2 * m)%nat / q_fact (2 * m)%nat.
 
-(** The cos band bound: [Σ_{m=k+1}^{2k+1} t'_m] over the row range [k+1,2k+1] (one row more than the
-   sin side: the [s_k^2] term of row [m = 2k+1]).  *)
+(** The cos band bound: [Σ_{m=k+1}^{2k+1} t'_m] over the row range [k+1,2k+1] (one row more than the sin side: the [s_k^2] term of row [m = 2k+1]). *)
 
 Definition piLe_band_bound (k : nat) (B : Q) : Q :=
   piLsb_sumR (fun u => piLe_tc_term (S (k + u))%nat B) (S (S k)).
 
-(** The two row families of the cos band (retained windows): [ccrow] is the C^2 family with [i+j=m]
-   over the window [m-k,k]; [ssrow] is the S^2 family with [i+j=m-1] over the window [m-1-k,k] (the
-   indices are shifted by one).  *)
+(** The two row families of the cos band (retained windows): [ccrow] is the C^2 family with [i+j=m] over the window [m-k,k]; [ssrow] is the S^2 family with [i+j=m-1] over the window [m-1-k,k] (the indices are shifted by one). *)
 
 Definition piLe_ccrow (k m : nat) (x : Q) : Q :=
   piLsb_sumR (fun u => cos_term (m - k + u)%nat x * cos_term (k - u)%nat x)
@@ -273,7 +272,7 @@ Definition piLe_ssrow (k m : nat) (x : Q) : Q :=
              (2 * k + 2 - m)%nat.
 
 (** Nonnegativity and positivity of the [t'] terms. *)
-Lemma piLe_tc_term_nonneg : forall (B : Q) (m : nat),
+Lemma piLe_tc_term_nonneg_prop : forall (B : Q) (m : nat),
   Qle 0 B -> Qle 0 (piLe_tc_term m B).
 Proof.
   intros B m H0B. unfold piLe_tc_term.
@@ -283,32 +282,31 @@ Proof.
   apply (Qle_trans _ (0 / q_fact (2 * m)%nat)%Q).
   - assert (Hz : 0 / q_fact (2 * m)%nat == 0%Q) by (unfold Qdiv; ring).
     rewrite Hz. apply Qle_refl.
-  - apply Qle_div_same_denom; [apply q_fact_pos | apply q_pow_nonneg; exact H02B].
+  - apply Qle_div_same_denom_prop; [apply q_fact_pos | apply q_pow_nonneg_prop; exact H02B].
 Qed.
 
-Lemma piLe_tc_term_pos : forall (B : Q) (m : nat),
+Lemma piLe_tc_term_pos_prop : forall (B : Q) (m : nat),
   Qlt 0 B -> Qlt 0 (piLe_tc_term m B).
 Proof.
   intros B m HB. unfold piLe_tc_term. unfold Qdiv.
   apply Qmult_lt_0_compat.
-  - apply piLe_q_pow_pos.
+  - apply piLe_q_pow_pos_prop.
     apply (Qmult_lt_0_compat 2%Q B).
     + unfold Qlt; cbn [Qnum Qden]; lia.
     + exact HB.
   - apply Qinv_lt_0_compat. apply q_fact_pos.
 Qed.
 
-(* ================= Section 3. Group beta: closed forms of the even and odd half-sums of Pascal
-   rows =================  *)
+(* ================= Section 3. Group beta: closed forms of the even and odd half-sums of Pascal rows ================= *)
 
 (** Even-odd half-sum equality: [Σ_{i<=m} C(2m,2i) == Σ_{i<m} C(2m,2i+1)]. *)
-Lemma piLe_row_half_eq : forall m : nat, (1 <= m)%nat ->
+Lemma piLe_row_half_eq_prop : forall m : nat, (1 <= m)%nat ->
   piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)
   == piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m.
 Proof.
   intros m Hm.
   assert (H2m : (1 <= 2 * m)%nat) by lia.
-  assert (Halt := piLsb_row_alt (2 * m)%nat H2m).
+  assert (Halt := piLsb_row_alt_prop (2 * m)%nat H2m).
   rewrite piLsb_sumR_even_odd_S in Halt.
   assert (Hev : piLsb_sumR
                   (fun i => bpa_binom (2 * m)%nat (2 * i)%nat * lw0_alt (2 * i)%nat) (S m)
@@ -330,12 +328,12 @@ Proof.
 Qed.
 
 (** Value of the even half-row: [Σ_{i<=m} C(2m,2i) == 2^(2m)·1/2]. *)
-Lemma piLe_row_half_even_val : forall m : nat, (1 <= m)%nat ->
+Lemma piLe_row_half_even_val_prop : forall m : nat, (1 <= m)%nat ->
   piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)
   == q_pow 2%Q (2 * m)%nat * (1 # 2)%Q.
 Proof.
   intros m Hm.
-  assert (Heq := piLe_row_half_eq m Hm).
+  assert (Heq := piLe_row_half_eq_prop m Hm).
   assert (Htot : piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)
                  + piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m
                  == q_pow 2%Q (2 * m)%nat).
@@ -349,12 +347,12 @@ Proof.
 Qed.
 
 (** Value of the odd half-row: [Σ_{i<m} C(2m,2i+1) == 2^(2m)·1/2]. *)
-Lemma piLe_row_half_odd_val : forall m : nat, (1 <= m)%nat ->
+Lemma piLe_row_half_odd_val_prop : forall m : nat, (1 <= m)%nat ->
   piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m
   == q_pow 2%Q (2 * m)%nat * (1 # 2)%Q.
 Proof.
   intros m Hm.
-  assert (Heq := piLe_row_half_eq m Hm).
+  assert (Heq := piLe_row_half_eq_prop m Hm).
   assert (Htot : piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)
                  + piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m
                  == q_pow 2%Q (2 * m)%nat).
@@ -368,7 +366,7 @@ Proof.
 Qed.
 
 (** Even-split closed form: [Σ_{i<=m} 1/((2i)!(2(m-i))!) == 2^(2m)/(2m)!·1/2] for [m >= 1]. *)
-Lemma piLe_row_even_full : forall m : nat, (1 <= m)%nat ->
+Lemma piLe_row_even_full_prop : forall m : nat, (1 <= m)%nat ->
   piLsb_sumR (fun i => 1 / (q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat))
              (S m)
   == q_pow 2%Q (2 * m)%nat / q_fact (2 * m)%nat * (1 # 2)%Q.
@@ -381,13 +379,13 @@ Proof.
                  == q_pow 2%Q (2 * m)%nat * (1 # 2)%Q).
   { rewrite (piLrowB_row_scal_r (q_fact (2 * m)%nat)
                   (fun i => 1 / (q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat)) (S m)).
-    rewrite <- (piLe_row_half_even_val m Hm).
+    rewrite <- (piLe_row_half_even_val_prop m Hm).
     apply piLsb_sumR_ext. intros i Hi.
     assert (Hbm : (2 * i <= 2 * m)%nat) by (apply Nat.mul_le_mono_l; lia).
     assert (Hbr := piLsb_bpa_bridge (2 * m)%nat (2 * i)%nat Hbm).
     replace (2 * m - 2 * i)%nat with (2 * (m - i))%nat in Hbr by lia.
     assert (Hd0 : ~ ((q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat) == 0)%Q)
-      by (apply piLe_qfact_pair_neq0).
+      by (apply piLe_qfact_pair_neq0_prop).
     assert (Hbr2 : bpa_binom (2 * m)%nat (2 * i)%nat
                    * (q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat)
                    == q_fact (2 * m)).
@@ -407,12 +405,12 @@ Proof.
     - unfold Qdiv. ring.
     - rewrite (Qmult_inv_r (q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat) Hd0).
       ring. }
-  rewrite (piLe_qeq_mul_div_r _ _ _ HD0 Hkey).
+  rewrite (piLe_qeq_mul_div_r_prop _ _ _ HD0 Hkey).
   unfold Qdiv. ring.
 Qed.
 
 (** Odd-split closed form: [Σ_{i<m} 1/((2i+1)!(2(m-1-i)+1)!) == 2^(2m)/(2m)!·1/2] for [m >= 1]. *)
-Lemma piLe_row_odd_full : forall m : nat, (1 <= m)%nat ->
+Lemma piLe_row_odd_full_prop : forall m : nat, (1 <= m)%nat ->
   piLsb_sumR (fun i => 1 / (q_fact (S (2 * i))%nat
                                 * q_fact (S (2 * (m - 1 - i))%nat))) m
   == q_pow 2%Q (2 * m)%nat / q_fact (2 * m)%nat * (1 # 2)%Q.
@@ -427,14 +425,14 @@ Proof.
   { rewrite (piLrowB_row_scal_r (q_fact (2 * m)%nat)
                   (fun i => 1 / (q_fact (S (2 * i))%nat
                                   * q_fact (S (2 * (m - 1 - i))%nat))) m).
-    rewrite <- (piLe_row_half_odd_val m Hm).
+    rewrite <- (piLe_row_half_odd_val_prop m Hm).
     apply piLsb_sumR_ext. intros i Hi.
     assert (Hbm : (S (2 * i) <= 2 * m)%nat) by lia.
     assert (Hbr := piLsb_bpa_bridge (2 * m)%nat (S (2 * i))%nat Hbm).
     replace (2 * m - S (2 * i))%nat with (S (2 * (m - 1 - i)))%nat in Hbr by lia.
     assert (Hd0 : ~ ((q_fact (S (2 * i))%nat
                       * q_fact (S (2 * (m - 1 - i)))%nat) == 0)%Q)
-      by (apply piLe_qfact_pair_neq0).
+      by (apply piLe_qfact_pair_neq0_prop).
     assert (Hbr2 : bpa_binom (2 * m)%nat (S (2 * i))%nat
                    * (q_fact (S (2 * i))%nat * q_fact (S (2 * (m - 1 - i)))%nat)
                    == q_fact (2 * m)).
@@ -456,15 +454,14 @@ Proof.
     - rewrite (Qmult_inv_r (q_fact (S (2 * i))%nat
                               * q_fact (S (2 * (m - 1 - i)))%nat) Hd0).
       ring. }
-  rewrite (piLe_qeq_mul_div_r _ _ _ HD0 Hkey).
+  rewrite (piLe_qeq_mul_div_r_prop _ _ _ HD0 Hkey).
   unfold Qdiv. ring.
 Qed.
 
 (* ================= Section 4. Group gamma: the cos double-angle row identity ================= *)
 
-(** Even row-piece denominator cancellation: [c_t·c_{m-t}·(2m)! == (-1)^m·x^(2m)·C(2m,2t)] for [t <=
-   m].  *)
-Lemma piLe_rowpiece_cc : forall (m t : nat) (x : Q), (t <= m)%nat ->
+(** Even row-piece denominator cancellation: [c_t·c_{m-t}·(2m)! == (-1)^m·x^(2m)·C(2m,2t)] for [t <= m]. *)
+Lemma piLe_rowpiece_cc_prop : forall (m t : nat) (x : Q), (t <= m)%nat ->
   cos_term t x * cos_term (m - t)%nat x * q_fact (2 * m)%nat
   == q_pow (-1)%Q m * q_pow x (2 * m)%nat * bpa_binom (2 * m)%nat (2 * t)%nat.
 Proof.
@@ -481,7 +478,7 @@ Proof.
       by (f_equal; lia).
     rewrite (lw0_q_pow_add x (2 * t)%nat (2 * (m - t))%nat). reflexivity. }
   assert (Hne : ~ (q_fact (2 * t)%nat * q_fact (2 * (m - t))%nat == 0)%Q)
-    by (apply piLe_qfact_pair_neq0).
+    by (apply piLe_qfact_pair_neq0_prop).
   assert (Hmul : cos_term t x * cos_term (m - t)%nat x * q_fact (2 * m)%nat
                  * (q_fact (2 * t)%nat * q_fact (2 * (m - t))%nat)
                  == q_pow (-1)%Q m * q_pow x (2 * m)%nat
@@ -496,9 +493,9 @@ Proof.
                         * / q_fact (2 * (m - t))%nat)))%Q.
     - ring.
     - rewrite (Qmult_inv_r (q_fact (2 * t)%nat)
-                 (q_neq_of_lt _ (q_fact_pos (2 * t)%nat))).
+                 (q_neq_of_lt_prop _ (q_fact_pos (2 * t)%nat))).
       rewrite (Qmult_inv_r (q_fact (2 * (m - t))%nat)
-                 (q_neq_of_lt _ (q_fact_pos (2 * (m - t))%nat))).
+                 (q_neq_of_lt_prop _ (q_fact_pos (2 * (m - t))%nat))).
       rewrite Hs1, Hs2, <- Hbr. ring. }
   apply (piLrowB_qeq_cancel_l
            (cos_term t x * cos_term (m - t)%nat x * q_fact (2 * m)%nat)
@@ -508,9 +505,8 @@ Proof.
   exact Hmul.
 Qed.
 
-(** Odd row-piece denominator cancellation: [s_t·s_{m-1-t}·(2m)! == (-1)^(m-1)·x^(2m)·C(2m,2t+1)]
-   for [t < m].  *)
-Lemma piLe_rowpiece_ss : forall (m t : nat) (x : Q), (t < m)%nat ->
+(** Odd row-piece denominator cancellation: [s_t·s_{m-1-t}·(2m)! == (-1)^(m-1)·x^(2m)·C(2m,2t+1)] for [t < m]. *)
+Lemma piLe_rowpiece_ss_prop : forall (m t : nat) (x : Q), (t < m)%nat ->
   sin_term t x * sin_term (m - 1 - t)%nat x * q_fact (2 * m)%nat
   == q_pow (-1)%Q (m - 1)%nat * q_pow x (2 * m)%nat
      * bpa_binom (2 * m)%nat (S (2 * t))%nat.
@@ -531,7 +527,7 @@ Proof.
     rewrite (lw0_q_pow_add x (S (2 * t))%nat (S (2 * (m - 1 - t)))%nat).
     reflexivity. }
   assert (Hne : ~ (q_fact (S (2 * t))%nat * q_fact (S (2 * (m - 1 - t)))%nat == 0)%Q)
-    by (apply piLe_qfact_pair_neq0).
+    by (apply piLe_qfact_pair_neq0_prop).
   assert (Hmul : sin_term t x * sin_term (m - 1 - t)%nat x * q_fact (2 * m)%nat
                  * (q_fact (S (2 * t))%nat * q_fact (S (2 * (m - 1 - t)))%nat)
                  == q_pow (-1)%Q (m - 1)%nat * q_pow x (2 * m)%nat
@@ -546,9 +542,9 @@ Proof.
                         * / q_fact (S (2 * (m - 1 - t)))%nat)))%Q.
     - ring.
     - rewrite (Qmult_inv_r (q_fact (S (2 * t))%nat)
-                 (q_neq_of_lt _ (q_fact_pos (S (2 * t))%nat))).
+                 (q_neq_of_lt_prop _ (q_fact_pos (S (2 * t))%nat))).
       rewrite (Qmult_inv_r (q_fact (S (2 * (m - 1 - t)))%nat)
-                 (q_neq_of_lt _ (q_fact_pos (S (2 * (m - 1 - t)))%nat))).
+                 (q_neq_of_lt_prop _ (q_fact_pos (S (2 * (m - 1 - t)))%nat))).
       rewrite Hs1, Hs2, <- Hbr. ring. }
   apply (piLrowB_qeq_cancel_l
            (sin_term t x * sin_term (m - 1 - t)%nat x * q_fact (2 * m)%nat)
@@ -558,11 +554,9 @@ Proof.
   exact Hmul.
 Qed.
 
-(** The cos double-angle row identity: [Σ_{i<=N} c_i c_{N-i} - Σ_{i<N} s_i s_{N-1-i} == cos_term N
-   (2x)] for [N >= 1]; the closing steps are the row-piece denominator cancellation, the even-odd
-   half-row values, and the power-of-2 split.  *)
+(** The cos double-angle row identity: [Σ_{i<=N} c_i c_{N-i} - Σ_{i<N} s_i s_{N-1-i} == cos_term N (2x)] for [N >= 1]; the closing steps are the row-piece denominator cancellation, the even-odd half-row values, and the power-of-2 split. *)
 
-Lemma piLe_rowC_cross : forall (N : nat) (x : Q), (1 <= N)%nat ->
+Lemma piLe_rowC_cross_prop : forall (N : nat) (x : Q), (1 <= N)%nat ->
   piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N)
   - piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N
   == cos_term N (2 * x)%Q.
@@ -572,27 +566,27 @@ Proof.
   assert (Hcc : piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N)
                 == q_pow (-1)%Q N * q_pow x (2 * N)%nat / q_fact (2 * N)%nat
                    * (q_pow 2%Q (2 * N)%nat * (1 # 2)%Q)).
-  { rewrite <- (piLe_row_half_even_val N HN).
+  { rewrite <- (piLe_row_half_even_val_prop N HN).
     rewrite <- (piLrowB_row_scal (q_pow (-1)%Q N * q_pow x (2 * N)%nat / q_fact (2 * N)%nat)
                   (fun i => bpa_binom (2 * N)%nat (2 * i)%nat) (S N)).
     apply piLsb_sumR_ext. intros i Hi.
     transitivity ((q_pow (-1)%Q N * q_pow x (2 * N)%nat
                    * bpa_binom (2 * N)%nat (2 * i)%nat) / q_fact (2 * N)%nat).
-    - apply (piLe_qeq_mul_div_r _ _ _ HD0).
-      apply (piLe_rowpiece_cc N i x). lia.
+    - apply (piLe_qeq_mul_div_r_prop _ _ _ HD0).
+      apply (piLe_rowpiece_cc_prop N i x). lia.
     - unfold Qdiv. ring. }
   assert (Hss : piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N
                 == q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat / q_fact (2 * N)%nat
                    * (q_pow 2%Q (2 * N)%nat * (1 # 2)%Q)).
-  { rewrite <- (piLe_row_half_odd_val N HN).
+  { rewrite <- (piLe_row_half_odd_val_prop N HN).
     rewrite <- (piLrowB_row_scal (q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat
                                   / q_fact (2 * N)%nat)
                   (fun i => bpa_binom (2 * N)%nat (S (2 * i)%nat)) N).
     apply piLsb_sumR_ext. intros i Hi.
     transitivity ((q_pow (-1)%Q (N - 1)%nat * q_pow x (2 * N)%nat
                    * bpa_binom (2 * N)%nat (S (2 * i)%nat)) / q_fact (2 * N)%nat).
-    - apply (piLe_qeq_mul_div_r _ _ _ HD0).
-      apply (piLe_rowpiece_ss N i x). lia.
+    - apply (piLe_qeq_mul_div_r_prop _ _ _ HD0).
+      apply (piLe_rowpiece_ss_prop N i x). lia.
     - unfold Qdiv. ring. }
   rewrite Hcc, Hss.
   assert (Hpx : q_pow (2 * x) (2 * N)%nat
@@ -609,7 +603,7 @@ Qed.
 (* ================= Section 7. Row-sum tools and the 1/4 geometric sum ================= *)
 
 (** Left multiplication in [Q]: [0 <= z] and [x <= y] imply [z*x <= z*y]. *)
-Lemma piLe_qmult_le_l : forall z x y : Q,
+Lemma piLe_qmult_le_l_prop : forall z x y : Q,
   Qle 0 z -> Qle x y -> Qle (z * x) (z * y).
 Proof.
   intros z x y Hz Hxy.
@@ -618,7 +612,7 @@ Proof.
 Qed.
 
 (** Nonnegative products: [0 <= x] and [0 <= y] imply [0 <= x*y]. *)
-Lemma piLe_qmult_nonneg_r : forall x y : Q,
+Lemma piLe_qmult_nonneg_r_prop : forall x y : Q,
   Qle 0 x -> Qle 0 y -> Qle 0 (x * y).
 Proof.
   intros x y Hx Hy. apply (Qle_trans _ (0 * y)%Q).
@@ -627,7 +621,7 @@ Proof.
 Qed.
 
 (** Right subtraction bound: [0 <= x] implies [a - x <= a]. *)
-Lemma piLe_qle_sub_r : forall a x : Q, Qle 0 x -> Qle (a - x) a.
+Lemma piLe_qle_sub_r_prop : forall a x : Q, Qle 0 x -> Qle (a - x) a.
 Proof.
   intros a x Hx.
   apply (Qle_trans _ ((a - x) + x)%Q).
@@ -639,7 +633,7 @@ Proof.
 Qed.
 
 (** Antitonicity of subtraction: [y <= x] implies [a - x <= a - y]. *)
-Lemma piLe_qle_sub_l : forall a x y : Q, Qle y x -> Qle (a - x) (a - y).
+Lemma piLe_qle_sub_l_prop : forall a x y : Q, Qle y x -> Qle (a - x) (a - y).
 Proof.
   intros a x y Hyx.
   assert (Hxy0 : Qle 0 (x - y)%Q).
@@ -654,16 +648,15 @@ Proof.
 Qed.
 
 (** Nonnegative embedding: [0 <= (Z.of_nat n # 1)]. *)
-Lemma piLe_inject_nonneg : forall n : nat, Qle 0 (Z.of_nat n # 1).
+Lemma piLe_inject_nonneg_prop : forall n : nat, Qle 0 (Z.of_nat n # 1).
 Proof.
   intros n. apply (Qle_trans 0 (Z.of_nat 0 # 1) (Z.of_nat n # 1)).
   - apply Qle_refl.
-  - apply piLe_inject_le. apply Nat.le_0_l.
+  - apply piLe_inject_le_prop. apply Nat.le_0_l.
 Qed.
 
-(** Monotone product of four nonnegative factors: [0<=a], [a<=b], [0<=c], [c<=d] imply [a*c <= b*d].
-    *)
-Lemma piLe_qmult_le_nonneg4 : forall a b c d : Q,
+(** Monotone product of four nonnegative factors: [0<=a], [a<=b], [0<=c], [c<=d] imply [a*c <= b*d]. *)
+Lemma piLe_qmult_le_nonneg4_prop : forall a b c d : Q,
   Qle 0 a -> Qle a b -> Qle 0 c -> Qle c d -> Qle (a * c) (b * d).
 Proof.
   intros a b c d Ha Hab Hc Hcd.
@@ -673,8 +666,7 @@ Proof.
     apply (Qmult_le_compat_r c d b Hcd (Qle_trans 0 a b Ha Hab)).
 Qed.
 
-(** Double-sum expansion of a product of row sums: [sum_i f i * sum_j g j == sum_i sum_j f i * g j].
-    *)
+(** Double-sum expansion of a product of row sums: [sum_i f i * sum_j g j == sum_i sum_j f i * g j]. *)
 Lemma piLe_sumR_prod : forall (n1 n2 : nat) (f g : nat -> Q),
   piLsb_sumR f n1 * piLsb_sumR g n2
   == piLsb_sumR (fun i => piLsb_sumR (fun j => f i * g j) n2) n1.
@@ -687,8 +679,7 @@ Proof.
   apply piLsb_sumR_ext. intros j _. apply Qmult_comm.
 Qed.
 
-(** Extending the row sum by one entry on the right: [sum_{u<n} h (S u) == sum_{w<S n} h w] (with [h
-   0 == 0]).  *)
+(** Extending the row sum by one entry on the right: [sum_{u<n} h (S u) == sum_{w<S n} h w] (with [h 0 == 0]). *)
 Lemma piLe_sumR_shift_succ : forall (n : nat) (h : nat -> Q),
   h 0%nat == 0%Q ->
   piLsb_sumR (fun w => h (S w)) n == piLsb_sumR h (S n).
@@ -706,8 +697,7 @@ Proof.
   intros f. cbn [piLsb_sumR]. cbv beta. ring.
 Qed.
 
-(** Full-triangle anti-diagonal regrouping: [sum_{u<K} sum_{v<K-u} F u v == sum_{w<K} sum_{v<S w} F
-   v (w-v)].  *)
+(** Full-triangle anti-diagonal regrouping: [sum_{u<K} sum_{v<K-u} F u v == sum_{w<K} sum_{v<S w} F v (w-v)]. *)
 Lemma piLe_sumR_flatten_full : forall (K : nat) (F : nat -> nat -> Q),
   piLsb_sumR (fun u => piLsb_sumR (fun v => F u v) (K - u)%nat) K
   == piLsb_sumR (fun w => piLsb_sumR (fun v => F v (w - v)%nat) (S w)) K.
@@ -743,9 +733,8 @@ Proof.
     rewrite IH. ring.
 Qed.
 
-(** Row-by-row splitting of the square array: at the per-row split point [a i], the square double
-   sum splits into a triangle and a remainder band.  *)
-Lemma piLe_sumR_square_split_gen : forall (N : nat) (a p : nat -> nat)
+(** Row-by-row splitting of the square array: at the per-row split point [a i], the square double sum splits into a triangle and a remainder band. *)
+Lemma piLe_sumR_square_split_gen_prop : forall (N : nat) (a p : nat -> nat)
                                           (F : nat -> nat -> Q),
   (forall i : nat, (i < N)%nat -> (a i + p i)%nat = N) ->
   piLsb_sumR (fun i => piLsb_sumR (fun j => F i j) N) N
@@ -770,8 +759,7 @@ Proof.
   intros f. cbn [piLsb_sumR]. ring.
 Qed.
 
-(** Upper-triangle transposition: [sum_{i<S K} sum_{u<i} G i u == sum_{u<K} sum_{i'<K-u} G (S(u+i'))
-   u].  *)
+(** Upper-triangle transposition: [sum_{i<S K} sum_{u<i} G i u == sum_{u<K} sum_{i'<K-u} G (S(u+i')) u]. *)
 Lemma piLe_sumR_trapswap_lt : forall (K : nat) (G : nat -> nat -> Q),
   piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) i) (S K)
   == piLsb_sumR (fun u => piLsb_sumR (fun i => G (S (u + i)%nat) u) (K - u)%nat) (S K).
@@ -803,8 +791,7 @@ Proof.
     rewrite Hgrow. rewrite IH. cbv beta. ring.
 Qed.
 
-(* ================= Section 8. The band machine: quarter-step descent for the [t'] terms and the
-   geometric tail bound =================  *)
+(* ================= Section 8. The band machine: quarter-step descent for the [t'] terms and the geometric tail bound ================= *)
 
 (** The 1/4 geometric-sum identity: [sum_{i<n} (1/4)^i + (4/3)(1/4)^n == 4/3]. *)
 Lemma piLe_quarter_sum_identity : forall n : nat,
@@ -825,9 +812,8 @@ Proof.
     rewrite Hs. ring.
 Qed.
 
-(** Quarter-step descent for the [t'] terms: [t'_{m+1} <= (1/4) t'_m] for [0 <= B] and [2*ceil(B) <=
-   m].  *)
-Lemma piLe_tc_term_quarter_step : forall (B : Q) (m : nat),
+(** Quarter-step descent for the [t'] terms: [t'_{m+1} <= (1/4) t'_m] for [0 <= B] and [2*ceil(B) <= m]. *)
+Lemma piLe_tc_term_quarter_step_prop : forall (B : Q) (m : nat),
   Qle 0 B -> (2 * Z.to_nat (Qceiling B) <= m)%nat ->
   Qle (piLe_tc_term (Datatypes.S m) B) ((1 # 4)%Q * piLe_tc_term m B).
 Proof.
@@ -835,11 +821,11 @@ Proof.
   assert (H02 : Qle 0 2%Q) by (unfold Qle; cbn [Qnum Qden]; lia).
   assert (HBceil : Qle B (Z.of_nat (Z.to_nat (Qceiling B)) # 1))
     by exact (QleT'_to_Qle B (d3p_inject_nat (Z.to_nat (Qceiling B)))
-                (d3p_inject_ceiling_ge B H0B)).
+                (d3p_inject_ceiling_ge_prop B H0B)).
   assert (HBB : Qle (B * B)
                   ((Z.of_nat (Z.to_nat (Qceiling B)) # 1)
                    * (Z.of_nat (Z.to_nat (Qceiling B)) # 1))).
-  { exact (piLe_qmult_le_nonneg4 B (Z.of_nat (Z.to_nat (Qceiling B)) # 1)
+  { exact (piLe_qmult_le_nonneg4_prop B (Z.of_nat (Z.to_nat (Qceiling B)) # 1)
              B (Z.of_nat (Z.to_nat (Qceiling B)) # 1)
              H0B HBceil H0B HBceil). }
   assert (Hreg : (2 * B) * (2 * B) == 4%Q * (B * B)) by ring.
@@ -849,10 +835,10 @@ Proof.
   assert (Hstep1 : Qle (16%Q * (B * B))
                      (16%Q * ((Z.of_nat (Z.to_nat (Qceiling B)) # 1)
                               * (Z.of_nat (Z.to_nat (Qceiling B)) # 1)))).
-  { exact (piLe_qmult_le_nonneg4 16%Q 16%Q (B * B)
+  { exact (piLe_qmult_le_nonneg4_prop 16%Q 16%Q (B * B)
              ((Z.of_nat (Z.to_nat (Qceiling B)) # 1)
               * (Z.of_nat (Z.to_nat (Qceiling B)) # 1))
-             H016 (Qle_refl 16%Q) (piLe_qmult_nonneg_r B B H0B H0B) HBB). }
+             H016 (Qle_refl 16%Q) (piLe_qmult_nonneg_r_prop B B H0B H0B) HBB). }
   assert (Hconv : 16%Q * ((Z.of_nat (Z.to_nat (Qceiling B)) # 1)
                           * (Z.of_nat (Z.to_nat (Qceiling B)) # 1))
                   == (4%Q * (Z.of_nat (Z.to_nat (Qceiling B)) # 1))
@@ -864,12 +850,12 @@ Proof.
     reflexivity. }
   assert (H4i1 : Qle (Z.of_nat (4 * Z.to_nat (Qceiling B)) # 1)
                      (Z.of_nat (Datatypes.S (2 * m)) # 1))
-    by (apply piLe_inject_le; lia).
+    by (apply piLe_inject_le_prop; lia).
   assert (H4i2 : Qle (Z.of_nat (4 * Z.to_nat (Qceiling B)) # 1)
                      (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))
-    by (apply piLe_inject_le; lia).
+    by (apply piLe_inject_le_prop; lia).
   assert (Hnn4 : Qle 0 (Z.of_nat (4 * Z.to_nat (Qceiling B)) # 1))
-    by (apply piLe_inject_nonneg).
+    by (apply piLe_inject_nonneg_prop).
   assert (HR : Qle (4%Q * ((2 * B) * (2 * B)))
                    ((Z.of_nat (Datatypes.S (2 * m)) # 1)
                     * (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))).
@@ -878,7 +864,7 @@ Proof.
                                 * (Z.of_nat (Z.to_nat (Qceiling B)) # 1)))).
     - exact Hstep1.
     - rewrite Hconv, <- H4q.
-      exact (piLe_qmult_le_nonneg4
+      exact (piLe_qmult_le_nonneg4_prop
                (Z.of_nat (4 * Z.to_nat (Qceiling B)) # 1)
                (Z.of_nat (Datatypes.S (2 * m)) # 1)
                (Z.of_nat (4 * Z.to_nat (Qceiling B)) # 1)
@@ -887,19 +873,19 @@ Proof.
   assert (HDne : ~ (((Z.of_nat (Datatypes.S (2 * m)) # 1)
                      * (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))%Q == 0)).
   { intro H0.
-    exact (q_neq_of_lt
+    exact (q_neq_of_lt_prop
              ((Z.of_nat (Datatypes.S (2 * m)) # 1)
               * (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))%Q
              (Qmult_lt_0_compat
                 (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1)
                 (Z.of_nat (Datatypes.S (2 * m)) # 1)
-                (piLe_inject_pos (Datatypes.S (2 * m)))
-                (piLe_inject_pos (2 * m))) H0). }
+                (piLe_inject_pos_prop (Datatypes.S (2 * m)))
+                (piLe_inject_pos_prop (2 * m))) H0). }
   assert (H0D : Qle 0 (/ ((Z.of_nat (Datatypes.S (2 * m)) # 1)
                           * (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))%Q)).
   { apply (Qlt_le_weak 0 _).
     apply Qinv_lt_0_compat.
-    apply Qmult_lt_0_compat; apply piLe_inject_pos. }
+    apply Qmult_lt_0_compat; apply piLe_inject_pos_prop. }
   assert (HHD : Qle (4%Q * ((2 * B) * (2 * B)
                             * / ((Z.of_nat (Datatypes.S (2 * m)) # 1)
                                  * (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1))%Q))
@@ -931,13 +917,13 @@ Proof.
       by ring.
     rewrite Hq1.
     apply (Qle_trans _ ((1 # 4)%Q * 1%Q)%Q).
-    + apply piLe_qmult_le_l; [exact H0q4 | exact HHD].
+    + apply piLe_qmult_le_l_prop; [exact H0q4 | exact HHD].
     + assert (Hc14 : (1 # 4)%Q * 1%Q == (1 # 4)%Q) by ring.
       rewrite Hc14. apply Qle_refl. }
   assert (HneZF : ~ ((Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1)
                      * q_fact (Datatypes.S (2 * m))%nat == 0)%Q).
-  { apply q_neq_of_lt. apply Qmult_lt_0_compat;
-      [apply piLe_inject_pos | apply q_fact_pos]. }
+  { apply q_neq_of_lt_prop. apply Qmult_lt_0_compat;
+      [apply piLe_inject_pos_prop | apply q_fact_pos]. }
   assert (Hratio : piLe_tc_term (Datatypes.S m) B
     == (2 * B) * (2 * B)
        * / ((Z.of_nat (Datatypes.S (2 * m)) # 1)
@@ -950,27 +936,27 @@ Proof.
     rewrite (q_pow_succ (2 * B) (2 * m)).
     rewrite (q_fact_succ (Datatypes.S (2 * m))).
     rewrite (q_fact_succ (2 * m)).
-    rewrite <- (piLe_qinv_distr
+    rewrite <- (piLe_qinv_distr_prop
                   (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1)
                   ((Z.of_nat (Datatypes.S (2 * m)) # 1)
                    * q_fact (2 * m)%nat)
-                  (piLe_inject_neq0 (Datatypes.S (2 * m)))
-                  (q_neq_of_lt ((Z.of_nat (Datatypes.S (2 * m)) # 1)
+                  (piLe_inject_neq0_prop (Datatypes.S (2 * m)))
+                  (q_neq_of_lt_prop ((Z.of_nat (Datatypes.S (2 * m)) # 1)
                                 * q_fact (2 * m)%nat)
                      (Qmult_lt_0_compat (Z.of_nat (Datatypes.S (2 * m)) # 1)
                         (q_fact (2 * m)%nat)
-                        (piLe_inject_pos (2 * m)) (q_fact_pos (2 * m))))).
-    rewrite <- (piLe_qinv_distr
+                        (piLe_inject_pos_prop (2 * m)) (q_fact_pos (2 * m))))).
+    rewrite <- (piLe_qinv_distr_prop
                   (Z.of_nat (Datatypes.S (2 * m)) # 1)
                   (q_fact (2 * m)%nat)
-                  (piLe_inject_neq0 (2 * m))
+                  (piLe_inject_neq0_prop (2 * m))
                   (piLrowB_qfact_neq0 (2 * m))).
     unfold piLe_tc_term. unfold Qdiv.
-    rewrite <- (piLe_qinv_distr
+    rewrite <- (piLe_qinv_distr_prop
                   (Z.of_nat (Datatypes.S (2 * m)) # 1)
                   (Z.of_nat (Datatypes.S (Datatypes.S (2 * m))) # 1)
-                  (piLe_inject_neq0 (2 * m))
-                  (piLe_inject_neq0 (Datatypes.S (2 * m)))).
+                  (piLe_inject_neq0_prop (2 * m))
+                  (piLe_inject_neq0_prop (Datatypes.S (2 * m)))).
     ring. }
   assert (Htm : piLe_tc_term m B
                 == q_pow (2 * B) (2 * m)%nat * / q_fact (2 * m)%nat)
@@ -978,10 +964,10 @@ Proof.
   assert (H0PF : Qle 0 (q_pow (2 * B) (2 * m)%nat * / q_fact (2 * m)%nat)).
   { apply (Qle_trans _ ((0 * / q_fact (2 * m))%Q)).
     - rewrite Qmult_0_l. apply Qle_refl.
-    - exact (piLe_qmult_le_nonneg4 0%Q (q_pow (2 * B) (2 * m)%nat)
+    - exact (piLe_qmult_le_nonneg4_prop 0%Q (q_pow (2 * B) (2 * m)%nat)
                (/ q_fact (2 * m)%nat) (/ q_fact (2 * m)%nat)
-               (Qle_refl 0%Q) (q_pow_nonneg (2 * B) (2 * m)%nat
-                                 (piLe_qmult_nonneg_r 2%Q B H02 H0B))
+               (Qle_refl 0%Q) (q_pow_nonneg_prop (2 * B) (2 * m)%nat
+                                 (piLe_qmult_nonneg_r_prop 2%Q B H02 H0B))
                (Qlt_le_weak 0%Q (/ q_fact (2 * m)%nat)
                   (Qinv_lt_0_compat (q_fact (2 * m)%nat) (q_fact_pos (2 * m))))
                (Qle_refl (/ q_fact (2 * m)%nat))). }
@@ -994,7 +980,7 @@ Proof.
 Qed.
 
 (** Chain form for the [t'] terms: [t'_{m+p} <= (1/4)^p t'_m]. *)
-Lemma piLe_tc_term_quarter_chain : forall (B : Q) (m p : nat),
+Lemma piLe_tc_term_quarter_chain_prop : forall (B : Q) (m p : nat),
   Qle 0 B -> (2 * Z.to_nat (Qceiling B) <= m)%nat ->
   Qle (piLe_tc_term (m + p)%nat B) (q_pow (1 # 4)%Q p * piLe_tc_term m B).
 Proof.
@@ -1003,16 +989,16 @@ Proof.
     cbn [q_pow]. rewrite Qmult_1_l. apply Qle_refl.
   - replace (m + Datatypes.S p)%nat with (Datatypes.S (m + p))%nat by lia.
     apply (Qle_trans _ ((1 # 4)%Q * piLe_tc_term (m + p) B)).
-    + apply (piLe_tc_term_quarter_step B (m + p)%nat H0B).
+    + apply (piLe_tc_term_quarter_step_prop B (m + p)%nat H0B).
       apply (Nat.le_trans _ m); [exact Hm | lia].
     + rewrite (q_pow_succ (1 # 4)%Q p).
       apply (Qle_trans _ ((1 # 4)%Q * (q_pow (1 # 4)%Q p * piLe_tc_term m B))).
-      * apply piLe_qmult_le_l; [(unfold Qle; cbn [Qnum Qden]; lia) | exact IH].
+      * apply piLe_qmult_le_l_prop; [(unfold Qle; cbn [Qnum Qden]; lia) | exact IH].
       * rewrite Qmult_assoc. apply Qle_refl.
 Qed.
 
 (** Geometric tail bound: [band_bound k B <= (4/3) t'_{k+1}(B)] for [0 <= B] and [2*ceil(B) < k]. *)
-Lemma piLe_band_bound_geometric : forall (B : Q) (k : nat),
+Lemma piLe_band_bound_geometric_prop : forall (B : Q) (k : nat),
   Qle 0 B -> (2 * Z.to_nat (Qceiling B) < k)%nat ->
   Qle (piLe_band_bound k B) ((4 # 3)%Q * piLe_tc_term (Datatypes.S k) B).
 Proof.
@@ -1020,17 +1006,17 @@ Proof.
   apply (Qle_trans _
            (piLsb_sumR (fun u => q_pow (1 # 4)%Q u * piLe_tc_term (Datatypes.S k) B)
                        (S (S k)))).
-  - apply piLe_sumR_le. intros u Hu.
-    apply (piLe_tc_term_quarter_chain B (Datatypes.S k) u H0B). lia.
+  - apply piLe_sumR_le_prop. intros u Hu.
+    apply (piLe_tc_term_quarter_chain_prop B (Datatypes.S k) u H0B). lia.
   - rewrite <- (piLrowB_row_scal_r (piLe_tc_term (Datatypes.S k) B)
                   (fun u => q_pow (1 # 4)%Q u) (S (S k))).
     assert (Hsumle : Qle (piLsb_sumR (fun u => q_pow (1 # 4)%Q u) (S (S k)))
                        (4 # 3)%Q).
     { pose proof (piLe_quarter_sum_identity (S (S k))) as Hid.
       assert (Hqpos : Qle 0 ((4 # 3)%Q * q_pow (1 # 4)%Q (S (S k)))).
-      { apply piLe_qmult_nonneg_r.
+      { apply piLe_qmult_nonneg_r_prop.
         - unfold Qle; cbn [Qnum Qden]; lia.
-        - apply q_pow_nonneg. unfold Qle; cbn [Qnum Qden]; lia. }
+        - apply q_pow_nonneg_prop. unfold Qle; cbn [Qnum Qden]; lia. }
       assert (H2 : piLsb_sumR (fun u => q_pow (1 # 4)%Q u) (S (S k))
                    == (4 # 3)%Q - (4 # 3)%Q * q_pow (1 # 4)%Q (S (S k))).
       { transitivity (piLsb_sumR (fun u => q_pow (1 # 4)%Q u) (S (S k))
@@ -1038,16 +1024,15 @@ Proof.
                       - (4 # 3)%Q * q_pow (1 # 4)%Q (S (S k))).
         - ring.
         - rewrite Hid. ring. }
-      rewrite H2. apply piLe_qle_sub_r. exact Hqpos. }
+      rewrite H2. apply piLe_qle_sub_r_prop. exact Hqpos. }
     assert (Htpos : Qle 0 (piLe_tc_term (Datatypes.S k) B))
-      by (apply piLe_tc_term_nonneg; exact H0B).
+      by (apply piLe_tc_term_nonneg_prop; exact H0B).
     apply (Qmult_le_compat_r (piLsb_sumR (fun u => q_pow (1 # 4)%Q u) (S (S k)))
                (4 # 3)%Q (piLe_tc_term (Datatypes.S k) B) Hsumle Htpos).
 Qed.
 
-(** Truncation-length selection: there is a [j] such that [band_bound k B < dt] whenever [k >= j]. 
-      *)
-Lemma piLe_band_small : forall (B dt : Q),
+(** Truncation-length selection: there is a [j] such that [band_bound k B < dt] whenever [k >= j]. *)
+Lemma piLe_band_small_prop : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->
   sigT (fun j : nat => forall k : nat, (j <= k)%nat -> Qlt (piLe_band_bound k B) dt).
 Proof.
@@ -1058,10 +1043,10 @@ Proof.
   { apply Qmult_lt_0_compat.
     - unfold Qlt; cbn [Qnum Qden]; lia.
     - unfold piLe_tc_term. apply Qmult_lt_0_compat.
-      + apply piLe_q_pow_pos. apply Qmult_lt_0_compat;
+      + apply piLe_q_pow_pos_prop. apply Qmult_lt_0_compat;
           [unfold Qlt; cbn [Qnum Qden]; lia | exact HB].
       + apply Qinv_lt_0_compat. apply q_fact_pos. }
-  destruct (d3p_quarter_pow_lt ((4 # 3)%Q
+  destruct (d3p_quarter_pow_lt_prop ((4 # 3)%Q
                                 * piLe_tc_term
                                     (Datatypes.S (2 * Z.to_nat (Qceiling B))) B)
                   dt Hc Hdt) as [d0 Hd0].
@@ -1077,20 +1062,20 @@ Proof.
               * q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B))))).
     + apply (Qle_trans _
                ((4 # 3)%Q * piLe_tc_term (Datatypes.S k) B)).
-      * apply piLe_band_bound_geometric; [exact HBpos | lia].
+      * apply piLe_band_bound_geometric_prop; [exact HBpos | lia].
       * assert (Hpre2 : (2 * Z.to_nat (Qceiling B) <= k)%nat) by lia.
         assert (Hq : Qle (piLe_tc_term (Datatypes.S k) B)
                          (piLe_tc_term (Datatypes.S (2 * Z.to_nat (Qceiling B))) B
                           * q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B))))).
         { apply (Qle_trans _ ((1 # 4)%Q * piLe_tc_term k B)).
-          - apply (piLe_tc_term_quarter_step B k HBpos Hpre2).
+          - apply (piLe_tc_term_quarter_step_prop B k HBpos Hpre2).
           - apply (Qle_trans _
                      ((1 # 4)%Q
                       * (q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B)))
                          * piLe_tc_term (Datatypes.S (2 * Z.to_nat (Qceiling B))) B))).
-            + apply piLe_qmult_le_l.
+            + apply piLe_qmult_le_l_prop.
               * unfold Qle; cbn [Qnum Qden]; lia.
-              * pose proof (piLe_tc_term_quarter_chain B
+              * pose proof (piLe_tc_term_quarter_chain_prop B
                               (Datatypes.S (2 * Z.to_nat (Qceiling B)))
                               (k - Datatypes.S (2 * Z.to_nat (Qceiling B)))
                               HBpos (Nat.le_succ_diag_r _)) as Hqc.
@@ -1105,9 +1090,9 @@ Proof.
                            (q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B)))
                             * piLe_tc_term (Datatypes.S (2 * Z.to_nat (Qceiling B))) B));
                    [unfold Qle; cbn [Qnum Qden]; lia
-                   | apply piLe_qmult_nonneg_r;
-                       [apply q_pow_nonneg; unfold Qle; cbn [Qnum Qden]; lia
-                       | apply piLe_tc_term_nonneg; exact HBpos]].
+                   | apply piLe_qmult_nonneg_r_prop;
+                       [apply q_pow_nonneg_prop; unfold Qle; cbn [Qnum Qden]; lia
+                       | apply piLe_tc_term_nonneg_prop; exact HBpos]].
               * rewrite Qmult_1_l,
                   (Qmult_comm (q_pow (1 # 4)%Q
                                 (k - Datatypes.S (2 * Z.to_nat (Qceiling B))))
@@ -1116,7 +1101,7 @@ Proof.
         rewrite <- (Qmult_assoc (4 # 3)%Q
                       (piLe_tc_term (Datatypes.S (2 * Z.to_nat (Qceiling B))) B)
                       (q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B))))).
-        apply piLe_qmult_le_l;
+        apply piLe_qmult_le_l_prop;
           [unfold Qle; cbn [Qnum Qden]; lia | exact Hq].
     + assert (Hp : Qle (q_pow (1 # 4)%Q (k - Datatypes.S (2 * Z.to_nat (Qceiling B))))
                        (q_pow (1 # 4)%Q d0)).
@@ -1133,26 +1118,24 @@ Proof.
                      (q_pow (1 # 4)%Q d0));
             [apply (Qle_trans _ (q_pow 1%Q
                              (k - (Datatypes.S (2 * Z.to_nat (Qceiling B)) + d0))));
-               [apply (q_pow_mono (1 # 4)%Q 1%Q
+               [apply (q_pow_mono_prop (1 # 4)%Q 1%Q
                           (k - (Datatypes.S (2 * Z.to_nat (Qceiling B)) + d0)));
                   [unfold Qle; cbn [Qnum Qden]; lia
                   | unfold Qle; cbn [Qnum Qden]; lia]
                | rewrite sc_q_pow_one; apply Qle_refl]
-            | apply q_pow_nonneg; unfold Qle; cbn [Qnum Qden]; lia].
+            | apply q_pow_nonneg_prop; unfold Qle; cbn [Qnum Qden]; lia].
         - rewrite Qmult_1_l. apply Qle_refl. }
-      apply piLe_qmult_le_l.
-      * apply piLe_qmult_nonneg_r.
+      apply piLe_qmult_le_l_prop.
+      * apply piLe_qmult_nonneg_r_prop.
         -- unfold Qle; cbn [Qnum Qden]; lia.
-        -- apply piLe_tc_term_nonneg; exact HBpos.
+        -- apply piLe_tc_term_nonneg_prop; exact HBpos.
       * exact Hp.
   - exact Hd0.
 Qed.
 
-(* ================= Section 12. Weak triangular transposition and the row-sum form of partial sums
-   (continuation) =================  *)
+(* ================= Section 12. Weak triangular transposition and the row-sum form of partial sums (continuation) ================= *)
 
-(** Weak triangular transposition: [sum_{i<S K} sum_{u<S i} G i u == sum_{u<S K} sum_{i'<S(K-u)} G
-   (u+i') u].  *)
+(** Weak triangular transposition: [sum_{i<S K} sum_{u<S i} G i u == sum_{u<S K} sum_{i'<S(K-u)} G (u+i') u]. *)
 Lemma piLe_sumR_trapswap_le : forall (K : nat) (G : nat -> nat -> Q),
   piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) (S i)) (S K)
   == piLsb_sumR (fun u => piLsb_sumR (fun i => G (u + i)%nat u) (S (K - u))%nat) (S K).
@@ -1208,8 +1191,7 @@ Proof.
     rewrite (piLsb_sumR_snoc (fun i => sin_term i x) (S k)). cbv beta. ring.
 Qed.
 
-(** Full row families: the even row [sum_{i<S w} c_i c_{w-i}] and the odd row [sum_{i<w} s_i
-   s_{w-1-i}].  *)
+(** Full row families: the even row [sum_{i<S w} c_i c_{w-i}] and the odd row [sum_{i<w} s_i s_{w-1-i}]. *)
 Definition piLe_rowc_full (w : nat) (x : Q) : Q :=
   piLsb_sumR (fun i => cos_term i x * cos_term (w - i)%nat x) (S w).
 
@@ -1227,15 +1209,12 @@ Proof.
     cbn [piLsb_sumR]. cbv beta.
     vm_compute. reflexivity.
   - unfold piLe_rowc_full, piLe_rows_full.
-    apply (piLe_rowC_cross (Datatypes.S w) x). lia.
+    apply (piLe_rowC_cross_prop (Datatypes.S w) x). lia.
 Qed.
 
-(* ================= Section 13. Exact band representation (the top-row identity) ================= 
-      *)
+(* ================= Section 13. Exact band representation (the top-row identity) ================= *)
 
-(** Band representation theorem: the truncation remainder equals the exact sum of [ssrow - ccrow]
-   over the row range [k+1, 2k+2] (in the last row [m = 2k+2] both windows are empty and the
-   contribution is zero).  *)
+(** Band representation theorem: the truncation remainder equals the exact sum of [ssrow - ccrow] over the row range [k+1, 2k+2] (in the last row [m = 2k+2] both windows are empty and the contribution is zero). *)
 
 Lemma piLe_dcos_band_rows : forall (k : nat) (x : Q),
   piL_cos_dres k x
@@ -1291,7 +1270,7 @@ Proof.
                                               (fun u : nat => cos_term i x
                                                               * cos_term (S k - i + u) x) i)
                            (S k))
-    by (apply (piLe_sumR_square_split_gen (S k) (fun i => S k - i)%nat (fun i => i)
+    by (apply (piLe_sumR_square_split_gen_prop (S k) (fun i => S k - i)%nat (fun i => i)
                 (fun i j => cos_term i x * cos_term j x)); intros i Hi; lia).
   rewrite Hsplitc.
   assert (Hsplits : piLsb_sumR
@@ -1305,7 +1284,7 @@ Proof.
                                               (fun u : nat => sin_term i x
                                                               * sin_term (k - i + u) x)
                                               (Datatypes.S i)) (S k))
-    by (apply (piLe_sumR_square_split_gen (S k) (fun i => k - i)%nat (fun i => Datatypes.S i)
+    by (apply (piLe_sumR_square_split_gen_prop (S k) (fun i => k - i)%nat (fun i => Datatypes.S i)
                 (fun i j => sin_term i x * sin_term j x)); intros i Hi; lia).
   rewrite Hsplits.
   assert (Hflatc : piLsb_sumR
@@ -1431,7 +1410,7 @@ Qed.
 (* ================= Section 14. Row majorants: |ccrow|, |ssrow| <= t'_m/2 ================= *)
 
 (** Closed form of the even-denominator full row sum: [sum_j B^(2m)/((2j)!(2(m-j))!) == t'_m/2]. *)
-Lemma piLe_pointrow_even_closed : forall (m : nat) (B : Q),
+Lemma piLe_pointrow_even_closed_prop : forall (m : nat) (B : Q),
   (1 <= m)%nat -> Qle 0 B ->
   piLsb_sumR (fun j => q_pow B (2 * m)%nat
                        / (q_fact (2 * j)%nat * q_fact (2 * (m - j))%nat)) (S m)
@@ -1454,7 +1433,7 @@ Proof.
   - symmetry. apply (piLrowB_row_scal_r (q_pow B (2 * m)%nat)
                       (fun j => 1 / (q_fact (2 * j)%nat * q_fact (2 * (m - j))%nat))
                       (S m)).
-  - rewrite (piLe_row_even_full m Hm).
+  - rewrite (piLe_row_even_full_prop m Hm).
     assert (Hz : q_pow (2 * B) (2 * m)%nat
                  == q_pow 2%Q (2 * m)%nat * q_pow B (2 * m)%nat)
       by (rewrite (lw0_q_pow_mult 2%Q B (2 * m)%nat); reflexivity).
@@ -1467,7 +1446,7 @@ Proof.
 Qed.
 
 (** The cos row majorant: [|ccrow k m x| <= t'_m(B)/2] for [k < m] and [|x| <= B]. *)
-Lemma piLe_ccrow_abs_le : forall (k m : nat) (x B : Q),
+Lemma piLe_ccrow_abs_le_prop : forall (k m : nat) (x B : Q),
   (k < m)%nat -> Qle (Qabs x) B ->
   Qle (Qabs (piLe_ccrow k m x)) ((1 # 2)%Q * piLe_tc_term m B).
 Proof.
@@ -1477,8 +1456,8 @@ Proof.
     by (apply (Qle_trans 0 (Qabs x) B); [apply Qabs_nonneg | exact Hx]).
   assert (Hqdiv : forall e d : nat, Qle 0 (q_pow B e / q_fact d)).
   { intros e d. unfold Qdiv.
-    apply (piLe_qmult_nonneg_r (q_pow B e) (/ q_fact d)).
-    - apply q_pow_nonneg; exact H0B.
+    apply (piLe_qmult_nonneg_r_prop (q_pow B e) (/ q_fact d)).
+    - apply q_pow_nonneg_prop; exact H0B.
     - apply (Qlt_le_weak 0 _). apply Qinv_lt_0_compat. apply q_fact_pos. }
   assert (Hpt : forall j : nat, (j <= m)%nat ->
     Qle (Qabs (cos_term j x)) (q_pow B (2 * j)%nat / q_fact (2 * j)%nat)).
@@ -1505,7 +1484,7 @@ Proof.
       rewrite <- (lw0_q_pow_add B (2 * (m - k + u)) (2 * (k - u))).
       apply Qeq_refl. }
     rewrite Hpow. unfold Qdiv.
-    rewrite <- (piLe_qinv_distr (q_fact (2 * (m - k + u))%nat)
+    rewrite <- (piLe_qinv_distr_prop (q_fact (2 * (m - k + u))%nat)
                   (q_fact (2 * (k - u))%nat)
                   (piLrowB_qfact_neq0 (2 * (m - k + u)))
                   (piLrowB_qfact_neq0 (2 * (k - u)))).
@@ -1514,20 +1493,20 @@ Proof.
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (cos_term (m - k + u)%nat x * cos_term (k - u)%nat x))
                        (2 * k + 1 - m)%nat)).
-  { apply (piLe_abs_sumR_le
+  { apply (piLe_abs_sumR_le_prop
              (fun u => cos_term (m - k + u)%nat x * cos_term (k - u)%nat x)
              (2 * k + 1 - m)%nat). }
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (cos_term (m - k + u)%nat x)
                                 * Qabs (cos_term (k - u)%nat x))
                        (2 * k + 1 - m)%nat)).
-  { apply piLe_sumR_le. intros u _.
+  { apply piLe_sumR_le_prop. intros u _.
     rewrite Qabs_Qmult. apply Qle_refl. }
   apply (Qle_trans _
            (piLsb_sumR (fun u => (q_pow B (2 * (m - k + u))%nat / q_fact (2 * (m - k + u))%nat)
                                  * (q_pow B (2 * (k - u))%nat / q_fact (2 * (k - u))%nat))
                        (2 * k + 1 - m)%nat)).
-  { apply piLe_sumR_le. intros u Hu.
+  { apply piLe_sumR_le_prop. intros u Hu.
     apply (Qle_trans _ ((q_pow B (2 * (m - k + u))%nat / q_fact (2 * (m - k + u))%nat)
                         * Qabs (cos_term (k - u)%nat x))).
     - apply (Qmult_le_compat_r (Qabs (cos_term (m - k + u)%nat x))
@@ -1548,7 +1527,7 @@ Proof.
            (piLsb_sumR (fun u => q_pow B (2 * m)%nat
                                  / (q_fact (2 * (m - k + u))%nat * q_fact (2 * (k - u))%nat))
                        (2 * k + 1 - m)%nat)).
-  { apply piLe_sumR_le. intros u Hu. cbv beta.
+  { apply piLe_sumR_le_prop. intros u Hu. cbv beta.
     rewrite (Hpowext u Hu). apply Qle_refl. }
   rewrite (piLsb_sumR_ext
              (fun u => q_pow B (2 * m)%nat
@@ -1561,23 +1540,23 @@ Proof.
            (piLsb_sumR (fun j => q_pow B (2 * m)%nat
                                  / (q_fact (2 * j)%nat * q_fact (2 * (m - j))%nat))
                        (S m))).
-  { apply (piLe_sumR_shift_le
+  { apply (piLe_sumR_shift_le_prop
              (fun j => q_pow B (2 * m)%nat
                        / (q_fact (2 * j)%nat * q_fact (2 * (m - j))%nat))
              (m - k) (2 * k + 1 - m) (S m)).
     - lia.
     - intros j. unfold Qdiv.
-      apply piLe_qmult_nonneg_r.
-      + apply q_pow_nonneg; exact H0B.
+      apply piLe_qmult_nonneg_r_prop.
+      + apply q_pow_nonneg_prop; exact H0B.
       + apply (Qlt_le_weak 0 _). apply Qinv_lt_0_compat.
         apply (Qmult_lt_0_compat (q_fact (2 * j)%nat)
                  (q_fact (2 * (m - j))%nat)); apply q_fact_pos. }
-  rewrite (piLe_pointrow_even_closed m B Hm1 H0B).
+  rewrite (piLe_pointrow_even_closed_prop m B Hm1 H0B).
   apply Qle_refl.
 Qed.
 
 (** The sin row majorant: [|ssrow k m x| <= t'_m(B)/2] for [k < m] and [|x| <= B]. *)
-Lemma piLe_ssrow_abs_le : forall (k m : nat) (x B : Q),
+Lemma piLe_ssrow_abs_le_prop : forall (k m : nat) (x B : Q),
   (k < m)%nat -> Qle (Qabs x) B ->
   Qle (Qabs (piLe_ssrow k m x)) ((1 # 2)%Q * piLe_tc_term m B).
 Proof.
@@ -1587,8 +1566,8 @@ Proof.
     by (apply (Qle_trans 0 (Qabs x) B); [apply Qabs_nonneg | exact Hx]).
   assert (Hqdiv : forall e d : nat, Qle 0 (q_pow B e / q_fact d)).
   { intros e d. unfold Qdiv.
-    apply (piLe_qmult_nonneg_r (q_pow B e) (/ q_fact d)).
-    - apply q_pow_nonneg; exact H0B.
+    apply (piLe_qmult_nonneg_r_prop (q_pow B e) (/ q_fact d)).
+    - apply q_pow_nonneg_prop; exact H0B.
     - apply (Qlt_le_weak 0 _). apply Qinv_lt_0_compat. apply q_fact_pos. }
   assert (Hpt : forall j : nat, (j < m)%nat ->
     Qle (Qabs (sin_term j x))
@@ -1625,7 +1604,7 @@ Proof.
                     (Datatypes.S (2 * (k - u)))).
       apply Qeq_refl. }
     rewrite Hpow. unfold Qdiv.
-    rewrite <- (piLe_qinv_distr
+    rewrite <- (piLe_qinv_distr_prop
                   (q_fact (Datatypes.S (2 * (m - 1 - k + u)))%nat)
                   (q_fact (Datatypes.S (2 * (k - u)))%nat)
                   (piLrowB_qfact_neq0 (Datatypes.S (2 * (m - 1 - k + u))))
@@ -1656,7 +1635,7 @@ Proof.
     - symmetry. apply (piLrowB_row_scal_r (q_pow B (2 * m)%nat)
                          (fun j => 1 / (q_fact (Datatypes.S (2 * j))%nat
                                         * q_fact (Datatypes.S (2 * (m - 1 - j)))%nat)) m).
-    - rewrite (piLe_row_odd_full m Hm1).
+    - rewrite (piLe_row_odd_full_prop m Hm1).
       assert (Hz : q_pow (2 * B) (2 * m)%nat
                    == q_pow 2%Q (2 * m)%nat * q_pow B (2 * m)%nat)
         by (rewrite (lw0_q_pow_mult 2%Q B (2 * m)%nat); reflexivity).
@@ -1670,14 +1649,14 @@ Proof.
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (sin_term (m - 1 - k + u)%nat x * sin_term (k - u)%nat x))
                        (2 * k + 2 - m)%nat)).
-  { apply (piLe_abs_sumR_le
+  { apply (piLe_abs_sumR_le_prop
              (fun u => sin_term (m - 1 - k + u)%nat x * sin_term (k - u)%nat x)
              (2 * k + 2 - m)%nat). }
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (sin_term (m - 1 - k + u)%nat x)
                                 * Qabs (sin_term (k - u)%nat x))
                        (2 * k + 2 - m)%nat)).
-  { apply piLe_sumR_le. intros u _.
+  { apply piLe_sumR_le_prop. intros u _.
     rewrite Qabs_Qmult. apply Qle_refl. }
   apply (Qle_trans _
            (piLsb_sumR (fun u => (q_pow B (Datatypes.S (2 * (m - 1 - k + u)))%nat
@@ -1685,7 +1664,7 @@ Proof.
                                  * (q_pow B (Datatypes.S (2 * (k - u)))%nat
                                     / q_fact (Datatypes.S (2 * (k - u)))%nat))
                        (2 * k + 2 - m)%nat)).
-  { apply piLe_sumR_le. intros u Hu.
+  { apply piLe_sumR_le_prop. intros u Hu.
     apply (Qle_trans _ ((q_pow B (Datatypes.S (2 * (m - 1 - k + u)))%nat
                          / q_fact (Datatypes.S (2 * (m - 1 - k + u)))%nat)
                         * Qabs (sin_term (k - u)%nat x))).
@@ -1714,7 +1693,7 @@ Proof.
                                  / (q_fact (Datatypes.S (2 * (m - 1 - k + u)))%nat
                                     * q_fact (Datatypes.S (2 * (k - u)))%nat))
                        (2 * k + 2 - m)%nat)).
-  { apply piLe_sumR_le. intros u Hu. cbv beta.
+  { apply piLe_sumR_le_prop. intros u Hu. cbv beta.
     rewrite (Hpowext u Hu). apply Qle_refl. }
   rewrite (piLsb_sumR_ext
              (fun u => q_pow B (2 * m)%nat
@@ -1728,26 +1707,25 @@ Proof.
            (piLsb_sumR (fun j => q_pow B (2 * m)%nat
                                  / (q_fact (Datatypes.S (2 * j))%nat
                                     * q_fact (Datatypes.S (2 * (m - 1 - j)))%nat)) m)).
-  { apply (piLe_sumR_shift_le
+  { apply (piLe_sumR_shift_le_prop
              (fun j => q_pow B (2 * m)%nat
                        / (q_fact (Datatypes.S (2 * j))%nat
                           * q_fact (Datatypes.S (2 * (m - 1 - j)))%nat))
              (m - 1 - k) (2 * k + 2 - m) m).
     - lia.
     - intros j. unfold Qdiv.
-      apply piLe_qmult_nonneg_r.
-      + apply q_pow_nonneg; exact H0B.
+      apply piLe_qmult_nonneg_r_prop.
+      + apply q_pow_nonneg_prop; exact H0B.
       + apply (Qlt_le_weak 0 _). apply Qinv_lt_0_compat.
         apply (Qmult_lt_0_compat (q_fact (Datatypes.S (2 * j))%nat)
                  (q_fact (Datatypes.S (2 * (m - 1 - j)))%nat)); apply q_fact_pos. }
   rewrite Hclosed. apply Qle_refl.
 Qed.
 
-(* ================= Section 15. The main band-bound theorem (capstone) and the consumer side of
-   monotonicity =================  *)
+(* ================= Section 15. The main band-bound theorem (capstone) and the consumer side of monotonicity ================= *)
 
 (** The main cos band-bound theorem: [|dcos k x| <= band_bound k B] for all [k] with [|x| <= B]. *)
-Theorem piLe_dcos_band_le : forall (k : nat) (x B : Q),
+Theorem piLe_dcos_band_le_prop : forall (k : nat) (x B : Q),
   Qle (Qabs x) B -> Qle (Qabs (piL_cos_dres k x)) (piLe_band_bound k B).
 Proof.
   intros k x B Hx.
@@ -1758,12 +1736,12 @@ Proof.
            (piLsb_sumR (fun u => Qabs (piLe_ssrow k (S (k + u))%nat x
                                        - piLe_ccrow k (S (k + u))%nat x))
                        (S (S k)))).
-  { apply piLe_abs_sumR_le. }
+  { apply piLe_abs_sumR_le_prop. }
   apply (Qle_trans _
            (piLsb_sumR (fun u => Qabs (piLe_ssrow k (S (k + u))%nat x)
                                  + Qabs (piLe_ccrow k (S (k + u))%nat x))
                        (S (S k)))).
-  { apply piLe_sumR_le. intros u _.
+  { apply piLe_sumR_le_prop. intros u _.
     apply (Qle_trans _ (Qabs (piLe_ssrow k (S (k + u))%nat x)
                         + Qabs (- piLe_ccrow k (S (k + u))%nat x))).
     - change (piLe_ssrow k (S (k + u))%nat x - piLe_ccrow k (S (k + u))%nat x)
@@ -1775,14 +1753,14 @@ Proof.
            (piLsb_sumR (fun u => (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B
                                  + (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
                        (S (S k)))).
-  { apply piLe_sumR_le. intros u Hu.
+  { apply piLe_sumR_le_prop. intros u Hu.
     apply (Qplus_le_compat
              (Qabs (piLe_ssrow k (S (k + u))%nat x))
              ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
              (Qabs (piLe_ccrow k (S (k + u))%nat x))
              ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)).
-    - apply (piLe_ssrow_abs_le k (S (k + u)) x B); [lia | exact Hx].
-    - apply (piLe_ccrow_abs_le k (S (k + u)) x B); [lia | exact Hx]. }
+    - apply (piLe_ssrow_abs_le_prop k (S (k + u)) x B); [lia | exact Hx].
+    - apply (piLe_ccrow_abs_le_prop k (S (k + u)) x B); [lia | exact Hx]. }
   assert (Hdouble : forall u : nat,
     ((1 # 2)%Q * piLe_tc_term (S (k + u))%nat B
      + (1 # 2)%Q * piLe_tc_term (S (k + u))%nat B)
@@ -1797,30 +1775,27 @@ Proof.
 Qed.
 
 
-(* ================= Section 16. The sigma3 vanishing supply and the slot-face transfer
-   =================  *)
+(* ================= Section 16. The sigma3 vanishing supply and the slot-face transfer ================= *)
 
-(** The sigma3 vanishing supply: there is a [j] such that [|dcos k x| < dt] whenever [k >= j] and
-   [|x| <= B].  *)
-Lemma piLe_dcos_small : forall (B dt : Q),
+(** The sigma3 vanishing supply: there is a [j] such that [|dcos k x| < dt] whenever [k >= j] and [|x| <= B]. *)
+Lemma piLe_dcos_small_prop : forall (B dt : Q),
   Qlt 0 B -> Qlt 0 dt ->
   sigT (fun j : nat => forall (k : nat) (x : Q),
     (j <= k)%nat -> Qle (Qabs x) B -> Qlt (Qabs (piL_cos_dres k x)) dt).
 Proof.
   intros B dt HB Hdt.
-  destruct (piLe_band_small B dt HB Hdt) as [j Hj].
+  destruct (piLe_band_small_prop B dt HB Hdt) as [j Hj].
   exists j. intros k x Hkx HxB.
   apply (Qle_lt_trans _ (piLe_band_bound k B)).
-  - apply (piLe_dcos_band_le k x B HxB).
+  - apply (piLe_dcos_band_le_prop k x B HxB).
   - apply (Hj k Hkx).
 Qed.
 
-(** The slot-face supply theorem: [piLd3_seed_dcos] (transferring the stdlib [Qlt]/[Qle] face onto
-   the [QltT]/[QleT'] slot face).  *)
-Theorem piLe_seed_dcos : piLd3_seed_dcos.
+(** The slot-face supply theorem: [piLd3_seed_dcos] (transferring the stdlib [Qlt]/[Qle] face onto the [QltT]/[QleT'] slot face). *)
+Theorem piLe_seed_dcos_prop : piLd3_seed_dcos.
 Proof.
   unfold piLd3_seed_dcos. intros B dt HB Hdt.
-  destruct (piLe_dcos_small B dt (QltT_to_Qlt 0 B HB) (QltT_to_Qlt 0 dt Hdt)) as [j Hj].
+  destruct (piLe_dcos_small_prop B dt (QltT_to_Qlt 0 B HB) (QltT_to_Qlt 0 dt Hdt)) as [j Hj].
   exists j. intros k x Hkx HxB.
   apply Qlt_to_QltT. apply (Hj k x Hkx).
   exact (QleT'_to_Qle (Qabs x) B HxB).
@@ -1831,37 +1806,744 @@ Print Assumptions piLe_partial_cos_sumR.
 Print Assumptions piLe_partial_sin_sumR.
 Print Assumptions piLe_rowC_telescope.
 Print Assumptions piLe_dcos_band_rows.
-Print Assumptions piLe_pointrow_even_closed.
-Print Assumptions piLe_ccrow_abs_le.
-Print Assumptions piLe_ssrow_abs_le.
-Print Assumptions piLe_dcos_band_le.
-Print Assumptions piLe_dcos_small.
-Print Assumptions piLe_seed_dcos.
+Print Assumptions piLe_pointrow_even_closed_prop.
+Print Assumptions piLe_ccrow_abs_le_prop.
+Print Assumptions piLe_ssrow_abs_le_prop.
+Print Assumptions piLe_dcos_band_le_prop.
+Print Assumptions piLe_dcos_small_prop.
+Print Assumptions piLe_seed_dcos_prop.
 
 
-(* ================= Section 16. The sigma2 vanishing supply (the double-angle sin truncation
-   remainder) =================  *)
+(* ================= Section 16. The sigma2 vanishing supply (the double-angle sin truncation remainder) ================= *)
 
-(** The vanishing supply for the double-angle sin truncation remainder [piL_sin_dres]: there is a
-   depth [j] such that [|piL_sin_dres k x| < dt] whenever [k >= j] and [|x| <= B]; the conclusion is
-   carried at the [Set] level as a [sigT] witness.  The statement face takes the original shape of
-   the [PiKernelSlack_D3_synth] seed slot statement [piLd3_seed_dres]; the stdlib [Qlt] face is
-   carried by [piLd_dres_small] of [PiBandBound] (the chain of the band-machine length selection and
-   the main band bound), and the [QltT]/[QleT'] slot face is reached through the bridge lemmas of
-   [PiKernelSlack].  *)
+(** The vanishing supply for the double-angle sin truncation remainder [piL_sin_dres]: there is a depth [j] such that [|piL_sin_dres k x| < dt] whenever [k >= j] and [|x| <= B]; the conclusion is carried at the [Set] level as a [sigT] witness.  The statement face takes the original shape of the [PiKernelSlack_D3_synth] seed slot statement [piLd3_seed_dres]; the stdlib [Qlt] face is carried by [piLd_dres_small_prop] of [PiBandBound] (the chain of the band-machine length selection and the main band bound), and the [QltT]/[QleT'] slot face is reached through the bridge lemmas of [PiKernelSlack]. *)
 
 
 
 
 Require Import PiBandBound.
-Theorem piLe_seed_dres : piLd3_seed_dres.
+Theorem piLe_seed_dres_prop : piLd3_seed_dres.
 Proof.
   unfold piLd3_seed_dres.
   intros B dt HB Hdte.
-  destruct (piLd_dres_small B dt (QltT_to_Qlt 0 B HB) (QltT_to_Qlt 0 dt Hdte))
+  destruct (piLd_dres_small_prop B dt (QltT_to_Qlt 0 B HB) (QltT_to_Qlt 0 dt Hdte))
     as [j Hj].
   exists j. intros k x Hk HxB.
   apply Qlt_to_QltT.
   exact (Hj k x Hk (QleT'_to_Qle (Qabs x) B HxB)).
 Qed.
-Print Assumptions piLe_seed_dres.
+Print Assumptions piLe_seed_dres_prop.
+
+(* ============================================================ *)
+(* Appended section: Set-carried twins of the order faces        *)
+(*
+   Mission.  Set-carried twins of the strict-order, non-strict
+     order and equality statement faces of this file: each twin
+     restates the same mathematical content with the reflected
+     decision types [QltT]/[QleT']/[QeqT]/[NatLe] in the place of
+     the [Prop]-level [Qlt]/[Qle]/[Qeq]/[(<=)%nat] faces, so the
+     twin statement face lives in [Set] with no [Prop] component.
+     Each twin is proved by transporting through the decision
+     bridges and calling the original statement; the original
+     statements are untouched.
+
+   Dependencies.  The decision bridges of PiKernelSlack
+     ([QltT_to_Qlt]/[Qlt_to_QltT]/[QleT'_to_Qle]/[Qle_to_QleT']/
+     [qeqT_imp_qeq]/[qeq_imp_qeqT]/[NatLe_drop]/[NatLe_lift]).
+
+   References.  The original statements of this file (each twin
+     names its original in the one-line annotation above it).
+
+   Constructivity.  Statement faces carried at the [Set] level
+     ([QltT]/[QleT']/[QeqT]/[NatLe]); proof bodies are transport
+     chains through the decision bridges; no solver closes any
+     twin; assumption-free.
+
+   Build.  Compiled together with this file; see the header of
+     this file for the build recipe.
+*)
+
+
+(* Set twin of piLe_sumR_split *)
+Lemma piLe_sumR_splitT : forall (f : nat -> Q) (a p : nat), QeqT (piLsb_sumR f (a + p)%nat) (piLsb_sumR f a + piLsb_sumR (fun u => f (a + u)%nat) p).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_split f a p).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qle_add_rw_prop *)
+Lemma piLe_qle_add_rwT : forall x y : Q, QleT' 0 y -> QleT' x (x + y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qle_add_rw_prop x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_nonneg_prop *)
+Lemma piLe_sumR_nonnegT : forall (f : nat -> Q) (n : nat), (forall i : nat, NatLe (Datatypes.S (i)) (n) -> QleT' 0 (f i)) -> QleT' 0 (piLsb_sumR f n).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (piLe_sumR_nonneg_prop f n (fun i Hi => QleT'_to_Qle _ _ (H i (NatLe_lift _ _ Hi))))).
+Qed.
+
+(* Set twin of piLe_sumR_le_prop *)
+Lemma piLe_sumR_leT : forall (f g : nat -> Q) (n : nat), (forall i : nat, NatLe (Datatypes.S (i)) (n) -> QleT' (f i) (g i)) -> QleT' (piLsb_sumR f n) (piLsb_sumR g n).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (piLe_sumR_le_prop f g n (fun i Hi => QleT'_to_Qle _ _ (H i (NatLe_lift _ _ Hi))))).
+Qed.
+
+(* Set twin of piLe_abs_sumR_le_prop *)
+Lemma piLe_abs_sumR_leT : forall (f : nat -> Q) (n : nat), QleT' (Qabs (piLsb_sumR f n)) (piLsb_sumR (fun i => Qabs (f i)) n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_abs_sumR_le_prop f n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_shift_le_prop *)
+Lemma piLe_sumR_shift_leT : forall (f : nat -> Q) (a n m : nat), NatLe (a + n) (m) -> (forall i : nat, QleT' 0 (f i)) -> QleT' (piLsb_sumR (fun u => f (a + u)%nat) n) (piLsb_sumR f m).
+Proof.
+  intros.
+  exact (Qle_to_QleT' _ _ (piLe_sumR_shift_le_prop f a n m (NatLe_drop _ _ H) (fun i => QleT'_to_Qle 0 (f i) (H0 i)))).
+Qed.
+
+(* Set twin of piLe_qle_mul_pos_cancel_prop *)
+Lemma piLe_qle_mul_pos_cancelT : forall (a b c : Q), QltT 0 c -> QleT' (a * c) (b * c) -> QleT' a b.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qle_mul_pos_cancel_prop a b c).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_inject_le_prop *)
+Lemma piLe_inject_leT : forall a b : nat, NatLe (a) (b) -> QleT' (Z.of_nat a # 1) (Z.of_nat b # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_inject_le_prop a b).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_inject_pos_prop *)
+Lemma piLe_inject_posT : forall n : nat, QltT 0 (Z.of_nat (S n) # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_inject_pos_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_q_pow_pos_prop *)
+Lemma piLe_q_pow_posT : forall (x : Q) (n : nat), QltT 0 x -> QltT 0 (q_pow x n).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_q_pow_pos_prop x n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_tc_term_nonneg_prop *)
+Lemma piLe_tc_term_nonnegT : forall (B : Q) (m : nat), QleT' 0 B -> QleT' 0 (piLe_tc_term m B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_tc_term_nonneg_prop B m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_tc_term_pos_prop *)
+Lemma piLe_tc_term_posT : forall (B : Q) (m : nat), QltT 0 B -> QltT 0 (piLe_tc_term m B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_tc_term_pos_prop B m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_row_half_eq_prop *)
+Lemma piLe_row_half_eqT : forall m : nat, NatLe (1) (m) -> QeqT (piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)) (piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_row_half_eq_prop m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_row_half_even_val_prop *)
+Lemma piLe_row_half_even_valT : forall m : nat, NatLe (1) (m) -> QeqT (piLsb_sumR (fun i => bpa_binom (2 * m)%nat (2 * i)%nat) (S m)) (q_pow 2%Q (2 * m)%nat * (1 # 2)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_row_half_even_val_prop m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_row_half_odd_val_prop *)
+Lemma piLe_row_half_odd_valT : forall m : nat, NatLe (1) (m) -> QeqT (piLsb_sumR (fun i => bpa_binom (2 * m)%nat (S (2 * i)%nat)) m) (q_pow 2%Q (2 * m)%nat * (1 # 2)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_row_half_odd_val_prop m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_row_even_full_prop *)
+Lemma piLe_row_even_fullT : forall m : nat, NatLe (1) (m) -> QeqT (piLsb_sumR (fun i => 1 / (q_fact (2 * i)%nat * q_fact (2 * (m - i))%nat)) (S m)) (q_pow 2%Q (2 * m)%nat / q_fact (2 * m)%nat * (1 # 2)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_row_even_full_prop m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_row_odd_full_prop *)
+Lemma piLe_row_odd_fullT : forall m : nat, NatLe (1) (m) -> QeqT (piLsb_sumR (fun i => 1 / (q_fact (S (2 * i))%nat * q_fact (S (2 * (m - 1 - i))%nat))) m) (q_pow 2%Q (2 * m)%nat / q_fact (2 * m)%nat * (1 # 2)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_row_odd_full_prop m).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_rowpiece_cc_prop *)
+Lemma piLe_rowpiece_ccT : forall (m t : nat) (x : Q), NatLe (t) (m) -> QeqT (cos_term t x * cos_term (m - t)%nat x * q_fact (2 * m)%nat) (q_pow (-1)%Q m * q_pow x (2 * m)%nat * bpa_binom (2 * m)%nat (2 * t)%nat).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_rowpiece_cc_prop m t x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_rowpiece_ss_prop *)
+Lemma piLe_rowpiece_ssT : forall (m t : nat) (x : Q), NatLe (Datatypes.S (t)) (m) -> QeqT (sin_term t x * sin_term (m - 1 - t)%nat x * q_fact (2 * m)%nat) (q_pow (-1)%Q (m - 1)%nat * q_pow x (2 * m)%nat * bpa_binom (2 * m)%nat (S (2 * t))%nat).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_rowpiece_ss_prop m t x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_rowC_cross_prop *)
+Lemma piLe_rowC_crossT : forall (N : nat) (x : Q), NatLe (1) (N) -> QeqT (piLsb_sumR (fun i => cos_term i x * cos_term (N - i)%nat x) (S N) - piLsb_sumR (fun i => sin_term i x * sin_term (N - 1 - i)%nat x) N) (cos_term N (2 * x)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_rowC_cross_prop N x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qmult_le_l_prop *)
+Lemma piLe_qmult_le_lT : forall z x y : Q, QleT' 0 z -> QleT' x y -> QleT' (z * x) (z * y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qmult_le_l_prop z x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qmult_nonneg_r_prop *)
+Lemma piLe_qmult_nonneg_rT : forall x y : Q, QleT' 0 x -> QleT' 0 y -> QleT' 0 (x * y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qmult_nonneg_r_prop x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qle_sub_r_prop *)
+Lemma piLe_qle_sub_rT : forall a x : Q, QleT' 0 x -> QleT' (a - x) a.
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qle_sub_r_prop a x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qle_sub_l_prop *)
+Lemma piLe_qle_sub_lT : forall a x y : Q, QleT' y x -> QleT' (a - x) (a - y).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qle_sub_l_prop a x y).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_inject_nonneg_prop *)
+Lemma piLe_inject_nonnegT : forall n : nat, QleT' 0 (Z.of_nat n # 1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_inject_nonneg_prop n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_qmult_le_nonneg4_prop *)
+Lemma piLe_qmult_le_nonneg4T : forall a b c d : Q, QleT' 0 a -> QleT' a b -> QleT' 0 c -> QleT' c d -> QleT' (a * c) (b * d).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_qmult_le_nonneg4_prop a b c d).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_prod *)
+Lemma piLe_sumR_prodT : forall (n1 n2 : nat) (f g : nat -> Q), QeqT (piLsb_sumR f n1 * piLsb_sumR g n2) (piLsb_sumR (fun i => piLsb_sumR (fun j => f i * g j) n2) n1).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_prod n1 n2 f g).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_shift_succ *)
+Lemma piLe_sumR_shift_succT : forall (n : nat) (h : nat -> Q), QeqT (h 0%nat) (0%Q) -> QeqT (piLsb_sumR (fun w => h (S w)) n) (piLsb_sumR h (S n)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_shift_succ n h).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_1 *)
+Lemma piLe_sumR_1T : forall (f : nat -> Q), QeqT (piLsb_sumR f 1%nat) (f 0%nat).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_1 f).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_flatten_full *)
+Lemma piLe_sumR_flatten_fullT : forall (K : nat) (F : nat -> nat -> Q), QeqT (piLsb_sumR (fun u => piLsb_sumR (fun v => F u v) (K - u)%nat) K) (piLsb_sumR (fun w => piLsb_sumR (fun v => F v (w - v)%nat) (S w)) K).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_flatten_full K F).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_0 *)
+Lemma piLe_sumR_0T : forall (f : nat -> Q), QeqT (piLsb_sumR f 0%nat) (0%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_0 f).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_trapswap_lt *)
+Lemma piLe_sumR_trapswap_ltT : forall (K : nat) (G : nat -> nat -> Q), QeqT (piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) i) (S K)) (piLsb_sumR (fun u => piLsb_sumR (fun i => G (S (u + i)%nat) u) (K - u)%nat) (S K)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_trapswap_lt K G).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_quarter_sum_identity *)
+Lemma piLe_quarter_sum_identityT : forall n : nat, QeqT (piLsb_sumR (fun i => q_pow (1 # 4)%Q i) n + (4 # 3)%Q * q_pow (1 # 4)%Q n) ((4 # 3)%Q).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_quarter_sum_identity n).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_sumR_trapswap_le *)
+Lemma piLe_sumR_trapswap_leT : forall (K : nat) (G : nat -> nat -> Q), QeqT (piLsb_sumR (fun i => piLsb_sumR (fun u => G i u) (S i)) (S K)) (piLsb_sumR (fun u => piLsb_sumR (fun i => G (u + i)%nat u) (S (K - u))%nat) (S K)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_sumR_trapswap_le K G).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_partial_cos_sumR *)
+Lemma piLe_partial_cos_sumRT : forall (k : nat) (x : Q), QeqT (cos_partial k x) (piLsb_sumR (fun i => cos_term i x) (S k)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_partial_cos_sumR k x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_partial_sin_sumR *)
+Lemma piLe_partial_sin_sumRT : forall (k : nat) (x : Q), QeqT (sin_partial k x) (piLsb_sumR (fun i => sin_term i x) (S k)).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_partial_sin_sumR k x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_rowC_telescope *)
+Lemma piLe_rowC_telescopeT : forall (T : nat) (x : Q), QeqT (piLsb_sumR (fun w => piLe_rowc_full w x - piLe_rows_full w x) T) (piLsb_sumR (fun w => cos_term w (2 * x)%Q) T).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_rowC_telescope T x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_dcos_band_rows *)
+Lemma piLe_dcos_band_rowsT : forall (k : nat) (x : Q), QeqT (piL_cos_dres k x) (piLsb_sumR (fun u => piLe_ssrow k (S (k + u))%nat x - piLe_ccrow k (S (k + u))%nat x) (S (S k))).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_dcos_band_rows k x).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_pointrow_even_closed_prop *)
+Lemma piLe_pointrow_even_closedT : forall (m : nat) (B : Q), NatLe (1) (m) -> QleT' 0 B -> QeqT (piLsb_sumR (fun j => q_pow B (2 * m)%nat / (q_fact (2 * j)%nat * q_fact (2 * (m - j))%nat)) (S m)) ((1 # 2)%Q * piLe_tc_term m B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_pointrow_even_closed_prop m B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_ccrow_abs_le_prop *)
+Lemma piLe_ccrow_abs_leT : forall (k m : nat) (x B : Q), NatLe (Datatypes.S (k)) (m) -> QleT' (Qabs x) B -> QleT' (Qabs (piLe_ccrow k m x)) ((1 # 2)%Q * piLe_tc_term m B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_ccrow_abs_le_prop k m x B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_ssrow_abs_le_prop *)
+Lemma piLe_ssrow_abs_leT : forall (k m : nat) (x B : Q), NatLe (Datatypes.S (k)) (m) -> QleT' (Qabs x) B -> QleT' (Qabs (piLe_ssrow k m x)) ((1 # 2)%Q * piLe_tc_term m B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_ssrow_abs_le_prop k m x B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.
+
+(* Set twin of piLe_dcos_band_le_prop *)
+Lemma piLe_dcos_band_leT : forall (k : nat) (x B : Q), QleT' (Qabs x) B -> QleT' (Qabs (piL_cos_dres k x)) (piLe_band_bound k B).
+Proof.
+  intros.
+  first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
+  eapply (piLe_dcos_band_le_prop k x B).
+  all: first [ apply QltT_to_Qlt; assumption
+            | apply QleT'_to_Qle; assumption
+            | apply qeqT_imp_qeq; assumption
+            | apply NatLe_drop; assumption
+            | (intros; apply QltT_to_Qlt; assumption)
+            | (intros; apply QleT'_to_Qle; assumption)
+            | (intros; apply qeqT_imp_qeq; assumption)
+            | (intros; apply NatLe_drop; assumption)
+            | assumption ].
+Qed.

@@ -19,7 +19,7 @@
     polynomial arithmetic over [Q]: the factorization of the
     difference ([sc_qpow_diff_factor]) together with the lower-bound
     mechanism for the explicit alternating sum [sc_P] ([P_2 >= 1/6]
-    and the step-term decrease [sc_t_dec]).  This difference bound is
+    and the step-term decrease [sc_t_dec_prop]).  This difference bound is
     the core machinery behind the zero scan, the uniqueness of the
     zero, and the assembly of the vertex window pair.
 
@@ -27,14 +27,16 @@
     [ZArith.ZArith], [Arith.PeanoNat], [Setoid], [Morphisms], [Lia];
     [PiCompareT] ([QltT]/[QleT'] carried at the [Set] level);
     [PiKernelSlack] ([cos_term]/[cos_partial]/[q_pow]/[q_fact]/
-    [qeq_le]/[q_fact_pos]/[q_pow_nonneg]/[q_pow_succ]/
-    [Qle_plus_nonneg_r]).
+    [qeq_le_prop]/[q_fact_pos]/[q_pow_nonneg_prop]/[q_pow_succ]/
+    [Qle_plus_nonneg_r_prop]).
 
     References.  [S10_KVQuantTrig.v], the [sc_P] family and
-    [sc_cos_partial_diff_le] (the [sum_upto] bridge
-    [S03_QExp.v@2516]; the statement faces and the proofs are taken
+    [sc_cos_partial_diff_le_prop] (the [sum_upto] bridge
+    [S03_QExp.v]; the statement faces and the proofs are taken
     over verbatim, with the four dependency-simplification reworks
-    listed at the individual statements).
+    listed at the individual statements).  Source-region coordinates
+    for the derivation comments of this file are maintained in
+    [docs/statement-provenance.md].
 
     Constructivity.  Auxiliary lemmas conclude at [Qle]/[Qlt] (the
     stdlib [Q] order predicates, purely constructive); the top-level
@@ -58,7 +60,7 @@ Require Import PiKernelSlack.
 
 (* ============================================================ *)
 (* Section 1. Bounded-sum infrastructure (the [sum_upto] bridge,  *)
-(* the same shape as [S03_QExp.v@2516])                         *)
+(* the same shape as [S03_QExp.v])                             *)
 (* ============================================================ *)
 
 Fixpoint sum_upto (n : nat) (f : nat -> Q) : Q :=
@@ -76,7 +78,7 @@ Proof.
   - simpl. setoid_rewrite IH. setoid_rewrite (H n'). reflexivity.
 Qed.
 
-Lemma sum_upto_ext_below : forall (n : nat) (f g : nat -> Q),
+Lemma sum_upto_ext_below_prop : forall (n : nat) (f g : nat -> Q),
   (forall i : nat, (i < n)%nat -> f i == g i) -> sum_upto n f == sum_upto n g.
 Proof.
   intros n f g H.
@@ -89,7 +91,7 @@ Proof.
     reflexivity.
 Qed.
 
-(* Term-by-term subtraction (the same shape as [S03_QExp.v@3576];
+(* Term-by-term subtraction (the same shape as in [S03_QExp.v];
    proved by direct induction) *)
 Lemma sum_upto_minus : forall (n : nat) (f g : nat -> Q),
   sum_upto n (fun i => f i - g i) == sum_upto n f - sum_upto n g.
@@ -108,14 +110,14 @@ Proof.
   - setoid_rewrite IH. ring.
 Qed.
 
-Lemma sc_sum_nonneg : forall (n : nat) (f : nat -> Q),
+Lemma sc_sum_nonneg_prop : forall (n : nat) (f : nat -> Q),
   (forall m : nat, Qle 0 (f m)) -> Qle 0 (sum_upto n f).
 Proof.
   intros n f Hf.
   induction n as [| n' IH]; simpl.
   - unfold Qle; simpl; lia.
   - apply (Qle_trans _ (0 + 0) _).
-    + apply qeq_le. ring.
+    + apply qeq_le_prop. ring.
     + apply (Qplus_le_compat 0 (sum_upto n' f) 0 (f n')).
       * exact IH.
       * exact (Hf n').
@@ -125,15 +127,15 @@ Qed.
    written for this file: [sum_upto (S n) f >= f n], from the
    nonnegativity of every term; replaces the shift chain
    [sc_sum_shift_sub_le] of [S10_KVQuantTrig.v]) *)
-Lemma sc_sum_last_le : forall (n : nat) (f : nat -> Q),
+Lemma sc_sum_last_le_prop : forall (n : nat) (f : nat -> Q),
   (forall m : nat, Qle 0 (f m)) -> Qle (f n) (sum_upto (Datatypes.S n) f).
 Proof.
   intros n f Hf.
   change (sum_upto (Datatypes.S n) f) with (sum_upto n f + f n).
   apply (Qle_trans _ (f n + sum_upto n f)).
-  - apply (Qle_plus_nonneg_r (f n) (sum_upto n f)).
-    apply sc_sum_nonneg. exact Hf.
-  - apply qeq_le. ring.
+  - apply (Qle_plus_nonneg_r_prop (f n) (sum_upto n f)).
+    apply sc_sum_nonneg_prop. exact Hf.
+  - apply qeq_le_prop. ring.
 Qed.
 
 (* ============================================================ *)
@@ -143,24 +145,24 @@ Qed.
 
 (* Separation of positive [Q] from zero ([Qlt 0 x] implies
    [x <> 0]; an auxiliary lemma written for this file) *)
-Lemma vt_qpos_neq : forall x : Q, Qlt 0 x -> Qeq x 0 -> False.
+Lemma vt_qpos_neq_prop : forall x : Q, Qlt 0 x -> Qeq x 0 -> False.
 Proof.
   intros x H Hx. rewrite Hx in H. exact (Qlt_irrefl 0 H).
 Qed.
 
 (* Left form of order preservation under multiplication by a
-   nonnegative scalar ([S10_KVQuantTrig.v@6418]) *)
-Lemma sc_qmult_le_l : forall (a b c : Q), Qle a b -> Qle 0 c -> Qle (c * a) (c * b).
+   nonnegative scalar) *)
+Lemma sc_qmult_le_l_prop : forall (a b c : Q), Qle a b -> Qle 0 c -> Qle (c * a) (c * b).
 Proof.
   intros a b c Hab Hc0.
   exact (Qle_trans (c * a) (a * c) (c * b)
-    (qeq_le (c * a) (a * c) (Qmult_comm c a))
+    (qeq_le_prop (c * a) (a * c) (Qmult_comm c a))
     (Qle_trans (a * c) (b * c) (c * b)
       (Qmult_le_compat_r a b c Hab Hc0)
-      (qeq_le (b * c) (c * b) (Qmult_comm b c)))).
+      (qeq_le_prop (b * c) (c * b) (Qmult_comm b c)))).
 Qed.
 
-(* The statement of [S03_QExp.v@4210] in the same shape (proved by
+(* The corresponding statement of [S03_QExp.v] (proved by
    direct induction) *)
 Lemma q_pow_neg1_even : forall n, q_pow (-1) (2 * n) == 1.
 Proof.
@@ -170,7 +172,7 @@ Proof.
     simpl. rewrite IH. ring.
 Qed.
 
-(* The statement of [S03_QExp.v@4217] in the same shape (proved by
+(* The corresponding statement of [S03_QExp.v] (proved by
    direct induction) *)
 Lemma q_pow_neg1_odd : forall n, q_pow (-1) (2 * n + 1) == -1.
 Proof.
@@ -180,7 +182,6 @@ Proof.
   rewrite q_pow_neg1_even. ring.
 Qed.
 
-(* [S10_KVQuantTrig.v@6726] *)
 Lemma sc_qpow_sq : forall (x : Q) (k : nat), q_pow (x * x) k == q_pow x (2 * k).
 Proof.
   intros x k.
@@ -193,7 +194,6 @@ Proof.
     ring.
 Qed.
 
-(* [S10_KVQuantTrig.v@6769] *)
 Lemma sc_qpow_diff_factor : forall (p q : Q) (k : nat),
   q_pow q k - q_pow p k ==
   (q - p) * sum_upto k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i).
@@ -213,7 +213,7 @@ Proof.
         { assert (Hz : (Datatypes.S k' - 1 - k' = 0)%nat) by lia.
           rewrite Hz. simpl. ring. }
         rewrite H0.
-        rewrite (sum_upto_ext_below k'
+        rewrite (sum_upto_ext_below_prop k'
           (fun i : nat => q_pow q (Datatypes.S k' - 1 - i) * q_pow p i)
           (fun i : nat => q * (q_pow q (k' - 1 - i) * q_pow p i))).
         2: { intros i Hi.
@@ -233,21 +233,20 @@ Qed.
 (* binomial-type alternating sum)                               *)
 (* ============================================================ *)
 
-(* [A_k := sum_{i<k} q^(k-1-i) * p^i] ([S10_KVQuantTrig.v@6805]) *)
+(* [A_k := sum_{i<k} q^(k-1-i) * p^i]. *)
 Definition sc_A (p q : Q) (k : nat) : Q :=
   sum_upto k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i).
 
-(* C0: [0 <= p] and [0 <= q] imply [0 <= A_k]
-   ([S10_KVQuantTrig.v@6809]) *)
-Lemma sc_A_nonneg : forall (p q : Q) (k : nat),
+(* C0: [0 <= p] and [0 <= q] imply [0 <= A_k]. *)
+Lemma sc_A_nonneg_prop : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle 0 q -> Qle 0 (sc_A p q k).
 Proof.
-  intros p q k Hp0 Hq0. unfold sc_A. apply sc_sum_nonneg. intro m.
+  intros p q k Hp0 Hq0. unfold sc_A. apply sc_sum_nonneg_prop. intro m.
   exact (Qmult_le_0_compat (q_pow q (k - 1 - m)) (q_pow p m)
-    (q_pow_nonneg q (k - 1 - m) Hq0) (q_pow_nonneg p m Hp0)).
+    (q_pow_nonneg_prop q (k - 1 - m) Hq0) (q_pow_nonneg_prop p m Hp0)).
 Qed.
 
-(* [A_1 == 1] (the region of [S10_KVQuantTrig.v@7218]) *)
+(* [A_1 == 1]. *)
 Lemma sc_A_1 : forall (p q : Q), sc_A p q 1 == 1.
 Proof.
   intros p q. unfold sc_A.
@@ -256,7 +255,7 @@ Proof.
   simpl. ring.
 Qed.
 
-(* [A_2 == p+q] (the region of [S10_KVQuantTrig.v@7226]) *)
+(* [A_2 == p+q]. *)
 Lemma sc_A_2 : forall (p q : Q), sc_A p q 2 == p + q.
 Proof.
   intros p q. unfold sc_A.
@@ -267,8 +266,7 @@ Proof.
   simpl. ring.
 Qed.
 
-(* C3: the recursion [A (S k) == q * A_k + p^k]
-   ([S10_KVQuantTrig.v@6872]) *)
+(* C3: the recursion [A (S k) == q * A_k + p^k]. *)
 Lemma sc_A_succ : forall (p q : Q) (k : nat),
   sc_A p q (Datatypes.S k) == q * sc_A p q k + q_pow p k.
 Proof.
@@ -281,7 +279,7 @@ Proof.
   { assert (Hz : (Datatypes.S k - 1 - k = 0)%nat) by lia.
     rewrite Hz. simpl. ring. }
   rewrite H0.
-  rewrite (sum_upto_ext_below k
+  rewrite (sum_upto_ext_below_prop k
     (fun i : nat => q_pow q (Datatypes.S k - 1 - i) * q_pow p i)
     (fun i : nat => q * (q_pow q (k - 1 - i) * q_pow p i))).
   2: { intros i Hi.
@@ -292,9 +290,9 @@ Proof.
 Qed.
 
 (* C1': [k >= 1] implies [A_k >= p^(k-1)] (statement in the same
-   shape as [S10_KVQuantTrig.v@6850]; the proof is reworked into the
-   last-term extraction form via [sc_sum_last_le]) *)
-Lemma sc_A_ge_p : forall (p q : Q) (k : nat),
+   shape as in [S10_KVQuantTrig.v]; the proof is reworked into the
+   last-term extraction form via [sc_sum_last_le_prop]) *)
+Lemma sc_A_ge_p_prop : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle 0 q -> (1 <= k)%nat -> Qle (q_pow p (k - 1)) (sc_A p q k).
 Proof.
   intros p q k Hp0 Hq0 Hk.
@@ -305,14 +303,14 @@ Proof.
   - replace (k' - k')%nat with 0%nat by lia.
     replace (q_pow q 0)%Q with 1%Q by reflexivity.
     rewrite Qmult_1_l. apply Qle_refl.
-  - apply (sc_sum_last_le k' (fun i : nat => q_pow q (k' - i) * q_pow p i)).
+  - apply (sc_sum_last_le_prop k' (fun i : nat => q_pow q (k' - i) * q_pow p i)).
     intro m.
     exact (Qmult_le_0_compat (q_pow q (k' - m)) (q_pow p m)
-      (q_pow_nonneg q (k' - m) Hq0) (q_pow_nonneg p m Hp0)).
+      (q_pow_nonneg_prop q (k' - m) Hq0) (q_pow_nonneg_prop p m Hp0)).
 Qed.
 
-(* C4a: [8 <= (2k+1)(2k+2)] for [k >= 1] ([S10_KVQuantTrig.v@6895]) *)
-Lemma sc_M_ge8 : forall (k : nat), (1 <= k)%nat ->
+(* C4a: [8 <= (2k+1)(2k+2)] for [k >= 1]. *)
+Lemma sc_M_ge8_prop : forall (k : nat), (1 <= k)%nat ->
   Qle 8 ((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
 Proof.
   intros k Hk. unfold Qle. simpl.
@@ -323,8 +321,7 @@ Proof.
   all: lia.
 Qed.
 
-(* C4b: the double successor step of [q_fact] (the [S] shape) (the
-   region of [S10_KVQuantTrig.v@6905]) *)
+(* C4b: the double successor step of [q_fact] (the [S] shape). *)
 Lemma sc_qfact_2succ : forall (k : nat),
   q_fact (2 * Datatypes.S k) ==
   (Z.of_nat (Datatypes.S (Datatypes.S (2 * k))) # 1) *
@@ -351,29 +348,29 @@ Qed.
 
 (* Two division-times-product identities (auxiliary lemmas written
    for this file; a [Qmult_inv_r] rewrite chain) *)
-Lemma vt_div_mul_eq_l : forall (a c d : Q), Qlt 0 d -> a / c == (a * d) * (Qinv c * Qinv d).
+Lemma vt_div_mul_eq_l_prop : forall (a c d : Q), Qlt 0 d -> a / c == (a * d) * (Qinv c * Qinv d).
 Proof.
   intros a c d Hd.
   unfold Qdiv.
   transitivity ((a * Qinv c) * (d * Qinv d)).
-  - rewrite (Qmult_inv_r d (vt_qpos_neq d Hd)). ring.
+  - rewrite (Qmult_inv_r d (vt_qpos_neq_prop d Hd)). ring.
   - ring.
 Qed.
 
-Lemma vt_div_mul_eq_r : forall (b c d : Q), Qlt 0 c -> b / d == (b * c) * (Qinv c * Qinv d).
+Lemma vt_div_mul_eq_r_prop : forall (b c d : Q), Qlt 0 c -> b / d == (b * c) * (Qinv c * Qinv d).
 Proof.
   intros b c d Hc.
   unfold Qdiv.
   transitivity ((b * Qinv d) * (c * Qinv c)).
-  - rewrite (Qmult_inv_r c (vt_qpos_neq c Hc)). ring.
+  - rewrite (Qmult_inv_r c (vt_qpos_neq_prop c Hc)). ring.
   - ring.
 Qed.
 
 (* Division cross law: [0 < c], [0 < d], and [a * d <= b * c] imply
-   [a/c <= b/d] (statement in the same shape as
-   [S10_KVQuantTrig.v@6942]; the proof is reworked into an explicit
+   [a/c <= b/d] (statement in the same shape as in
+   [S10_KVQuantTrig.v]; the proof is reworked into an explicit
    chain of identities) *)
-Lemma sc_qle_div_cross : forall (a b c d : Q), Qlt 0 c -> Qlt 0 d ->
+Lemma sc_qle_div_cross_prop : forall (a b c d : Q), Qlt 0 c -> Qlt 0 d ->
   Qle (a * d) (b * c) -> Qle (a / c) (b / d).
 Proof.
   intros a b c d Hc Hd H.
@@ -382,13 +379,13 @@ Proof.
     - apply (Qlt_le_weak 0 (Qinv c)). apply Qinv_lt_0_compat. exact Hc.
     - apply (Qlt_le_weak 0 (Qinv d)). apply Qinv_lt_0_compat. exact Hd. }
   apply (Qle_trans _ ((a * d) * (Qinv c * Qinv d))).
-  - apply qeq_le. apply vt_div_mul_eq_l. exact Hd.
-  - rewrite (vt_div_mul_eq_r b c d Hc).
+  - apply qeq_le_prop. apply vt_div_mul_eq_l_prop. exact Hd.
+  - rewrite (vt_div_mul_eq_r_prop b c d Hc).
     apply (Qmult_le_compat_r (a * d) (b * c) (Qinv c * Qinv d) H Hcd).
 Qed.
 
-(* C4c: [q * A_k + p^k <= M_k * A_k] ([S10_KVQuantTrig.v@6956]) *)
-Lemma sc_A_succ_bound : forall (p q : Q) (k : nat),
+(* C4c: [q * A_k + p^k <= M_k * A_k]. *)
+Lemma sc_A_succ_bound_prop : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle p q -> Qle q 4 -> (1 <= k)%nat ->
   Qle (q * sc_A p q k + q_pow p k)
       (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) * sc_A p q k).
@@ -396,7 +393,7 @@ Proof.
   intros p q k Hp0 Hpq Hq4 Hk.
   set (M := (Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
   assert (Hq0 : Qle 0 q) by (apply (Qle_trans _ p _); [exact Hp0 | exact Hpq]).
-  assert (HM8 : Qle 8 M) by (unfold M; apply sc_M_ge8; exact Hk).
+  assert (HM8 : Qle 8 M) by (unfold M; apply sc_M_ge8_prop; exact Hk).
   assert (HpqM : Qle (p + q) M).
   { apply (Qle_trans _ (4 + 4) _).
     - apply Qplus_le_compat.
@@ -412,42 +409,42 @@ Proof.
   assert (H1 : Qle (q * sc_A p q k) (M * sc_A p q k)).
   { apply (Qmult_le_compat_r q M (sc_A p q k)).
     - exact HqM.
-    - apply (sc_A_nonneg p q k Hp0 Hq0). }
+    - apply (sc_A_nonneg_prop p q k Hp0 Hq0). }
   assert (H2 : Qle (q_pow p k) ((M - q) * sc_A p q k)).
   { assert (Hk1 : (k = Datatypes.S (k - 1))%nat) by lia.
     rewrite Hk1. rewrite q_pow_succ.
     apply (Qle_trans _ ((M - q) * q_pow p (k - 1)) _).
     - apply (Qmult_le_compat_r p (M - q) (q_pow p (k - 1))).
       + exact HpMq.
-      + apply q_pow_nonneg. exact Hp0.
-    - apply (sc_qmult_le_l (q_pow p (k - 1)) (sc_A p q (Datatypes.S (k - 1))) (M - q)).
+      + apply q_pow_nonneg_prop. exact Hp0.
+    - apply (sc_qmult_le_l_prop (q_pow p (k - 1)) (sc_A p q (Datatypes.S (k - 1))) (M - q)).
       + assert (He : q_pow p (k - 1) == q_pow p (Datatypes.S (k - 1) - 1)).
         { assert (Hn : (Datatypes.S (k - 1) - 1 = k - 1)%nat) by lia. rewrite Hn. reflexivity. }
         apply (Qle_trans _ (q_pow p (Datatypes.S (k - 1) - 1)) _).
-        * apply qeq_le. exact He.
-        * apply (sc_A_ge_p p q (Datatypes.S (k - 1)) Hp0 Hq0). lia.
+        * apply qeq_le_prop. exact He.
+        * apply (sc_A_ge_p_prop p q (Datatypes.S (k - 1)) Hp0 Hq0). lia.
       + apply (proj1 (Qle_minus_iff q M)).
         apply (Qle_trans _ 4 _); [exact Hq4 | apply (Qle_trans _ 8 _); [unfold Qle; simpl; lia | exact HM8]]. }
   apply (Qle_trans _ (q * sc_A p q k + (M - q) * sc_A p q k) _).
   - apply Qplus_le_compat.
     + apply Qle_refl.
     + exact H2.
-  - apply qeq_le. unfold M. ring.
+  - apply qeq_le_prop. unfold M. ring.
 Qed.
 
-(* C4 main: [t_{k+1} <= t_k] (the region of [S10_KVQuantTrig.v@7082]) *)
-Lemma sc_t_dec : forall (p q : Q) (k : nat),
+(* C4 main: [t_{k+1} <= t_k]. *)
+Lemma sc_t_dec_prop : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle p q -> Qle q 4 -> (1 <= k)%nat ->
   Qle (sc_A p q (Datatypes.S k) / q_fact (2 * Datatypes.S k))
       (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros p q k Hp0 Hpq Hq4 Hk.
   rewrite (sc_A_succ p q k).
-  apply (sc_qle_div_cross (q * sc_A p q k + q_pow p k) (sc_A p q k)
+  apply (sc_qle_div_cross_prop (q * sc_A p q k + q_pow p k) (sc_A p q k)
                           (q_fact (2 * Datatypes.S k)) (q_fact (2 * k))).
   - apply q_fact_pos.
   - apply q_fact_pos.
-  - assert (Hsb := sc_A_succ_bound p q k Hp0 Hpq Hq4 Hk).
+  - assert (Hsb := sc_A_succ_bound_prop p q k Hp0 Hpq Hq4 Hk).
     apply (Qle_trans _ (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) *
                         sc_A p q k * q_fact (2 * k)) _).
     + apply (Qmult_le_compat_r (q * sc_A p q k + q_pow p k)
@@ -457,17 +454,17 @@ Proof.
       * apply (Qlt_le_weak 0 (q_fact (2 * k))). apply q_fact_pos.
     + rewrite (sc_qfact_2succ k).
       rewrite (sc_M_qmult k).
-      apply qeq_le. unfold Qdiv. ring.
+      apply qeq_le_prop. unfold Qdiv. ring.
 Qed.
 
-(* [t_k >= 0] (the region of [S10_KVQuantTrig.v@7105]) *)
-Lemma sc_t_nonneg : forall (p q : Q) (k : nat),
+(* [t_k >= 0]. *)
+Lemma sc_t_nonneg_prop : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle 0 q -> Qle 0 (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros p q k Hp0 Hq0.
   unfold Qdiv.
   exact (Qmult_le_0_compat (sc_A p q k) (Qinv (q_fact (2 * k)))
-    (sc_A_nonneg p q k Hp0 Hq0)
+    (sc_A_nonneg_prop p q k Hp0 Hq0)
     (Qlt_le_weak 0 (Qinv (q_fact (2 * k)))
       (Qinv_lt_0_compat (q_fact (2 * k)) (q_fact_pos (2 * k))))).
 Qed.
@@ -478,11 +475,11 @@ Qed.
 (* ============================================================ *)
 
 (* [P_N := sum_{k<N} (-1)^(k-1) * A_k/(2k)!] (the [t_0] term is
-   [0], which is harmless) ([S10_KVQuantTrig.v@7131]) *)
+   [0], which is harmless) *)
 Definition sc_P (p q : Q) (N : nat) : Q :=
   sum_upto N (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k))).
 
-(* The one-step identity (the region of [S10_KVQuantTrig.v@7117]) *)
+(* The one-step identity. *)
 Lemma sc_P_step1 : forall (p q : Q) (N : nat),
   sc_P p q (Datatypes.S N) ==
   sc_P p q N + q_pow (-1) (N - 1) * (sc_A p q N / q_fact (2 * N)).
@@ -494,7 +491,7 @@ Proof.
   unfold f. reflexivity.
 Qed.
 
-(* The two-step identity (the region of [S10_KVQuantTrig.v@7129]) *)
+(* The two-step identity. *)
 Lemma sc_P_step2 : forall (p q : Q) (N : nat),
   sc_P p q (Datatypes.S (Datatypes.S N)) ==
   sc_P p q N +
@@ -510,9 +507,8 @@ Proof.
 Qed.
 
 (* The increment: [P(S(S(S(2m)))) >= P(S(2m))] (the added part
-   [t_{S(2m)} - t_{S(S(2m))}] is nonnegative) (the region of
-   [S10_KVQuantTrig.v@7151]) *)
-Lemma sc_P_inc : forall (p q : Q) (m : nat),
+   [t_{S(2m)} - t_{S(S(2m))}] is nonnegative.) *)
+Lemma sc_P_inc_prop : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 ->
   Qle (sc_P p q (Datatypes.S (2 * m)))
       (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
@@ -531,17 +527,16 @@ Proof.
   set (T1 := sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m))).
   set (T2 := sc_A p q (Datatypes.S (Datatypes.S (2 * m))) / q_fact (2 * Datatypes.S (Datatypes.S (2 * m)))).
   apply (Qle_trans _ (sc_P p q (Datatypes.S (2 * m)) + (T1 - T2)) _).
-  - apply (Qle_plus_nonneg_r (sc_P p q (Datatypes.S (2 * m))) (T1 - T2)).
+  - apply (Qle_plus_nonneg_r_prop (sc_P p q (Datatypes.S (2 * m))) (T1 - T2)).
     apply (proj1 (Qle_minus_iff T2 T1)).
     unfold T1, T2.
-    apply (sc_t_dec p q (Datatypes.S (2 * m)) Hp0 Hpq Hq4). lia.
-  - apply qeq_le. unfold T1, T2, Qdiv. ring.
+    apply (sc_t_dec_prop p q (Datatypes.S (2 * m)) Hp0 Hpq Hq4). lia.
+  - apply qeq_le_prop. unfold T1, T2, Qdiv. ring.
 Qed.
 
 (* The odd extension: [P(S(S(2m))) >= P(S(2m))] (the added term
-   [t_{S(2m)}] is nonnegative) (the region of
-   [S10_KVQuantTrig.v@7193]) *)
-Lemma sc_P_odd_ge : forall (p q : Q) (m : nat),
+   [t_{S(2m)}] is nonnegative.) *)
+Lemma sc_P_odd_ge_prop : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q ->
   Qle (sc_P p q (Datatypes.S (2 * m)))
       (sc_P p q (Datatypes.S (Datatypes.S (2 * m)))).
@@ -552,14 +547,13 @@ Proof.
   rewrite Ha.
   rewrite (q_pow_neg1_even m).
   rewrite (Qmult_1_l (sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m)))).
-  apply (Qle_plus_nonneg_r (sc_P p q (Datatypes.S (2 * m)))
+  apply (Qle_plus_nonneg_r_prop (sc_P p q (Datatypes.S (2 * m)))
           (sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m)))).
-  apply (sc_t_nonneg p q (Datatypes.S (2 * m)) Hp0 Hq0).
+  apply (sc_t_nonneg_prop p q (Datatypes.S (2 * m)) Hp0 Hq0).
 Qed.
 
-(* The even subsequence: [P_{2m} >= P_2] (the region of
-   [S10_KVQuantTrig.v@7211]) *)
-Lemma sc_P_even_ge : forall (p q : Q) (m : nat),
+(* The even subsequence: [P_{2m} >= P_2]. *)
+Lemma sc_P_even_ge_prop : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 ->
   Qle (sc_P p q 3) (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
 Proof.
@@ -570,13 +564,13 @@ Proof.
   - apply (Qle_trans _ (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))) _).
     + exact IH.
     + replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * m')))) with (Datatypes.S (2 * Datatypes.S m')) by lia.
-      apply (sc_P_inc p q (Datatypes.S m') Hp0 Hq0 Hpq Hq4).
+      apply (sc_P_inc_prop p q (Datatypes.S m') Hp0 Hq0 Hpq Hq4).
 Qed.
 
 (* The even-odd dichotomy of natural numbers (written for this
    file, as a [Prop] disjunction; replaces the
    dependent-induction-type [sc_nat_split] of [S10_KVQuantTrig.v]) *)
-Lemma vt_parity : forall n : nat,
+Lemma vt_parity_prop : forall n : nat,
   (exists m : nat, n = 2 * m)%nat \/ (exists m : nat, n = 2 * m + 1)%nat.
 Proof.
   intro n. induction n as [| n' IH].
@@ -587,14 +581,14 @@ Proof.
 Qed.
 
 (* The total lower bound: [N >= 3] implies [P_2 <= P_N] (statement
-   in the same shape as [S10_KVQuantTrig.v@7234]; the case analysis
-   goes through [vt_parity]) *)
-Lemma sc_P_ge_P2 : forall (p q : Q) (N : nat),
+   in the same shape as in [S10_KVQuantTrig.v]; the case analysis
+   goes through [vt_parity_prop]) *)
+Lemma sc_P_ge_P2_prop : forall (p q : Q) (N : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 -> (3 <= N)%nat ->
   Qle (sc_P p q 3) (sc_P p q N).
 Proof.
   intros p q N Hp0 Hq0 Hpq Hq4 HN.
-  destruct (vt_parity (N - 1)) as [[m Hm] | [m Hm]].
+  destruct (vt_parity_prop (N - 1)) as [[m Hm] | [m Hm]].
   - (* [N-1 = 2m]: [N = S(2m) = S(S(S(2m'')))] with [m = S m'']; *)
     (* [N >= 3] forces [m''] to exist *)
     destruct m as [| m''].
@@ -603,7 +597,7 @@ Proof.
     + assert (HN' : (N = Datatypes.S (2 * Datatypes.S m''))%nat) by lia.
       rewrite HN'.
       replace (Datatypes.S (2 * Datatypes.S m'')) with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'')))) by lia.
-      apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
+      apply (sc_P_even_ge_prop p q m'' Hp0 Hq0 Hpq Hq4).
   - (* [N-1 = 2m+1]: [N = S(S(2m))] with [m >= 1] (since [N >= 4]) *)
     assert (Hm1 : (1 <= m)%nat) by lia.
     assert (HN' : (N = Datatypes.S (Datatypes.S (2 * m)))%nat) by lia.
@@ -613,11 +607,11 @@ Proof.
       * assert (Hz : (3 <= Datatypes.S (Datatypes.S (2 * 0)))%nat -> False) by lia.
         exfalso. apply Hz. lia.
       * replace (Datatypes.S (2 * Datatypes.S m'')) with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'')))) by lia.
-        apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
-    + apply (sc_P_odd_ge p q m Hp0 Hq0).
+        apply (sc_P_even_ge_prop p q m'' Hp0 Hq0 Hpq Hq4).
+    + apply (sc_P_odd_ge_prop p q m Hp0 Hq0).
 Qed.
 
-(* [P_2 == 1/2 - (p+q)/24] (the region of [S10_KVQuantTrig.v@7246]) *)
+(* [P_2 == 1/2 - (p+q)/24]. *)
 Lemma sc_P2_val : forall (p q : Q), sc_P p q 3 == 1 / 2 - (p + q) / 24.
 Proof.
   intros p q. unfold sc_P.
@@ -637,8 +631,8 @@ Proof.
   unfold Qdiv. ring.
 Qed.
 
-(* [P_2 >= 1/6] (the region of [S10_KVQuantTrig.v@7268]) *)
-Lemma sc_P2_ge_sixth : forall (p q : Q),
+(* [P_2 >= 1/6]. *)
+Lemma sc_P2_ge_sixth_prop : forall (p q : Q),
   Qle 0 p -> Qle p q -> Qle q 4 -> Qle (1 / 6) (sc_P p q 3).
 Proof.
   intros p q Hp0 Hpq Hq4.
@@ -666,7 +660,7 @@ Qed.
 (* ============================================================ *)
 
 (* The power-difference factor (bridging to the [x^(2k)] form,
-   with [p := x*x] and [q := y*y]) ([S10_KVQuantTrig.v@7296]) *)
+   with [p := x*x] and [q := y*y]) *)
 Lemma sc_qpow2_diff : forall (x y : Q) (k : nat),
   q_pow x (2 * k) - q_pow y (2 * k) ==
   - ((y * y - x * x) * sum_upto k (fun i : nat => q_pow (y * y) (k - 1 - i) * q_pow (x * x) i)).
@@ -679,9 +673,8 @@ Proof.
   ring.
 Qed.
 
-(* The sign bridge: [k >= 1] implies [(-1)^k * (-1) == (-1)^(k-1)]
-   ([S10_KVQuantTrig.v@7310]) *)
-Lemma sc_q_pow_pred : forall (k : nat), (1 <= k)%nat ->
+(* The sign bridge: [k >= 1] implies [(-1)^k * (-1) == (-1)^(k-1)]. *)
+Lemma sc_q_pow_pred_prop : forall (k : nat), (1 <= k)%nat ->
   q_pow (-1) k * -1 == q_pow (-1) (k - 1).
 Proof.
   intros k Hk.
@@ -692,8 +685,7 @@ Proof.
     rewrite q_pow_succ. ring.
 Qed.
 
-(* The bridge: the partial sums in [sum_upto] form
-   ([S10_KVQuantTrig.v@5232]) *)
+(* The bridge: the partial sums in [sum_upto] form. *)
 Lemma sc_cos_partial_upto : forall (n : nat) (x : Q),
   cos_partial n x == sum_upto (Datatypes.S n) (fun j : nat => cos_term j x).
 Proof.
@@ -703,8 +695,7 @@ Proof.
 Qed.
 
 (* Term by term: [cos_term k x - cos_term k y ==
-   (y^2-x^2) * (-1)^(k-1) * A_k/(2k)!] (for every [k]) (the region
-   of [S10_KVQuantTrig.v@7324]) *)
+   (y^2-x^2) * (-1)^(k-1) * A_k/(2k)!] (for every [k].) *)
 Lemma sc_cos_diff_term : forall (x y : Q) (k : nat),
   cos_term k x - cos_term k y ==
   (y * y - x * x) * (q_pow (-1) (k - 1) * (sc_A (x * x) (y * y) k / q_fact (2 * k))).
@@ -722,7 +713,7 @@ Proof.
                  q_pow (-1) (Datatypes.S k') * (q_pow y (2 * Datatypes.S k') / q_fact (2 * Datatypes.S k')) ==
                  q_pow (-1) (Datatypes.S k') * (q_pow x (2 * Datatypes.S k') - q_pow y (2 * Datatypes.S k')) / q_fact (2 * Datatypes.S k')).
     { unfold Qdiv. field.
-      + exact (vt_qpos_neq (q_fact (2 * Datatypes.S k')) (q_fact_pos (2 * Datatypes.S k'))). }
+      + exact (vt_qpos_neq_prop (q_fact (2 * Datatypes.S k')) (q_fact_pos (2 * Datatypes.S k'))). }
     rewrite Hc.
     (* 2. Factor the power difference *)
     rewrite (sc_qpow2_diff x y (Datatypes.S k')).
@@ -731,14 +722,13 @@ Proof.
     assert (Hsg : q_pow (-1) (Datatypes.S k') * - X == q_pow (-1) (Datatypes.S k' - 1) * X).
     { assert (Hneg : - X == -1 * X) by ring.
       rewrite Hneg.
-      rewrite <- (sc_q_pow_pred (Datatypes.S k')); [ring | lia]. }
+      rewrite <- (sc_q_pow_pred_prop (Datatypes.S k')); [ring | lia]. }
     rewrite Hsg.
     unfold X. unfold Qdiv. ring.
 Qed.
 
 (* The sum identity: [cos_partial n x - cos_partial n y ==
-   (y^2-x^2) * sc_P (x*x) (y*y) (S n)] (the region of
-   [S10_KVQuantTrig.v@7290]) *)
+   (y^2-x^2) * sc_P (x*x) (y*y) (S n).) *)
 Lemma sc_cos_partial_diff_eq : forall (n : nat) (x y : Q),
   cos_partial n x - cos_partial n y ==
   (y * y - x * x) * sc_P (x * x) (y * y) (Datatypes.S n).
@@ -756,9 +746,8 @@ Proof.
 Qed.
 
 (* The main lemma: [0 <= x <= y <= 2] and [n >= 2] imply
-   [cos_partial n y <= cos_partial n x - (y^2-x^2)/6] (the region
-   of [S10_KVQuantTrig.v@7316]) *)
-Lemma sc_cos_partial_diff_le : forall (n : nat) (x y : Q),
+   [cos_partial n y <= cos_partial n x - (y^2-x^2)/6].) *)
+Lemma sc_cos_partial_diff_le_prop : forall (n : nat) (x y : Q),
   Qle 0 x -> Qle x y -> Qle y 2 -> (2 <= n)%nat ->
   Qle (cos_partial n y) (cos_partial n x - (y * y - x * x) * (1 / 6)).
 Proof.
@@ -776,7 +765,7 @@ Proof.
     - apply (Qmult_le_compat_r x y x).
       + exact Hxy.
       + exact Hx0.
-    - apply (sc_qmult_le_l x y y).
+    - apply (sc_qmult_le_l_prop x y y).
       + exact Hxy.
       + exact Hy0. }
   assert (Hq4 : Qle q 4).
@@ -786,20 +775,20 @@ Proof.
       + exact Hy2.
       + exact Hy0.
     - apply (Qle_trans _ (2 * 2) _).
-      + apply (sc_qmult_le_l y 2 2).
+      + apply (sc_qmult_le_l_prop y 2 2).
         * exact Hy2.
         * unfold Qle. simpl. lia.
-      + apply qeq_le. ring. }
+      + apply qeq_le_prop. ring. }
   assert (Hpq0 : Qle 0 (q - p)).
   { apply (proj1 (Qle_minus_iff p q)). exact Hpq. }
   assert (Hsix : Qle (1 / 6) (sc_P p q (Datatypes.S n))).
   { apply (Qle_trans _ (sc_P p q 3) _).
-    - apply (sc_P2_ge_sixth p q Hp0 Hpq Hq4).
-    - apply (sc_P_ge_P2 p q (Datatypes.S n) Hp0 Hq0 Hpq Hq4).
+    - apply (sc_P2_ge_sixth_prop p q Hp0 Hpq Hq4).
+    - apply (sc_P_ge_P2_prop p q (Datatypes.S n) Hp0 Hq0 Hpq Hq4).
       lia. }
   assert (Hge : Qle ((q - p) * (1 / 6)) (cos_partial n x - cos_partial n y)).
   { rewrite (sc_cos_partial_diff_eq n x y).
-    apply (sc_qmult_le_l (1 / 6) (sc_P p q (Datatypes.S n)) (q - p)).
+    apply (sc_qmult_le_l_prop (1 / 6) (sc_P p q (Datatypes.S n)) (q - p)).
     - exact Hsix.
     - exact Hpq0. }
   apply (proj2 (Qle_minus_iff (cos_partial n y) (cos_partial n x - (q - p) * (1 / 6)))).
@@ -821,7 +810,7 @@ Lemma piVx_cos_diff_le_T : forall (n : nat) (x y : Q),
 Proof.
   intros n x y Hx0 Hxy Hy2 Hn.
   apply Qle_to_QleT'.
-  apply (sc_cos_partial_diff_le n x y).
+  apply (sc_cos_partial_diff_le_prop n x y).
   - apply QleT'_to_Qle. exact Hx0.
   - apply QleT'_to_Qle. exact Hxy.
   - apply QleT'_to_Qle. exact Hy2.
@@ -865,11 +854,11 @@ Proof.
   exact (qeq_imp_qeqT _ _ (sum_upto_ext n f g (fun i => qeqT_imp_qeq _ _ (H i)))).
 Qed.
 
-(* Set twin of sum_upto_ext_below (Path A v2.4) *)
+(* Set twin of sum_upto_ext_below_prop (Path A v2.4) *)
 Lemma sum_upto_ext_belowT : forall (n : nat) (f g : nat -> Q), (forall i : nat, NatLe (Datatypes.S (i)) (n) -> QeqT (f i) (g i)) -> QeqT (sum_upto n f) (sum_upto n g).
 Proof.
   intros.
-  exact (qeq_imp_qeqT _ _ (sum_upto_ext_below n f g (fun i Hi => qeqT_imp_qeq _ _ (H i (NatLe_lift _ _ Hi))))).
+  exact (qeq_imp_qeqT _ _ (sum_upto_ext_below_prop n f g (fun i Hi => qeqT_imp_qeq _ _ (H i (NatLe_lift _ _ Hi))))).
 Qed.
 
 (* Set twin of sum_upto_minus (Path A v2.4) *)
@@ -906,26 +895,26 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_sum_nonneg (Path A v2.4) *)
+(* Set twin of sc_sum_nonneg_prop (Path A v2.4) *)
 Lemma sc_sum_nonnegT : forall (n : nat) (f : nat -> Q), (forall m : nat, QleT' 0 (f m)) -> QleT' 0 (sum_upto n f).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (sc_sum_nonneg n f (fun m => QleT'_to_Qle _ _ (H m)))).
+  exact (Qle_to_QleT' _ _ (sc_sum_nonneg_prop n f (fun m => QleT'_to_Qle _ _ (H m)))).
 Qed.
 
-(* Set twin of sc_sum_last_le (Path A v2.4) *)
+(* Set twin of sc_sum_last_le_prop (Path A v2.4) *)
 Lemma sc_sum_last_leT : forall (n : nat) (f : nat -> Q), (forall m : nat, QleT' 0 (f m)) -> QleT' (f n) (sum_upto (Datatypes.S n) f).
 Proof.
   intros.
-  exact (Qle_to_QleT' _ _ (sc_sum_last_le n f (fun m => QleT'_to_Qle _ _ (H m)))).
+  exact (Qle_to_QleT' _ _ (sc_sum_last_le_prop n f (fun m => QleT'_to_Qle _ _ (H m)))).
 Qed.
 
-(* Set twin of sc_qmult_le_l (Path A v2.4) *)
+(* Set twin of sc_qmult_le_l_prop (Path A v2.4) *)
 Lemma sc_qmult_le_lT : forall (a b c : Q), QleT' a b -> QleT' 0 c -> QleT' (c * a) (c * b).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_qmult_le_l a b c).
+  eapply (sc_qmult_le_l_prop a b c).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1005,12 +994,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_A_nonneg (Path A v2.4) *)
+(* Set twin of sc_A_nonneg_prop (Path A v2.4) *)
 Lemma sc_A_nonnegT : forall (p q : Q) (k : nat), QleT' 0 p -> QleT' 0 q -> QleT' 0 (sc_A p q k).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_A_nonneg p q k).
+  eapply (sc_A_nonneg_prop p q k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1073,12 +1062,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_A_ge_p (Path A v2.4) *)
+(* Set twin of sc_A_ge_p_prop (Path A v2.4) *)
 Lemma sc_A_ge_pT : forall (p q : Q) (k : nat), QleT' 0 p -> QleT' 0 q -> NatLe (1) (k) -> QleT' (q_pow p (k - 1)) (sc_A p q k).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_A_ge_p p q k).
+  eapply (sc_A_ge_p_prop p q k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1090,12 +1079,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_M_ge8 (Path A v2.4) *)
+(* Set twin of sc_M_ge8_prop (Path A v2.4) *)
 Lemma sc_M_ge8T : forall (k : nat), NatLe (1) (k) -> QleT' 8 ((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_M_ge8 k).
+  eapply (sc_M_ge8_prop k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1141,12 +1130,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_div_mul_eq_l (Path A v2.4) *)
+(* Set twin of vt_div_mul_eq_l_prop (Path A v2.4) *)
 Lemma vt_div_mul_eq_lT : forall (a c d : Q), QltT 0 d -> QeqT (a / c) ((a * d) * (Qinv c * Qinv d)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_div_mul_eq_l a c d).
+  eapply (vt_div_mul_eq_l_prop a c d).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1158,12 +1147,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of vt_div_mul_eq_r (Path A v2.4) *)
+(* Set twin of vt_div_mul_eq_r_prop (Path A v2.4) *)
 Lemma vt_div_mul_eq_rT : forall (b c d : Q), QltT 0 c -> QeqT (b / d) ((b * c) * (Qinv c * Qinv d)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (vt_div_mul_eq_r b c d).
+  eapply (vt_div_mul_eq_r_prop b c d).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1175,12 +1164,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_qle_div_cross (Path A v2.4) *)
+(* Set twin of sc_qle_div_cross_prop (Path A v2.4) *)
 Lemma sc_qle_div_crossT : forall (a b c d : Q), QltT 0 c -> QltT 0 d -> QleT' (a * d) (b * c) -> QleT' (a / c) (b / d).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_qle_div_cross a b c d).
+  eapply (sc_qle_div_cross_prop a b c d).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1192,12 +1181,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_A_succ_bound (Path A v2.4) *)
+(* Set twin of sc_A_succ_bound_prop (Path A v2.4) *)
 Lemma sc_A_succ_boundT : forall (p q : Q) (k : nat), QleT' 0 p -> QleT' p q -> QleT' q 4 -> NatLe (1) (k) -> QleT' (q * sc_A p q k + q_pow p k) (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) * sc_A p q k).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_A_succ_bound p q k).
+  eapply (sc_A_succ_bound_prop p q k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1209,12 +1198,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_t_dec (Path A v2.4) *)
+(* Set twin of sc_t_dec_prop (Path A v2.4) *)
 Lemma sc_t_decT : forall (p q : Q) (k : nat), QleT' 0 p -> QleT' p q -> QleT' q 4 -> NatLe (1) (k) -> QleT' (sc_A p q (Datatypes.S k) / q_fact (2 * Datatypes.S k)) (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_t_dec p q k).
+  eapply (sc_t_dec_prop p q k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1226,12 +1215,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_t_nonneg (Path A v2.4) *)
+(* Set twin of sc_t_nonneg_prop (Path A v2.4) *)
 Lemma sc_t_nonnegT : forall (p q : Q) (k : nat), QleT' 0 p -> QleT' 0 q -> QleT' 0 (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_t_nonneg p q k).
+  eapply (sc_t_nonneg_prop p q k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1277,12 +1266,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_P_inc (Path A v2.4) *)
+(* Set twin of sc_P_inc_prop (Path A v2.4) *)
 Lemma sc_P_incT : forall (p q : Q) (m : nat), QleT' 0 p -> QleT' 0 q -> QleT' p q -> QleT' q 4 -> QleT' (sc_P p q (Datatypes.S (2 * m))) (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_P_inc p q m).
+  eapply (sc_P_inc_prop p q m).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1294,12 +1283,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_P_odd_ge (Path A v2.4) *)
+(* Set twin of sc_P_odd_ge_prop (Path A v2.4) *)
 Lemma sc_P_odd_geT : forall (p q : Q) (m : nat), QleT' 0 p -> QleT' 0 q -> QleT' (sc_P p q (Datatypes.S (2 * m))) (sc_P p q (Datatypes.S (Datatypes.S (2 * m)))).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_P_odd_ge p q m).
+  eapply (sc_P_odd_ge_prop p q m).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1311,12 +1300,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_P_even_ge (Path A v2.4) *)
+(* Set twin of sc_P_even_ge_prop (Path A v2.4) *)
 Lemma sc_P_even_geT : forall (p q : Q) (m : nat), QleT' 0 p -> QleT' 0 q -> QleT' p q -> QleT' q 4 -> QleT' (sc_P p q 3) (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_P_even_ge p q m).
+  eapply (sc_P_even_ge_prop p q m).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1328,12 +1317,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_P_ge_P2 (Path A v2.4) *)
+(* Set twin of sc_P_ge_P2_prop (Path A v2.4) *)
 Lemma sc_P_ge_P2T : forall (p q : Q) (N : nat), QleT' 0 p -> QleT' 0 q -> QleT' p q -> QleT' q 4 -> NatLe (3) (N) -> QleT' (sc_P p q 3) (sc_P p q N).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_P_ge_P2 p q N).
+  eapply (sc_P_ge_P2_prop p q N).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1362,12 +1351,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_P2_ge_sixth (Path A v2.4) *)
+(* Set twin of sc_P2_ge_sixth_prop (Path A v2.4) *)
 Lemma sc_P2_ge_sixthT : forall (p q : Q), QleT' 0 p -> QleT' p q -> QleT' q 4 -> QleT' (1 / 6) (sc_P p q 3).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_P2_ge_sixth p q).
+  eapply (sc_P2_ge_sixth_prop p q).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1396,12 +1385,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_q_pow_pred (Path A v2.4) *)
+(* Set twin of sc_q_pow_pred_prop (Path A v2.4) *)
 Lemma sc_q_pow_predT : forall (k : nat), NatLe (1) (k) -> QeqT (q_pow (-1) k * -1) (q_pow (-1) (k - 1)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_q_pow_pred k).
+  eapply (sc_q_pow_pred_prop k).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption
@@ -1464,12 +1453,12 @@ Proof.
             | assumption ].
 Qed.
 
-(* Set twin of sc_cos_partial_diff_le (Path A v2.4) *)
+(* Set twin of sc_cos_partial_diff_le_prop (Path A v2.4) *)
 Lemma sc_cos_partial_diff_leT : forall (n : nat) (x y : Q), QleT' 0 x -> QleT' x y -> QleT' y 2 -> NatLe (2) (n) -> QleT' (cos_partial n y) (cos_partial n x - (y * y - x * x) * (1 / 6)).
 Proof.
   intros.
   first [ apply Qlt_to_QltT | apply Qle_to_QleT' | apply qeq_imp_qeqT | apply NatLe_lift | idtac ].
-  eapply (sc_cos_partial_diff_le n x y).
+  eapply (sc_cos_partial_diff_le_prop n x y).
   all: first [ apply QltT_to_Qlt; assumption
             | apply QleT'_to_Qle; assumption
             | apply qeqT_imp_qeq; assumption

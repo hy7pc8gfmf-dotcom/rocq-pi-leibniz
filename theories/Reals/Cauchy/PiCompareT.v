@@ -17,12 +17,15 @@
     Dependencies.  Stdlib [QArith.QArith] ([Q], [Qcompare],
       [Qeq_bool], [Qle_bool]).
 
-    References.  This development, [S01_BaseRing.v:L41-L62] ([Id],
-      [id_trans]); this development, [S02_CauchyComplete.v:L42-L48]
-      and [S02_CauchyComplete.v:L92-L99] (the [Qlt_bool], [QltT],
-      [Qle_bool] and [QleT'] originals); stdlib [QArith_base.v:L100]
-      (the [Qcompare] notation [p ?= q]), [QArith_base.v:L180]
-      ([Qeq_bool]) and [QArith_base.v:L183] ([Qle_bool]).
+    References.  This development, [S01_BaseRing.v] ([Id],
+      [id_trans]); this development, [S02_CauchyComplete.v]
+      and [S02_CauchyComplete.v] (the [Qlt_bool], [QltT],
+      [Qle_bool] and [QleT'] originals); stdlib [QArith_base.v]
+      (the [Qcompare] notation [p ?= q]), [QArith_base.v]
+      ([Qeq_bool]) and [QArith_base.v] ([Qle_bool]).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Carried at the [Set] level; assumption-free and
       fully proved, with no non-constructive principles; the whole
@@ -172,32 +175,6 @@ Definition qltw_samp_QltT_0_1 : QltT 0 1 := @id_refl bool true.
 Definition qltw_samp_QleT'_1_1 : QleT' 1 1 := @id_refl bool true.
 
 Definition qltw_samp_Qeq_bool_2_2 : Id (Qeq_bool 2 2) true := @id_refl bool true.
-
-(* Statement provenance: for every statement of this file, the
-   source statement of this development that it was migrated from,
-   with the source coordinates.  Rows marked (new) are statements
-   first stated in this file.
-
-   [Id] <- [Id] at [S01_BaseRing.v:L41-L43]
-   [id_trans] <- [id_trans] at [S01_BaseRing.v:L59-L62]
-   [Qlt_bool] <- [Qlt_bool] at [S02_CauchyComplete.v:L42-L47]
-   [QltT] <- [QltT] at [S02_CauchyComplete.v:L48]
-   [QleT'] <- [QleT'] at [S02_CauchyComplete.v:L99]
-   [qltw_S02_Qlt_bool] <- [Qlt_bool] (restated as [qltw_S02_Qlt_bool]) at [S02_CauchyComplete.v:L42-L47]
-   [qltw_S02_Qle_bool] <- [Qle_bool] (restated as [qltw_S02_Qle_bool]) at [S02_CauchyComplete.v:L92-L96]
-   [qltw_Qlt_bool_Qcompare] <- (new in this file)
-   [qltw_Qle_bool_Qcompare] <- (new in this file)
-   [qltw_Qeq_bool_Qcompare] <- (new in this file)
-   [qltw_Qlt_bool_orig] <- (new in this file)
-   [qltw_Qle_bool_orig] <- (new in this file)
-   [qltw_QltT_orig] <- (new in this file)
-   [qltw_S02_QltT] <- (new in this file)
-   [qltw_QleT'_orig] <- (new in this file)
-   [qltw_S02_QleT'] <- (new in this file)
-   [qltw_samp_QltT_0_1] <- (new in this file)
-   [qltw_samp_QleT'_1_1] <- (new in this file)
-   [qltw_samp_Qeq_bool_2_2] <- (new in this file)
-*)
 
 (* Path A v2.4 canonical carrier block (unified by WING-M7). *)
 (* Carrier supply section: [And]/[NatLe]/[ZleT]/[ZltT]/[IffT] with their

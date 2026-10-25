@@ -31,9 +31,12 @@
       theorems, in whose presence the values are asserted).
 
     References.  [README.md] (the documented sample points and the
-      escape-witness triple); [PiLeibnizCReal.v:L764]
+      escape-witness triple); [PiLeibnizCReal.v]
       ([lw0m_e n = 5 * leiblw_nivwin n]); [PiSepMirrorT.v] (the
       mirrored chain whose value-invariance this file accompanies).
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Every assertion is a Set-carried identity of
       Booleans ([Id (Qeq_bool _ _) true]) closed by computation
@@ -81,19 +84,3 @@ Proof. vm_compute. exact id_refl. Defined.
 Definition triple_q_227_check : Id (Qeq_bool (22 # 7) (22 # 7)) true.
 Proof. vm_compute. exact id_refl. Defined.
 
-(* Statement provenance: for every statement of this file, the source
-   statement that it mirrors, with the source coordinates.  Rows
-   marked (new) are statements first stated in this file.
-
-   [window_family_e0] <- the documented sample point
-      [e 0 = 5 # 2] at [README.md] (Guarantees)
-   [window_family_e1] <- the documented sample point
-      [e 1 = 5 # 4] at [README.md] (Guarantees)
-   [window_family_e2] <- the documented sample point
-      [e 2 = 5 # 6] at [README.md] (Guarantees)
-   [triple_margin_5_8] <- the escape-witness triple
-      [(22 # 7, 5 # 8, 3%nat)] at [README.md] (Guarantees; the
-      margin component, cross-checked against [lw0m_e 3])
-   [triple_q_227_check] <- the escape-witness triple at [README.md]
-      (the [q] component, the sample point itself)
-*)

@@ -5,17 +5,17 @@
 
     Mission.  This file mounts the engine piece
       [creal_escape_window pi_leibniz lw0m_e] and takes the final
-      jump [creal_escape_window_apart] directly from the engine
+      jump [creal_escape_window_apart_prop] directly from the engine
       (zero new proofs): the separation of [pi_leibniz] from every
       rational number (the closing piece of the [pi] program).  Main
       theorem:
-      [pi_leibniz_strong_irrational : forall a b : Q, b <> 0 ->
+      [pi_leibniz_strong_irrational_prop : forall a b : Q, b <> 0 ->
       CReal_appart pi_leibniz (inject_Q (a / b))].
 
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
       [ZArith.ZArith], [Arith.PeanoNat], [ArithRing], [Setoid],
       [ConstructiveCauchyReals]; [PiLeibnizCReal] ([pi_leibniz],
-      [lw0m_e], [lw0m_vanish_pi], [pi_leibniz_seq_negtail],
+      [lw0m_e], [lw0m_vanish_pi_prop], [pi_leibniz_seq_negtail],
       [piL_qabs_sym], [piL_qpow2_neg]); [PiKernelSlack]
       ([NatLe_lift]; the three seeds [piLd3_seed_halfwin],
       [piLd3_seed_dres], [piLd3_seed_dcos] at the [Set] level; the
@@ -30,15 +30,17 @@
       switches to a single [From Stdlib] line).
 
     References.  This development,
-      [LW0LeibSeparation.v:L5697-L5719] (the four assembly steps)
-      and [LW0LeibSeparation.v:L298-L375] (the guarded form; the
+      [LW0LeibSeparation.v] (the four assembly steps)
+      and [LW0LeibSeparation.v] (the guarded form; the
       Real-metric content is absorbed by the engine conclusion shape
       and its body is not ported); this development,
-      [ConstructiveCauchyRealsSep.v:L99] and
-      [ConstructiveCauchyRealsSep.v:L108] (the two engine entry
+      [ConstructiveCauchyRealsSep.v] (the two engine entry
       points taken directly).  The statement names follow the
       assembly plan and the distilled statement inventory of this
       development.
+    Statement-level migration provenance is maintained in
+    [docs/statement-provenance.md]; citations in this file are by
+    fully qualified name.
 
     Constructivity.  Assumption-free and fully proved statements;
       conclusions at the [Set] level (the sum-type form of
@@ -79,7 +81,7 @@ Require Import PiSeedSupplyShell.
 
 (* ---------------------------------------------------------------- *)
 (* Section 1. The guarded [Q] chain (the engine-assembly restatement  *)
-(* of the two branches at [LW0LeibSeparation.v:L5716-L5718])          *)
+(* of the two branches in [LW0LeibSeparation.v])                      *)
 (*                                                                    *)
 (* The vanish threshold dominates the margin, and the margin          *)
 (* dominates the engine escape conjunct: a single [Qlt_trans] chain   *)
@@ -97,7 +99,7 @@ Require Import PiSeedSupplyShell.
       source as the kernel output form; with the same-named [QltT]
       of the two families coexisting, the qualified names rule out
       shadowing). *)
-Lemma pi_sep_qltT_down :
+Lemma pi_sep_qltT_down_prop :
   forall x y : Q, PiCompareT.QltT x y -> Qlt x y.
 Proof.
   intros x y H.
@@ -136,7 +138,7 @@ Qed.
       there exists [k] with [N <= 2^k] (nat powers, by a direct
       induction).  The positivity anchor [1 <= 2^k'] follows
       directly from [2^0 = 1] and monotonicity of powers. *)
-Lemma pi_sep_pow2_witness :
+Lemma pi_sep_pow2_witness_prop :
   forall N : nat, sig (fun k : nat => (N <= 2 ^ k)%nat).
 Proof.
   induction N as [| N' IH].
@@ -161,12 +163,12 @@ Qed.
       depth).  The unified two-threshold choice
       [N1 := max N (max N0 1)] of the source splits, at the engine
       read-point depth [2^n0], into the pair [([n0], [2^n0])]. *)
-Lemma pi_sep_n0_select :
+Lemma pi_sep_n0_select_prop :
   forall N N0 : nat,
     sig (fun n0 : nat => (N0 <= n0)%nat /\ (N <= 2 ^ n0)%nat).
 Proof.
   intros N N0.
-  destruct (pi_sep_pow2_witness N) as [k Hk].
+  destruct (pi_sep_pow2_witness_prop N) as [k Hk].
   exists (Nat.max N0 k).
   split.
   - apply Nat.le_max_l.
@@ -185,7 +187,7 @@ Qed.
       down-level reshaping is concentrated at the mounting site (the
       consumption face of this file spans two families; see the
       reshaping note at the mounting site). *)
-Lemma pi_sep_escape_conj :
+Lemma pi_sep_escape_conj_prop :
   forall (q c : Q) (n0 : nat),
     Qlt (lw0m_e n0) c ->
     Qlt c (Qabs ((lw0m_xL (2 ^ n0) - q)%Q)) ->
@@ -204,7 +206,7 @@ Qed.
       level through the power normal form of [piL_qpow2_neg] and the
       [Qnum]/[QDen] expansion.  The exponent/polynomial slack
       involves no critical [n]. *)
-Lemma pi_sep_coupling : forall n : nat,
+Lemma pi_sep_coupling_prop : forall n : nat,
   Qlt (2 * 2 ^ Z.opp (Z.of_nat n)) (lw0m_e n).
 Proof.
   intros n.
@@ -242,7 +244,7 @@ Proof.
   rewrite (piL_qpow2_neg n).
   unfold Qlt.
   cbn [Qnum Qden Qmult Pos.mul].
-  rewrite piL_pos_succ1, piL_pos_succ1.
+  rewrite piL_pos_succ1_prop, piL_pos_succ1_prop.
   rewrite !Z.mul_1_r.
   (* [2 * (2n+2) < 5 * 2^n]: transport of the nat core *)
   assert (H1 : (Z.of_nat (n + n + 1) + 1 = Z.of_nat n + Z.of_nat n + 1 + 1)%Z).
@@ -283,9 +285,9 @@ Qed.
 (* assumption-free statements.                                        *)
 (* ---------------------------------------------------------------- *)
 
-Definition pi_sep_seed_halfwin : piLd3_seed_halfwin := piLsup_halfwin_supply.
-Definition pi_sep_seed_dres : piLd3_seed_dres := piLsup_dres_supply.
-Definition pi_sep_seed_dcos : piLd3_seed_dcos := piLsup_dcos_supply.
+Definition pi_sep_seed_halfwin_prop : piLd3_seed_halfwin := piLsup_halfwin_supply.
+Definition pi_sep_seed_dres_prop : piLd3_seed_dres := piLsup_dres_supply.
+Definition pi_sep_seed_dcos_prop : piLd3_seed_dcos := piLsup_dcos_supply.
 
 (** The engine mounting piece: for every rational number [q], the
       kernel margin (ingredient 1) and the unified-window vanish
@@ -294,27 +296,27 @@ Definition pi_sep_seed_dcos : piLd3_seed_dcos := piLsup_dcos_supply.
       (ingredient 4) is taken directly, and the escape leg enters
       the guarded [Q] chain after a rewrite through the read-point
       bridge (ingredient 5). *)
-Definition creal_escape_window_pi_leibniz :
+Definition creal_escape_window_pi_leibniz_prop :
   creal_escape_window pi_leibniz lw0m_e.
 Proof.
   intros q.
   (* Ingredient 1: the kernel supplies the margin [c] and the window *)
   (* depth [N] (with the three seeds as explicit arguments)          *)
-  destruct (leibsep_q_kernel pi_sep_seed_halfwin pi_sep_seed_dres
-             pi_sep_seed_dcos q) as [c [Hc0 [N HN]]].
+  destruct (leibsep_q_kernel pi_sep_seed_halfwin_prop pi_sep_seed_dres_prop
+             pi_sep_seed_dcos_prop q) as [c [Hc0 [N HN]]].
   apply (pi_sep_qltT_up_wc 0 c) in Hc0.
   (* Ingredient 2: the unified-window vanish [eps := c] yields [N0]  *)
   (* (the kernel supply form enters the window-core family through   *)
   (* the cross-family up-level bridge)                               *)
-  destruct (lw0m_vanish_pi c Hc0) as [N0 HN0].
+  destruct (lw0m_vanish_pi_prop c Hc0) as [N0 HN0].
   (* Ingredient 3: depth selection of [n0] ([N0 <= n0] and *)
   (* [N <= 2^n0])                                          *)
-  destruct (pi_sep_n0_select N N0) as [n0 [Hn0N0 Hn0N]].
+  destruct (pi_sep_n0_select_prop N N0) as [n0 [Hn0N0 Hn0N]].
   exists n0. split.
   - (* Coupling leg: the resolution always stays below the window *)
     (* bound (newly written in this file; the upstream coupling    *)
     (* leg carries no existing proof)                              *)
-    exact (pi_sep_coupling n0).
+    exact (pi_sep_coupling_prop n0).
   - (* Escape leg: after the read-point bridge translates back to *)
     (* [lw0m_xL (2^n0)], the guarded [Q] chain applies.  The       *)
     (* decision-wrapper down-level reshaping is concentrated at    *)
@@ -323,9 +325,9 @@ Proof.
     (* the kernel margin is a decision-wrapper origin [QltT]       *)
     (* (through the thin bridge of this file)                      *)
     rewrite (pi_leibniz_seq_negtail n0).
-    apply (pi_sep_escape_conj q c n0).
+    apply (pi_sep_escape_conj_prop q c n0).
     + exact (PiWindowCore.QltT_to_Qlt _ _ (HN0 n0 Hn0N0)).
-    + apply (pi_sep_qltT_down _ _).
+    + apply (pi_sep_qltT_down_prop _ _).
       apply (HN (2 ^ n0)%nat).
       exact (NatLe_lift N (2 ^ n0)%nat Hn0N).
 Defined.
@@ -341,8 +343,8 @@ Defined.
 Theorem pi_leibniz_appart_all_Q :
   forall q : Q, CReal_appart pi_leibniz (inject_Q q).
 Proof.
-  exact (creal_escape_window_apart pi_leibniz lw0m_e
-         creal_escape_window_pi_leibniz).
+  exact (creal_escape_window_apart_prop pi_leibniz lw0m_e
+         creal_escape_window_pi_leibniz_prop).
 Defined.
 
 (** The main theorem (the mandated form): the separation of
@@ -350,7 +352,7 @@ Defined.
       denominator.  Note on the zero-consumption premise: the
       mounting piece holds for every [q], so [b <> 0] serves only as
       the semantic guard of the notion of a rational number. *)
-Theorem pi_leibniz_strong_irrational :
+Theorem pi_leibniz_strong_irrational_prop :
   forall a b : Q, b <> 0 -> CReal_appart pi_leibniz (inject_Q (a / b)).
 Proof.
   intros a b _.
@@ -358,35 +360,3 @@ Proof.
 Defined.
 
 
-(* Statement provenance: for every statement of this file, the
-   source statement of this development that it was migrated from,
-   with the source coordinates.  Rows marked (new) are statements
-   first stated in this file.
-
-   [pi_sep_qltT_down] <- (new in this file; the down-level bridge of
-      the decision wrappers, restated with the [Qcompare] three-way
-      split proof body of [PiCompareT.v])
-   [pi_sep_qltT_up_wc] <- (new in this file; the cross-family bridge
-      into the unified-window consumption face)
-   [pi_sep_pow2_witness] <- (new in this file)
-   [pi_sep_n0_select] <- (new in this file; the unified two-threshold
-      depth selection of [leibsep_pi_rational_unconditional] at
-      [LW0LeibSeparation.v:L5697-L5719], split into the pair
-      ([n0], [2^n0]))
-   [pi_sep_escape_conj] <- [leibsep_pi_rational_unconditional] (the
-      two branches of the guarded application) at
-      [LW0LeibSeparation.v:L5716-L5718]
-   [pi_sep_coupling] <- (new in this file; the upstream coupling leg
-      carries no existing proof)
-   [creal_escape_window_pi_leibniz] <- [creal_escape_window]
-      (statement face) at [ConstructiveCauchyRealsSep.v:L99]; the
-      confluence of the four assembly steps of
-      [leibsep_pi_rational_unconditional] at
-      [LW0LeibSeparation.v:L5697-L5719]
-   [pi_leibniz_appart_all_Q] <- [creal_escape_window_apart] (the
-      final jump taken directly) at [ConstructiveCauchyRealsSep.v:L108]
-   [pi_leibniz_strong_irrational] <-
-      [leibsep_pi_rational_unconditional] (the unconditional
-      separation, restated in the [a/b] form) at
-      [LW0LeibSeparation.v:L5697-L5719]
-*)

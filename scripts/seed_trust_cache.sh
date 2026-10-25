@@ -1,7 +1,6 @@
 #!/bin/bash
 # Seed the trust cache: copy pre-built .vo files from the pinned local
-# clone into the CI checkout so the build step is a pure skip pass
-# (the same pattern as the ConstructiveWorld-Main CI seeding step).
+# clone into the CI checkout so the build step is a pure skip pass.
 # The seed source is a machine-local convention; when absent the build
 # simply compiles everything from source.
 set -u
