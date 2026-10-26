@@ -1,7 +1,7 @@
 # rocq-pi-leibniz
 
 [![CI](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml/badge.svg)](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23527294.svg)](https://zenodo.org/doi/10.5281/zenodo.23527294)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23656982.svg)](https://zenodo.org/doi/10.5281/zenodo.23656982)
 
 Constructive pi for the Rocq constructive Cauchy reals — premise-free
 separation from every rational with extractable witnesses.

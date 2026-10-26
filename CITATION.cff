@@ -71,8 +71,8 @@ preferred-citation:
       given-names: Xuefeng
   version: 1.0.4
   date-released: "2026-10-26"
-  doi: "10.5281/zenodo.23527294"
-  url: "https://zenodo.org/records/23527294"
-# DOI: version DOI 10.5281/zenodo.23527295 (pinned to v1.0.0); concept DOI
-# 10.5281/zenodo.23527294 (constant across versions). preferred-citation
-# cites the concept DOI for this release.
+  doi: "10.5281/zenodo.23656983"
+  url: "https://zenodo.org/records/23656983"
+# DOI: this release's version DOI is 10.5281/zenodo.23656983 (minted by the
+# zenodo-GitHub integration for the v1.0.4 release); the historical v1.0.0
+# record is 10.5281/zenodo.23527295 under concept DOI 10.5281/zenodo.23527294.
