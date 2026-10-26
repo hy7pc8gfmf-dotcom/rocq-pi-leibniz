@@ -227,12 +227,20 @@ Three layers, all under `theories/Reals/Cauchy/`:
   (witness-value assertions for the documented escape triple at
   `22 # 7`).
 
-- **v1.0.4 additions (1 file).**  `PiPascalResidueT` (Set-carried
+- **v1.0.4 additions (5 files).**  `PiPascalResidueT` (Set-carried
   twins of the anti-diagonal band residue statements of
-  `PiPascalResidue`, over the `QltT`/`QeqT` carriers).
+  `PiPascalResidue`, over the `QltT`/`QeqT` carriers), `twin46_b23a`
+  (Set-carried twins for the renamed statement faces of the
+  `PiVertexPolyDiff`, `PiCosTailScan`, and `PiCosApproxRoot`
+  families), `wall2_apart` (`creal_escape_window_apartT`, a
+  Set-carried twin of the engine's escape-window apartness theorem),
+  `wall2_exblock` (`approx_root_cosT`, the cosine root-approximation
+  theorem with the inner existential recast as an explicit `sigT`
+  witness), and `wall2_parity` (`vt_parityT`, the natural-number
+  parity split over the `NatEqT` carrier).
 
-Counting: 33 pi-stack files (about 47,300 lines) plus the 230-line engine
-file they build on = 34 content modules, about 47,600 lines.
+Counting: 37 pi-stack files (about 47,900 lines) plus the 229-line engine
+file they build on = 38 content modules, about 48,200 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 
