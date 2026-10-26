@@ -5,7 +5,7 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.4] - 2026-10-XX
+## [1.0.4] - 2026-10-26
 
 ### Added
 
@@ -45,13 +45,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `PiWindowCore` face should `Require Import` that module directly.
 - Library comments are in English throughout and normalized to the
   package comment policy (five-field module headers, no process
-  narrative); statement-level migration provenance lives in
+  narrative); residual process-language version stamps were cleared;
+  statement-level migration provenance lives in
   [docs/statement-provenance.md](docs/statement-provenance.md)
   (coordinates frozen as recorded), leaving name-level citations in the
   library.
-- <!-- TODO(主会话)：槽位——MIG71 孪生名迁移（79 名消费位）若在 tag 前落地，在此续笔实质条目（禁过程语）。 -->
-- <!-- TODO(主会话)：槽位——局部删除（DELETE-AFTER-MIG71 79 名＋DEAD-FACE 26 名）若在 tag 前落地，在此续笔（可入 Changed/Removed）。 -->
-- <!-- TODO(主会话)：槽位——注释第四波若在 tag 前落地，在此续笔或并入上一条。 -->
+- Consumers migrated to the Set-carried twins: use sites across the
+  package now reference the `Set`-carried faces directly, including the
+  bisection, approx-root and Pascal-residue families; the twin blocks
+  for the bisection and approx-root-arch statements moved next to their
+  original statements, removing a reverse-require cycle.
+
+### Removed
+
+- Eight zero-reference `_prop` statement faces (full-tree residual
+  grep: zero).
 
 ### Fixed
 
