@@ -564,7 +564,7 @@ Proof.
            ++ split; [exact I4 | exact I5].
 Qed.
 
-(* Set twin of vt_bisect_spec_prop (Path A v2.4): all Q-comparison premises
+(* Set twin of vt_bisect_spec_prop: all Q-comparison premises
    and the And-chain innards are recast on QltT / QleT' / QeqT; the bisection
    function itself keeps its Qlt argument, fed by QltT_to_Qlt. *)
 Lemma vt_bisect_specT : forall (n K : nat) (a b : Q) (Hab : QltT a b),

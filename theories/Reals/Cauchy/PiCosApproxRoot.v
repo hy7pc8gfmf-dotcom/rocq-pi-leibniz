@@ -249,7 +249,7 @@ Proof.
   - exact T5.
 Qed.
 
-(* Set twin of vt_pow_half_arch_prop (Path A v2.4) *)
+(* Set twin of vt_pow_half_arch_prop *)
 Lemma vt_pow_half_archT : forall (D eps : Q), QleT' 0 D -> QltT 0 eps ->
   sigT (fun n => QltT (D * q_pow (1#2) n) eps).
 Proof.

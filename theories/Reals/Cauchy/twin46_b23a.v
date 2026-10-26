@@ -1,6 +1,6 @@
 (* ==== Section 1. Set-carrier twins for renamed Prop statements (batch 2a) ==== *)
 
-(* Mission: Set-carrier twins (Path A v2.4) for rename-roster names without a
+(* Mission: Set-carrier twins for rename-roster names without a
    twin, batch 2a: the PiVertexPolyDiff / PiCosTailScan / PiCosApproxRoot
    families. Conclusions and Q-comparison premises are recast on QltT / QleT' /
    QeqT / Id carriers; nat-order innards inside sigT keep the (<=)%nat face
@@ -24,7 +24,7 @@ Require Import PiCompareT.
 Require Import PiKernelSlack.
 Require Import PiVertexPolyDiff.
 
-(* Set twin of vt_qpos_neq_prop (Path A v2.4) *)
+(* Set twin of vt_qpos_neq_prop *)
 Lemma vt_qpos_neqT : forall x : Q, QltT 0 x -> QeqT x 0 -> Empty_set.
 Proof.
   intros x H1 H2.
@@ -33,7 +33,7 @@ Proof.
   - apply qeqT_imp_qeq. exact H2.
 Qed.
 
-(* Set twin of vt_parity_prop (Path A v2.4): DEFERRED to the gap ledger.
+(* Set twin of vt_parity_prop: DEFERRED to the gap ledger.
    The Set-level disjunction witness cannot be transported out of the Prop
    disjunction (no large elimination of Prop), and a self-contained
    constructive parity needs its own add/mul transport family, which exceeds
@@ -41,7 +41,7 @@ Qed.
 
 
 
-(* Set twin of approx_root_cos_prop (Path A v2.4): DEFERRED to the gap ledger
+(* Set twin of approx_root_cos_prop: DEFERRED to the gap ledger
    as W-EXBLOCK. The original statement carries an inner Prop existential
    (exists N : nat, ...) whose informative bound cannot be eliminated into the
    Set-level sigT innard of the twin (no large elimination of Prop). A honest
