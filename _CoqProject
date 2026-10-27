@@ -64,3 +64,4 @@ theories/Reals/Cauchy/wall2_parity.v
 
 # Release scaffolding (root re-export; no statements, no proofs)
 theories/PiLeibniz.v
+theories/Reals/Cauchy/PiMu0Cos.v
