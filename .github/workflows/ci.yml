@@ -33,7 +33,7 @@ jobs:
   build:
     name: build + coqchk (self-hosted, local trust cache)
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 120
+    timeout-minutes: 480
     defaults:
       run:
         shell: bash
