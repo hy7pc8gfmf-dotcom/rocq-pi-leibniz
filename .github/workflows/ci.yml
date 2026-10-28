@@ -9,15 +9,6 @@ name: CI
 # simply compile everything from source.  All compilation runs wrapped
 # in the machine's cpu guard (thermal duty-cycling), as in the hosting
 # campaign's ConstructiveWorld-Main CI.
-#
-# Network/memory resilience (self-hosted runner): a pre-checkout probe
-# waits out sparse github.com:443 blocking windows (60s interval, 10 min
-# cap, then releases so checkout keeps its own full retry log); checkout
-# is continue-on-error with a one-step verdict line so a fetch death is
-# triaged as network red, not code red, without pulling full logs; and a
-# log-only RAM guard waits up to 5 min for the shared compile field
-# (local campaigns and this runner share one memory pool) to drain
-# before the build.
 
 on:
   push:
@@ -33,78 +24,23 @@ jobs:
   build:
     name: build + coqchk (self-hosted, local trust cache)
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 480
+    timeout-minutes: 120
     defaults:
       run:
         shell: bash
     steps:
-      - name: Net window probe (github 443, 60s interval, 10 min cap)
-        id: probe
-        run: |
-          PROBE="/d/ComplexAnalysis/rocq-pi-leibniz/scripts/ci_net_probe.sh"
-          if [ -f "$PROBE" ]; then
-            bash "$PROBE" 2>&1 | tee net_probe.log
-          else
-            {
-              echo "NET-PROBE script absent at $PROBE - single inline probe"
-              if timeout 20 git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" HEAD >/dev/null 2>&1; then
-                echo "NET-PROBE GREEN attempts=1 red=0 elapsed=0s (inline)"
-              else
-                echo "NET-PROBE CAP-REACHED attempts=1 red=1 - releasing to checkout (inline)"
-              fi
-            } 2>&1 | tee net_probe.log
-          fi
-
-      - name: Checkout (pinned source)
-        id: checkout
-        uses: actions/checkout@v5
-        continue-on-error: true
-
-      - name: Checkout verdict (one-step net-vs-code triage)
-        if: always()
-        run: |
-          ck="${{ steps.checkout.outcome }}"
-          pr="${{ steps.probe.conclusion }}"
-          if [ "$ck" = "success" ]; then
-            echo "CHECKOUT-GREEN source tree ready" | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
-            exit 0
-          fi
-          echo "NET-WINDOW-CLOSED checkout_outcome=$ck probe_conclusion=$pr - network red, not code red; see net_probe.log; rerun-failed-jobs after the 443 window reopens" | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
-          exit 1
+      - uses: actions/checkout@v5
 
       - name: Seed trust cache from the local clone
-        if: steps.checkout.outcome == 'success'
         run: bash scripts/seed_trust_cache.sh
 
-      - name: RAM guard (drain the shared compile field, 5 min cap)
-        if: steps.checkout.outcome == 'success'
-        run: |
-          waited=0
-          while :; do
-            rw=$(tasklist //FI "IMAGENAME eq rocqworker.exe" 2>/dev/null | grep -c "rocqworker\.exe" || true)
-            cc=$(tasklist //FI "IMAGENAME eq coqc.exe" 2>/dev/null | grep -c "coqc\.exe" || true)
-            if [ "$rw" -eq 0 ] && [ "$cc" -eq 0 ]; then
-              echo "RAM-GUARD CLEAR rocqworker=0 coqc=0 waited=${waited}s" | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
-              exit 0
-            fi
-            if [ "$waited" -ge 300 ]; then
-              echo "RAM-GUARD OCCUPIED rocqworker=$rw coqc=$cc waited=${waited}s - proceeding without kill (log-only guard; local jobs share this memory field)" | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
-              exit 0
-            fi
-            echo "RAM-GUARD busy rocqworker=$rw coqc=$cc waited=${waited}s/300s - backing off 30s"
-            sleep 30
-            waited=$((waited + 30))
-          done
-
       - name: Build (skip pass over the trust cache)
-        if: steps.checkout.outcome == 'success'
         shell: cmd
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_build.sh" -TempLimit 96 -CoreN 2 -AllowG3
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_build.sh" -LoadLimit 60 -TempLimit 98 -CoreN 2 -AllowG3 -GearForce 0
 
       - name: coqchk full-closure certification + assumption smoke
-        if: steps.checkout.outcome == 'success'
         shell: cmd
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_chk.sh" -TempLimit 96 -CoreN 2 -AllowG3
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_chk.sh" -LoadLimit 60 -TempLimit 98 -CoreN 2 -AllowG3 -GearForce 0
 
       - name: Toolchain version evidence
         if: always()
@@ -120,4 +56,3 @@ jobs:
           path: |
             coqchk.log
             smoke.log
-            net_probe.log
