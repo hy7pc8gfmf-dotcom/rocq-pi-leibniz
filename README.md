@@ -239,8 +239,8 @@ Three layers, all under `theories/Reals/Cauchy/`:
   witness), and `wall2_parity` (`vt_parityT`, the natural-number
   parity split over the `NatEqT` carrier).
 
-Counting: 37 pi-stack files (about 47,900 lines) plus the 229-line engine
-file they build on = 38 content modules, about 48,200 lines.
+Counting: 38 pi-stack files (about 48,500 lines) plus the 229-line engine
+file they build on = 39 content modules, about 48,800 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 
