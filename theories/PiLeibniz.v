@@ -78,3 +78,4 @@ Require Export PiSepBNeq0T.
 Require Export PiSepMirrorT.
 Require Export PiSepTriple227.
 Require Export PiMu0Cos.
+Require Export Sqrt2UniformStrongIrrational.

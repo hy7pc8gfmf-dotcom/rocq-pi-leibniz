@@ -57,6 +57,7 @@ theories/Reals/Cauchy/PiSeparation.v
 theories/Reals/Cauchy/PiVertexPolyDiff.v
 theories/Reals/Cauchy/PiWindowCore.v
 theories/Reals/Cauchy/QCauchyZeroCos.v
+theories/Reals/Cauchy/Sqrt2UniformStrongIrrational.v
 theories/Reals/Cauchy/twin46_b23a.v
 theories/Reals/Cauchy/wall2_apart.v
 theories/Reals/Cauchy/wall2_exblock.v
