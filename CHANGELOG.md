@@ -5,6 +5,22 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `theories/Reals/Cauchy/Sqrt2UniformStrongIrrational.v` — the uniform-type
+  strong irrationality of √2 as a formalized entity: Bishop-form explicit
+  margin 1/(3b²) carried by a `sigT` Set-level witness with four
+  witness-value assertions (1,523 lines); extraction audit clean on both
+  faces (`Obj.magic` = 0) (`840eb76`).
+
+### Fixed
+
+- ci.yml: restored the 480-minute job timeout — the thermal-guard alignment
+  commit had overwritten the earlier 120 → 480 fix, and the β③ certification
+  run died at exactly 120 min 22 s under the regressed wall (`b94b953`).
+
 ## [1.0.4] - 2026-10-26
 
 ### Added
