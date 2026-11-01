@@ -571,8 +571,8 @@ Proof. vm_compute. exact id_refl. Qed.
    [nsep_find] computations is prohibitively costly.  [mu0cos_sep_dec]
    stays transparent, so the values are independently recomputable. *)
 
-Eval vm_compute in (nsep_find mu0cos_sep_dec (22 # 7) 0%nat 20%nat).
-Eval vm_compute in (nsep_find mu0cos_sep_dec (355 # 113) 0%nat 12%nat).
+(* Eval vm_compute in (nsep_find mu0cos_sep_dec (22 # 7) 0%nat 20%nat). *)
+(* Eval vm_compute in (nsep_find mu0cos_sep_dec (355 # 113) 0%nat 12%nat). *)
 
 Separate Extraction mu0cos_e mu0cos_sep_dec mu0cos_l2c_go mu0cos_l2c_fuel
   mu0cos_log2_ceil mu0cos_modulus nsep_find.
