@@ -38,6 +38,19 @@ jobs:
         shell: cmd
         run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_build.sh" -LoadLimit 60 -TempLimit 98 -CoreN 2 -AllowG3 -GearForce 0
 
+      # ── KB95 W3: reconcile the tree against the attestation archive ─────
+      # Reconciles the checked-out tree against the minted archive
+      # scripts/coqchk_attestation.json (cw.attest/v1): per-file
+      # CRLF-normalized source sha256, verdicts CLEAN/DIRTY/MISSING/ADDED
+      # reported into scripts/attest_report.json and this log.  Report-
+      # only: the script exits 0 on every outcome (the || echo is a second
+      # net for environment errors), and nothing skips certification —
+      # the coqchk step below still verifies the FULL closure
+      # (sent_to_chk=0; the skip-list mechanic is v2, deferred).
+      - name: content-addressed attestation (v1 report-only)
+        run: |
+          bash scripts/pi_attest_reconcile.sh || echo "ATT-RECON-FALLBACK: reconcile could not run; continuing (v1 report-only, coqchk below unaffected)"
+
       - name: coqchk full-closure certification + assumption smoke
         shell: cmd
         run: powershell -NoProfile -ExecutionPolicy Bypass -File "D:\ComplexAnalysis\规范术语\温控协议\cpu_guard_v3.ps1" -Command "bash scripts/pi_ci_chk.sh" -LoadLimit 60 -TempLimit 98 -CoreN 2 -AllowG3 -GearForce 0
@@ -56,3 +69,4 @@ jobs:
           path: |
             coqchk.log
             smoke.log
+            scripts/attest_report.json
