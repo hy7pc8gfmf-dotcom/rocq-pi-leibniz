@@ -1,49 +1,172 @@
 {
   "schema": "cw.attest/v1",
-  "generated_by": "rocq-pi-leibniz CI green run #36 head f4dad42 (KB95 W3 content-addressed attestation, v1 report-only, minted 2026-11-01)",
-  "hash_rule": "src_sha256 = sha256 of source bytes after CRLF normalization (tr -d '\\r' | sha256sum); CLEAN/DIRTY judged on src_sha256 only; vo_sha256/vo_size informational (local trust-cache build products)",
-  "tree_sha256": "2b07ba8c579b6378fc762703455b7221a190b295ae207dd22129b86da5b15e99",
+  "generated": "2026-11-03",
+  "toolchain": "Rocq 9.3.0 (.vo magic 90300)",
+  "source": "pi93_e2e green tree: 41/41 build rc0 + COQCHK_ALL_PASS + smoke 2/2 + witness values",
   "modules": {
-    "theories/PiLeibniz.v": { "src_sha256": "e87c97f5a34d87876b4be081c749f538fb4698f0d108d472c6a666d5c0c16790", "vo_sha256": "68bd856e8394d546a213c2f3912548632df4e6b3b135e883884157567ea275f8", "vo_size": 3108 },
-    "theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v": { "src_sha256": "6c6caf6074cf3b09d45fbe6b12185cd60231dbe2704eee649c127d4192848e0e", "vo_sha256": "dee3d74970bc25f54279475b8cb2966a67374dec137429953c40d8a1d6ac546a", "vo_size": 17223 },
-    "theories/Reals/Cauchy/PiArctanFixedQ.v": { "src_sha256": "282128dd1f96db6f4cab48da3f76162362376d01d2a00ff456b0a49e85e0ee90", "vo_sha256": "af2d879c749c159f9cc79ef2a76f69f46bf7527e47ca77f54cf30df3757b5a34", "vo_size": 381189 },
-    "theories/Reals/Cauchy/PiBandBound.v": { "src_sha256": "1324b4c46fbdbe9ae75c9cfcc3642fc896875edb4b275e64b811a31b58f8f7fe", "vo_sha256": "e0e1e7c67002dc3ceb316aaa93e44cfc837a8e041a8442371cddc5521ce1a968", "vo_size": 100444 },
-    "theories/Reals/Cauchy/PiCRealAppartT.v": { "src_sha256": "b19805534077a674aa3b5ab44de5914c710800af8478e168c2996474520cf881", "vo_sha256": "b18f854586d9a30d4e5cad0e3e6f003997a6a73339e62bf34e1a8535b0276b06", "vo_size": 5269 },
-    "theories/Reals/Cauchy/PiCompareT.v": { "src_sha256": "3b2630efe72a50c289071ea1bb74fe620ea43d1870ebd0bdde8acdbba6432f7b", "vo_sha256": "b5341e7b2533f7ba877cfa159b68068d53654401101d969c145a9e081c2a559f", "vo_size": 16597 },
-    "theories/Reals/Cauchy/PiCosApproxRoot.v": { "src_sha256": "d83eefa906e8599ca7bb4db5c10e3bed3408475fa23269a6d2cd850e844132cb", "vo_sha256": "b28f8ad6d87ba231e1e92e104a16e2c79864562008750f1e02dd1285524a5fa5", "vo_size": 46630 },
-    "theories/Reals/Cauchy/PiCosApproxRootSet.v": { "src_sha256": "70a69b7accec43cbd484a0f72b2c0ec8c16593a5cad3a0845fca68d0630fd933", "vo_sha256": "4bac836f5680b0270522596977628ff5b2ce1ec69a2af5e66d0a8a3593bc0470", "vo_size": 36581 },
-    "theories/Reals/Cauchy/PiCosBandAssemble.v": { "src_sha256": "589e5edf1b512bee8d8cb26b05a3df0c4e81defd80b814499dffc46f3d95d2eb", "vo_sha256": "cbdb048a083e6ab0d75b4b05f667120985f8cb69b7bee306f66dc9fd77e9374c", "vo_size": 201783 },
-    "theories/Reals/Cauchy/PiCosPartialSeqCauchy.v": { "src_sha256": "38b9d919e644c6dae3be0db31a3657cb7b38685c4bb64ebd96d4595a2861bb7c", "vo_sha256": "01d8d553f4c6e6107df315431459bc193af72c9a3ee759257e3c6f6873556b55", "vo_size": 9382 },
-    "theories/Reals/Cauchy/PiCosTailScan.v": { "src_sha256": "c82f467e87c76dd09ce7b1b4f982af4de7920834c20ed94478bb60e314af4904", "vo_sha256": "9009b20b522a73d16dab3e11729edc2308177d2ffb96860f742f8fe3ddd0b6f9", "vo_size": 79290 },
-    "theories/Reals/Cauchy/PiCosZeroSeqConv.v": { "src_sha256": "12e5ada366ce3c86445d3d22c469d975fb9357e60e141f63ae8e10601252fb26", "vo_sha256": "934156a4f0374f3a18a18f7bcd3f6e5a9bc33af47383d33cdd2e08e14c68bd88", "vo_size": 28173 },
-    "theories/Reals/Cauchy/PiCosZeroSeqProbe.v": { "src_sha256": "4f868076be8efea59823d5d8233729468c07a180465035109ff190afb8d01be1", "vo_sha256": "4ecf1df1931eda813538ff6d54bde9b9bc14df01c12ac02d3c6613f86a646032", "vo_size": 2401 },
-    "theories/Reals/Cauchy/PiExpArch.v": { "src_sha256": "6dcd0439313d2d2afead75bcdf7cde818a9d6f658f0dd5cc5d377a4252b0af53", "vo_sha256": "3830b74a373159833db134ac08e5b85df24fd01b7b97cf6df850a3e7e720c85b", "vo_size": 51826 },
-    "theories/Reals/Cauchy/PiExpTrigSeries.v": { "src_sha256": "14346cadd16eab875e28b4fc6fc96d79d9a5e304ae55cfd62d4a53e2642f03ce", "vo_sha256": "f345c4daaac7a8c1c9d137fcf77c7c184408cbbaaed89507b99ff78730a08621", "vo_size": 17785 },
-    "theories/Reals/Cauchy/PiHalfwinSeed.v": { "src_sha256": "fc9c8952ac064d2a338e3cb438493c63048750e9f3d08a5043016bc266557233", "vo_sha256": "b11cd1a2fde324d0000d5e0ab6d9c54b5cd3eefa16c8dda06db1892bf98dc467", "vo_size": 51711 },
-    "theories/Reals/Cauchy/PiKernelSlack.v": { "src_sha256": "a83e264f7f0d00d0a8571bcdb395545c3bba88e31e274e5e937dc978b4b95adc", "vo_sha256": "53bf28adb9366b1c00edc1b713ff48578f656ec55c001e93af527097883355e5", "vo_size": 1173395 },
-    "theories/Reals/Cauchy/PiLeibnizCReal.v": { "src_sha256": "b3e9a25b27a6df548b88e3fd2811514e5241c97176b0fe788e13153df2e84449", "vo_sha256": "05c38261fc7c51bc0abd1f56cd260947919b850d9466232775a259d13ac3e596", "vo_size": 61158 },
-    "theories/Reals/Cauchy/PiLeibnizMargin.v": { "src_sha256": "3d0cdfc10488d1d31f8f35295f66c9c50245007c15d1ea754ebc4cfe44dcd45c", "vo_sha256": "2250a742f50bca3ec47ba276c525b968c3dcf627b4af33de48fee2ef15dbbf57", "vo_size": 156419 },
-    "theories/Reals/Cauchy/PiMu0Cos.v": { "src_sha256": "34ff6bc1de22b2ece400f7aa9e0dd57f09edbf89135742e4d15027b24ada3801", "vo_sha256": "952bc5a4a191439383aee8b3b1d5eb5694f0718901113599683af041e57eb56e", "vo_size": 50379 },
-    "theories/Reals/Cauchy/PiPadeQLeg.v": { "src_sha256": "c1cdf42a28556d38c3953e1c4c4599aa0d52b08f5f46a9a79d93034e6bd19d3c", "vo_sha256": "ded6922cf4492a6f09978437aa4d94e80b9999d839ca245ca179afc805e24518", "vo_size": 28525 },
-    "theories/Reals/Cauchy/PiPascalMachine.v": { "src_sha256": "09a1ef19694c71a79a582589a12635b348674ae664cacf921df50ff945e69a48", "vo_sha256": "5b3c1129054fd4e24c840c12517d0522ec67a3030120d810030dc8f86208d91f", "vo_size": 50915 },
-    "theories/Reals/Cauchy/PiPascalResidue.v": { "src_sha256": "8b3f7b4c9c3bb113e6a5c8491b4b47216e4c00f127fecf2e8dda74139a5fd531", "vo_sha256": "3f681ae1f09f8a4af646324ade383a3f219f1d7d0d2f213d214b0c154bdc7531", "vo_size": 68943 },
-    "theories/Reals/Cauchy/PiPascalResidueT.v": { "src_sha256": "0482d82cae3299d099f696c9ba47272456b1a07bd39c9c250bf647057bb46fb6", "vo_sha256": "15d924a938ffa5eb33856a370d58c15d0afc8f1a597612718f47d539fa92d19c", "vo_size": 73216 },
-    "theories/Reals/Cauchy/PiPythBandDonor.v": { "src_sha256": "92ea77e41b42b42f6eee2c6179515c796a230c6bd0b03cc7f7ca5cb1c8a05546", "vo_sha256": "467e1682a6c35be5c77e55ddce6cefe29841d39d5884aac3100f7c662ddb3d05", "vo_size": 52003 },
-    "theories/Reals/Cauchy/PiRowIdentity.v": { "src_sha256": "d9f2d650768cc086735d8ea0937b958ab6f577f70b3f88907e9092797120662d", "vo_sha256": "b6f1b6491044ab08b48b21870a0e61b4509bbb6ebe971bd339318004af9c839d", "vo_size": 34053 },
-    "theories/Reals/Cauchy/PiSeedSupplyShell.v": { "src_sha256": "7c56b080521375386379870296d1b41a37e1f1fd2b9db08c88d7d9147b86764e", "vo_sha256": "8f815846783e7c77ce0c4f4f755098806691d1a8553f91329728d4ecfec14a6a", "vo_size": 5716 },
-    "theories/Reals/Cauchy/PiSep361RefaceT.v": { "src_sha256": "a2bf46fabd39addd350a0844a1ea9be2b234c34cab0f728dea003c071f4fda26", "vo_sha256": "e41bd5ee3705d7d0c7bf24886de812e4293fca405e39d420f1fa6531aac431f9", "vo_size": 2708 },
-    "theories/Reals/Cauchy/PiSepBNeq0T.v": { "src_sha256": "ba2f02339fd384ff66555d76acd44466cc385a2cd71ba6faed9521bfbf516e1a", "vo_sha256": "b2f665a643da639b31f8ff85fa5d43b4e25815a1710f69416d7a5140d5ab88d4", "vo_size": 5151 },
-    "theories/Reals/Cauchy/PiSepMirrorT.v": { "src_sha256": "2183afa661a692a4c3bb6508ce2b6e0da43e271fe8ff92ac753b67c4fd9261a7", "vo_sha256": "28e7f22af270f1d3ad4fc71b5bb17f5a4be3178a02710e923dfef9fd12c5847f", "vo_size": 3406 },
-    "theories/Reals/Cauchy/PiSepSearch.v": { "src_sha256": "71e64471b107a48e9b64c68d750f0aa41965e4e4b00a03527e590a56de57a189", "vo_sha256": "0fb86377ef627b71f0375ccc79af294a38bbad2492ccddb0f81df03b4a75b734", "vo_size": 19789 },
-    "theories/Reals/Cauchy/PiSepTriple227.v": { "src_sha256": "e586a33e2c08f2f57168fb575a2c09a42626db5cec0bc1a19802213e281050d2", "vo_sha256": "4168e1fdaa107b1c979502bac8bb716ee8ed5fbfd31fa5f47bf82f7d44fd7346", "vo_size": 2746 },
-    "theories/Reals/Cauchy/PiSeparation.v": { "src_sha256": "452d696955c0564632d97020f9ddf5a5b3f097eddfa09f86fb20b9d22ac8bb02", "vo_sha256": "9d4ee7fd9f8d65b297bee222dbbf0b45c6f8cc076e7cbb17c366b502eb2421fb", "vo_size": 20361 },
-    "theories/Reals/Cauchy/PiVertexPolyDiff.v": { "src_sha256": "4577fcb16cf2462573cc88d98b339b4ef9c867ba215af0cafab17ee0580ce649", "vo_sha256": "9c84a97e099d81b33ca9e2e81499310cc57cca44561297309d34a2d1950b1fb8", "vo_size": 101154 },
-    "theories/Reals/Cauchy/PiWindowCore.v": { "src_sha256": "907f75f4ff63c524b598485308328f30155d20646cebf6c1eb73f11418a8005a", "vo_sha256": "e503d195b2a7c442d2b941e655664c305f0395b396043598e90a47b3ce72ce91", "vo_size": 129354 },
-    "theories/Reals/Cauchy/QCauchyZeroCos.v": { "src_sha256": "5134a3f7b455b7b416ca62fa4dc009b5dd5beb1af023fdad18d6010ae389f2d8", "vo_sha256": "c6d776a7bd103f9d3a1e7017305a7fd7758c7bf65b801398358a32d907aba0e1", "vo_size": 11046 },
-    "theories/Reals/Cauchy/Sqrt2UniformStrongIrrational.v": { "src_sha256": "41ba39481e538ceea11c7d1bec2b3dbdb7160d904bcdcff4544b224e34f80e0d", "vo_sha256": "e60c99c1873ae27874d441ee95571b9563afaffc6ce83e2017e90fd5ae4a7d66", "vo_size": 139775 },
-    "theories/Reals/Cauchy/twin46_b23a.v": { "src_sha256": "e93b7a735b134f0ad34bcbe5b86086239b18f2f020256a3ee0f854e24cfe075f", "vo_sha256": "9e02b050310151694136d64e70e5e6673c12b5c2400366a1b54d30d34404fd76", "vo_size": 2311 },
-    "theories/Reals/Cauchy/wall2_apart.v": { "src_sha256": "0d389bfd9ffbfe8d832062831f9e5decda489ae61a880e49166d7a5551efb086", "vo_sha256": "8279a264f5834ee8f3d0a860a79d3232ceaf79fbb5634508973ded28c8716012", "vo_size": 2419 },
-    "theories/Reals/Cauchy/wall2_exblock.v": { "src_sha256": "fef27477d3b67002d379164ab840b5fc12a0c5ad2d2cee0454ee69cc71e8a368", "vo_sha256": "86a63b1ec9aa841953644939cef63493295226bbb4707b6f5dda08411b67052a", "vo_size": 28851 },
-    "theories/Reals/Cauchy/wall2_parity.v": { "src_sha256": "1d3b4cfcda829092a5506f85183a01a2d0897abaab4f080ddf84d327d3116eb9", "vo_sha256": "447f6c6f0a6c9606bee9678884fa50fb7212d6ed8d7de70a9b4d0d2f6f9d8f99", "vo_size": 4237 }
+    "theories/PiLeibniz.v": {
+      "sha256": "e87c97f5a34d87876b4be081c749f538fb4698f0d108d472c6a666d5c0c16790",
+      "bytes": 3197
+    },
+    "theories/Reals/Cauchy/ConstructiveCauchyRealsSep.v": {
+      "sha256": "6c6caf6074cf3b09d45fbe6b12185cd60231dbe2704eee649c127d4192848e0e",
+      "bytes": 10900
+    },
+    "theories/Reals/Cauchy/PiArctanFixedQ.v": {
+      "sha256": "282128dd1f96db6f4cab48da3f76162362376d01d2a00ff456b0a49e85e0ee90",
+      "bytes": 329975
+    },
+    "theories/Reals/Cauchy/PiBandBound.v": {
+      "sha256": "1324b4c46fbdbe9ae75c9cfcc3642fc896875edb4b275e64b811a31b58f8f7fe",
+      "bytes": 70229
+    },
+    "theories/Reals/Cauchy/PiCompareT.v": {
+      "sha256": "3b2630efe72a50c289071ea1bb74fe620ea43d1870ebd0bdde8acdbba6432f7b",
+      "bytes": 10529
+    },
+    "theories/Reals/Cauchy/PiCosApproxRoot.v": {
+      "sha256": "d83eefa906e8599ca7bb4db5c10e3bed3408475fa23269a6d2cd850e844132cb",
+      "bytes": 39375
+    },
+    "theories/Reals/Cauchy/PiCosApproxRootSet.v": {
+      "sha256": "70a69b7accec43cbd484a0f72b2c0ec8c16593a5cad3a0845fca68d0630fd933",
+      "bytes": 26685
+    },
+    "theories/Reals/Cauchy/PiCosBandAssemble.v": {
+      "sha256": "589e5edf1b512bee8d8cb26b05a3df0c4e81defd80b814499dffc46f3d95d2eb",
+      "bytes": 123544
+    },
+    "theories/Reals/Cauchy/PiCosPartialSeqCauchy.v": {
+      "sha256": "38b9d919e644c6dae3be0db31a3657cb7b38685c4bb64ebd96d4595a2861bb7c",
+      "bytes": 6433
+    },
+    "theories/Reals/Cauchy/PiCosTailScan.v": {
+      "sha256": "c82f467e87c76dd09ce7b1b4f982af4de7920834c20ed94478bb60e314af4904",
+      "bytes": 52543
+    },
+    "theories/Reals/Cauchy/PiCosZeroSeqConv.v": {
+      "sha256": "12e5ada366ce3c86445d3d22c469d975fb9357e60e141f63ae8e10601252fb26",
+      "bytes": 24873
+    },
+    "theories/Reals/Cauchy/PiCosZeroSeqProbe.v": {
+      "sha256": "4f868076be8efea59823d5d8233729468c07a180465035109ff190afb8d01be1",
+      "bytes": 1657
+    },
+    "theories/Reals/Cauchy/PiCRealAppartT.v": {
+      "sha256": "b19805534077a674aa3b5ab44de5914c710800af8478e168c2996474520cf881",
+      "bytes": 6161
+    },
+    "theories/Reals/Cauchy/PiExpArch.v": {
+      "sha256": "6dcd0439313d2d2afead75bcdf7cde818a9d6f658f0dd5cc5d377a4252b0af53",
+      "bytes": 30201
+    },
+    "theories/Reals/Cauchy/PiExpTrigSeries.v": {
+      "sha256": "14346cadd16eab875e28b4fc6fc96d79d9a5e304ae55cfd62d4a53e2642f03ce",
+      "bytes": 20080
+    },
+    "theories/Reals/Cauchy/PiHalfwinSeed.v": {
+      "sha256": "fc9c8952ac064d2a338e3cb438493c63048750e9f3d08a5043016bc266557233",
+      "bytes": 45389
+    },
+    "theories/Reals/Cauchy/PiKernelSlack.v": {
+      "sha256": "a83e264f7f0d00d0a8571bcdb395545c3bba88e31e274e5e937dc978b4b95adc",
+      "bytes": 916130
+    },
+    "theories/Reals/Cauchy/PiLeibnizCReal.v": {
+      "sha256": "b3e9a25b27a6df548b88e3fd2811514e5241c97176b0fe788e13153df2e84449",
+      "bytes": 43103
+    },
+    "theories/Reals/Cauchy/PiLeibnizMargin.v": {
+      "sha256": "3d0cdfc10488d1d31f8f35295f66c9c50245007c15d1ea754ebc4cfe44dcd45c",
+      "bytes": 61905
+    },
+    "theories/Reals/Cauchy/PiMu0Cos.v": {
+      "sha256": "3acdaf39c1a580951d1539dca47eea2e7ca6324938ed5d028dd33ab2f06ed993",
+      "bytes": 26461
+    },
+    "theories/Reals/Cauchy/PiPadeQLeg.v": {
+      "sha256": "c1cdf42a28556d38c3953e1c4c4599aa0d52b08f5f46a9a79d93034e6bd19d3c",
+      "bytes": 11797
+    },
+    "theories/Reals/Cauchy/PiPascalMachine.v": {
+      "sha256": "09a1ef19694c71a79a582589a12635b348674ae664cacf921df50ff945e69a48",
+      "bytes": 37985
+    },
+    "theories/Reals/Cauchy/PiPascalResidue.v": {
+      "sha256": "8b3f7b4c9c3bb113e6a5c8491b4b47216e4c00f127fecf2e8dda74139a5fd531",
+      "bytes": 19675
+    },
+    "theories/Reals/Cauchy/PiPascalResidueT.v": {
+      "sha256": "0482d82cae3299d099f696c9ba47272456b1a07bd39c9c250bf647057bb46fb6",
+      "bytes": 32239
+    },
+    "theories/Reals/Cauchy/PiPythBandDonor.v": {
+      "sha256": "92ea77e41b42b42f6eee2c6179515c796a230c6bd0b03cc7f7ca5cb1c8a05546",
+      "bytes": 24445
+    },
+    "theories/Reals/Cauchy/PiRowIdentity.v": {
+      "sha256": "d9f2d650768cc086735d8ea0937b958ab6f577f70b3f88907e9092797120662d",
+      "bytes": 21521
+    },
+    "theories/Reals/Cauchy/PiSeedSupplyShell.v": {
+      "sha256": "7c56b080521375386379870296d1b41a37e1f1fd2b9db08c88d7d9147b86764e",
+      "bytes": 6532
+    },
+    "theories/Reals/Cauchy/PiSep361RefaceT.v": {
+      "sha256": "a2bf46fabd39addd350a0844a1ea9be2b234c34cab0f728dea003c071f4fda26",
+      "bytes": 4681
+    },
+    "theories/Reals/Cauchy/PiSeparation.v": {
+      "sha256": "452d696955c0564632d97020f9ddf5a5b3f097eddfa09f86fb20b9d22ac8bb02",
+      "bytes": 17288
+    },
+    "theories/Reals/Cauchy/PiSepBNeq0T.v": {
+      "sha256": "ba2f02339fd384ff66555d76acd44466cc385a2cd71ba6faed9521bfbf516e1a",
+      "bytes": 5266
+    },
+    "theories/Reals/Cauchy/PiSepMirrorT.v": {
+      "sha256": "2183afa661a692a4c3bb6508ce2b6e0da43e271fe8ff92ac753b67c4fd9261a7",
+      "bytes": 5441
+    },
+    "theories/Reals/Cauchy/PiSepSearch.v": {
+      "sha256": "71e64471b107a48e9b64c68d750f0aa41965e4e4b00a03527e590a56de57a189",
+      "bytes": 10517
+    },
+    "theories/Reals/Cauchy/PiSepTriple227.v": {
+      "sha256": "e586a33e2c08f2f57168fb575a2c09a42626db5cec0bc1a19802213e281050d2",
+      "bytes": 4195
+    },
+    "theories/Reals/Cauchy/PiVertexPolyDiff.v": {
+      "sha256": "4577fcb16cf2462573cc88d98b339b4ef9c867ba215af0cafab17ee0580ce649",
+      "bytes": 64282
+    },
+    "theories/Reals/Cauchy/PiWindowCore.v": {
+      "sha256": "907f75f4ff63c524b598485308328f30155d20646cebf6c1eb73f11418a8005a",
+      "bytes": 85051
+    },
+    "theories/Reals/Cauchy/QCauchyZeroCos.v": {
+      "sha256": "5134a3f7b455b7b416ca62fa4dc009b5dd5beb1af023fdad18d6010ae389f2d8",
+      "bytes": 13408
+    },
+    "theories/Reals/Cauchy/Sqrt2UniformStrongIrrational.v": {
+      "sha256": "41ba39481e538ceea11c7d1bec2b3dbdb7160d904bcdcff4544b224e34f80e0d",
+      "bytes": 65530
+    },
+    "theories/Reals/Cauchy/twin46_b23a.v": {
+      "sha256": "e93b7a735b134f0ad34bcbe5b86086239b18f2f020256a3ee0f854e24cfe075f",
+      "bytes": 2488
+    },
+    "theories/Reals/Cauchy/wall2_apart.v": {
+      "sha256": "0d389bfd9ffbfe8d832062831f9e5decda489ae61a880e49166d7a5551efb086",
+      "bytes": 2738
+    },
+    "theories/Reals/Cauchy/wall2_exblock.v": {
+      "sha256": "fef27477d3b67002d379164ab840b5fc12a0c5ad2d2cee0454ee69cc71e8a368",
+      "bytes": 20891
+    },
+    "theories/Reals/Cauchy/wall2_parity.v": {
+      "sha256": "1d3b4cfcda829092a5506f85183a01a2d0897abaab4f080ddf84d327d3116eb9",
+      "bytes": 3308
+    }
   }
 }
