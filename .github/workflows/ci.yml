@@ -64,6 +64,9 @@ jobs:
       - name: Toolchain version evidence
         if: always()
         run: |
+          # evidence must reflect the toolchain the build actually used
+          # (bare rocq on machine PATH = 9.1 platform; #39 lesson 20261102)
+          export PATH="$PI_ROCQ_BIN:$PATH"
           rocq c --version
           rocqchk --version
 
