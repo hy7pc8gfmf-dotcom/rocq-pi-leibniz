@@ -31,6 +31,11 @@ jobs:
       # Guard passthrough verified: Start-Process cmd /c without
       # -UseNewEnvironment propagates job env through bash->pwsh->cmd->bash.
       PI_ROCQ_BIN: /d/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin
+      # 9.3 trust-cache seed source (wave 20261103): 41 .vo @ magic 90300,
+      # built from the current theories sources (stale=0 vs .v) — the seed
+      # era-guard probe matches (90300==90300) so seeding engages and the
+      # build becomes a skip pass; coqchk still certifies the FULL closure.
+      PI_TRUST_CACHE: /d/ComplexAnalysis/attn/rocq93_work_20261101/pi93_e2e
     defaults:
       run:
         shell: bash
