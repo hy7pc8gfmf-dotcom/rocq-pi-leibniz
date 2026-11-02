@@ -4,7 +4,9 @@
 # theorems.  The package's green criterion, one guard-wrapped invocation.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 9
-export PATH="/c/Rocq-Platform~9.1~2026.01/bin:/c/Program Files/Python313:$PATH"
+# Form-A (Rocq 9.3 wave 20261102): toolchain bin injectable via PI_ROCQ_BIN;
+# default stays the 9.1 platform path (byte-equivalent when unset).
+export PATH="${PI_ROCQ_BIN:-/c/Rocq-Platform~9.1~2026.01/bin}:/c/Program Files/Python313:$PATH"
 command -v rocqchk >/dev/null || { echo NO-ROCQCHK; exit 7; }
 command -v rocq >/dev/null || { echo NO-ROCQ; exit 7; }
 mods=$(find theories/Reals/Cauchy -name '*.vo' | sed -e 's|.*/||' -e 's|\.vo$||' | sort)

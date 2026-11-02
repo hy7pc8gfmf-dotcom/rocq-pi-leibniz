@@ -25,6 +25,12 @@ jobs:
     name: build + coqchk (self-hosted, local trust cache)
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 480
+    env:
+      # Form-A (Rocq 9.3 wave 20261102): inject the opam-root 9.3 toolchain
+      # into the three CI scripts (PI_ROCQ_BIN; default in-script = 9.1).
+      # Guard passthrough verified: Start-Process cmd /c without
+      # -UseNewEnvironment propagates job env through bash->pwsh->cmd->bash.
+      PI_ROCQ_BIN: /d/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin
     defaults:
       run:
         shell: bash
