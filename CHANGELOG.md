@@ -5,7 +5,7 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.5] - 2026-11-09
 
 ### Added
 
@@ -14,12 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   margin 1/(3b²) carried by a `sigT` Set-level witness with four
   witness-value assertions (1,523 lines); extraction audit clean on both
   faces (`Obj.magic` = 0) (`840eb76`).
+- `theories/Reals/Cauchy/PiMu0Cos.v` — the μ₀-cos window-family
+  modulus: pointwise separation-window search for 22/7 and 355/113
+  with a transparent decider (`mu0cos_sep_dec`) and smoke assertions,
+  per-`q` unconditional and zero-axiom (`1706a1d5`).
 
 ### Fixed
 
 - ci.yml: restored the 480-minute job timeout — the thermal-guard alignment
   commit had overwritten the earlier 120 → 480 fix, and the β③ certification
   run died at exactly 120 min 22 s under the regressed wall (`b94b953`).
+
+### Changed
+
+- ci: toolchain base switched to Rocq 9.3.0 — form-A `PI_ROCQ_BIN` with
+  era-gated 9.3 trust-cache seeding (41-vo 90300 seed source) and the
+  attestation re-cast to the 9.3 green tree (`01d42613`, `5ccd22a4`,
+  `01c3293e`).
 
 ## [1.0.4] - 2026-10-26
 

@@ -28,8 +28,8 @@ authors:
     email: "6666666@live.cn"
     orcid: "https://orcid.org/0009-0007-9904-1599"
 
-version: 1.0.4
-date-released: "2026-10-26"
+version: 1.0.5
+date-released: "2026-11-09"
 license: LGPL-2.1
 repository-code: "https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz"
 keywords:
@@ -69,10 +69,12 @@ preferred-citation:
       given-names: Zhinong
     - family-names: Gao
       given-names: Xuefeng
-  version: 1.0.4
-  date-released: "2026-10-26"
+  version: 1.0.5
+  date-released: "2026-11-09"
   doi: "10.5281/zenodo.23656983"
   url: "https://zenodo.org/records/23656983"
-# DOI: this release's version DOI is 10.5281/zenodo.23656983 (minted by the
-# zenodo-GitHub integration for the v1.0.4 release); the historical v1.0.0
-# record is 10.5281/zenodo.23527295 under concept DOI 10.5281/zenodo.23527294.
+# DOI: the v1.0.5 version record is pending mint by the zenodo-GitHub
+# integration at the time of this commit; it will be recorded here (and in
+# preferred-citation above) by a follow-up docs commit. Historical: v1.0.4
+# record 10.5281/zenodo.23656983; v1.0.0 record 10.5281/zenodo.23527295
+# under concept DOI 10.5281/zenodo.23527294.
