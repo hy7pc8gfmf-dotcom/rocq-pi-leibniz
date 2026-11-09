@@ -1,7 +1,7 @@
 # rocq-pi-leibniz
 
 [![CI](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml/badge.svg)](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz/actions/workflows/ci.yml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23656982.svg)](https://zenodo.org/doi/10.5281/zenodo.23656982)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23656982.svg)](https://zenodo.org/doi/10.5281/zenodo.23656982) [![DOI v1.0.5](https://zenodo.org/badge/DOI/10.5281/zenodo.24082084.svg)](https://zenodo.org/doi/10.5281/zenodo.24082084)
 
 Constructive pi for the Rocq constructive Cauchy reals — premise-free
 separation from every rational with extractable witnesses.
@@ -22,7 +22,7 @@ Theorem pi_leibniz_appart_all_Q :
   forall q : Q, CReal_appart pi_leibniz (inject_Q q).
 ```
 
-As of v1.0.4, a statement name that carries a `Set`-carried twin is
+As of v1.0.5, a statement name that carries a `Set`-carried twin is
 suffixed `_prop` (`pi_leibniz_strong_irrational_prop`); the `Prop`-level
 originals carry the suffix and the bare names remain reserved for the
 `Set`-carried statements, so a name without a twin, such as
@@ -133,24 +133,27 @@ path.
   tactic closes the main statements (`lia` appears only in small integer
   and rational literal bookkeeping steps, as in the engine file).
 - **Verified.**  This package has its own CI (a single self-hosted job
-  on the maintainers' machine, Rocq 9.1 line): it seeds the trust cache
-  from the local clone, certifies the whole dependency closure with
-  `rocqchk -o` (all-none assumption summary), and runs an assumption
-  smoke check on the two main theorems plus witness-value assertions on
-  the documented sample points — currently green (badge above).
-  The content modules also compiled green across the CI matrix of the
-  hosting standard-library submission (Alpine build and Rocq 9.2 / 9.3
-  / master Nix bundles; 180/180 checks passed at the submitted head).
+  on the maintainers' machine, Rocq 9.3.0 line since v1.0.5): it seeds
+  the trust cache from the local clone, certifies the whole dependency
+  closure with `rocqchk -o` (all-none assumption summary), and runs an
+  assumption smoke check on the two main theorems plus witness-value
+  assertions on the documented sample points — currently green (badge
+  above; runs #44/#45, head `6a1cad6`).  The content modules also
+  compiled green across the CI matrix of the hosting standard-library
+  submission (Alpine build and Rocq 9.2 / 9.3 / master Nix bundles;
+  180/180 checks passed at the submitted head).
 
 ## Requirements
 
-- [Rocq](https://rocq-prover.org) >= 9.1 with the standard library
+- [Rocq](https://rocq-prover.org) >= 9.3 with the standard library
   (`rocq-stdlib`), which provides `ConstructiveCauchyReals` and the
-  other `Stdlib` modules the development builds on.
+  other `Stdlib` modules the development builds on.  (The v1.0.4
+  compatibility floor was Rocq 9.1; the CI and the v1.0.5 release have
+  been migrated to Rocq 9.3.0.)
 
 ## Build and install
 
-From a Rocq 9.1+ opam switch, in the repository root:
+From a Rocq 9.3+ opam switch, in the repository root:
 
 ```sh
 opam pin add rocq-pi-leibniz . -y
@@ -239,8 +242,18 @@ Three layers, all under `theories/Reals/Cauchy/`:
   witness), and `wall2_parity` (`vt_parityT`, the natural-number
   parity split over the `NatEqT` carrier).
 
-Counting: 38 pi-stack files (about 48,500 lines) plus the 229-line engine
-file they build on = 39 content modules, about 48,800 lines.
+- **v1.0.5 additions (2 files).**
+  `theories/Reals/Cauchy/Sqrt2UniformStrongIrrational.v` (1,523 lines) —
+  Bishop's uniform constructive lower bound `1/(3b²)` for `sqrt(2)`,
+  carried by a `sigT` Set-level witness with four witness-value
+  assertions; extraction audit clean on both faces (`Obj.magic` = 0).
+  `theories/Reals/Cauchy/PiMu0Cos.v` (26,461 B) — the μ₀-cos
+  window-family modulus piece: pointwise separation-window search for
+  `22/7` and `355/113` with a transparent decider (`mu0cos_sep_dec`)
+  and smoke assertions, per-`q` unconditional and zero-axiom.
+
+Counting: 40 pi-stack files (about 50,200 lines) plus the 229-line engine
+file they build on = 41 content modules, about 50,500 lines.
 `theories/PiLeibniz.v` is release scaffolding: a root re-export module
 that states no theorem and defines nothing.
 
